@@ -1,0 +1,1 @@
+/usr/bin/cc -fPIC  -O3  -shared -Wl,-soname,libecelgamal-lib.so -o out/libecelgamal-lib.so CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.o CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.o -lcrypto -lssl 

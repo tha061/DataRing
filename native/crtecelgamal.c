@@ -210,6 +210,73 @@ int crtgamal_add(crtgamal_ciphertext_t res, crtgamal_ciphertext_t ciphertext1, c
     return 0;
 }
 
+//added by Tham
+int crtgamal_multi(crtgamal_ciphertext_t res, crtgamal_ciphertext_t ciphertext1, dig_t plaintext, crtgamal_ciphertext_t temp){
+
+/**
+	//crtgamal_ciphertext_t temp;
+	int num_Splits = ciphertext1->num_ciphertexts;
+	//for (int iter=0; iter < num_Splits; iter++) {
+			//res->ciphertexts[iter]= ciphertext1->ciphertexts[iter];//EC_POINT_new(init_group);
+			temp->ciphertexts = ciphertext1->ciphertexts;//EC_POINT_new(init_group);
+		//}
+	//temp = ciphertext1;
+	//temp = ciphertext1;
+
+	for(int it=0; it < plaintext - 1; it++){
+			crtgamal_add(res, temp, ciphertext1);
+			//temp = res;
+			temp->ciphertexts = res->ciphertexts;
+	}
+*/
+
+	int num_Splits = ciphertext1->num_ciphertexts;
+
+	//for (int iter=0; iter < num_Splits; iter++) {
+		//res->ciphertexts = ciphertext1->ciphertexts;//EC_POINT_new(init_group);
+		//temp->ciphertexts = ciphertext1->ciphertexts;//EC_POINT_new(init_group);
+	//}
+	res = ciphertext1;
+	temp = ciphertext1;
+	if (plaintext == 1) {
+		//for (int iter=0; iter < num_Splits; iter++) {
+					//res->ciphertexts = ciphertext1->ciphertexts;
+		res = ciphertext1;
+		//}
+	} else {
+
+		//for (int iter=0; iter < num_Splits; iter++) {
+				//temp->ciphertexts= ciphertext1->ciphertexts;
+		temp = ciphertext1;
+		//}
+
+		for(int it=0; it < plaintext - 1; it++){
+			crtgamal_add(res,temp,ciphertext1);
+			//temp->ciphertexts= res->ciphertexts;
+			temp = res;
+		}
+	}
+
+
+
+/**
+	for (int it = 0; it < pt-1; it++){
+		BN_CTX *ctx = BN_CTX_new();
+	EC_POINT_add(init_group, res->C1, ciphertext1->C1, ciphertext1->C1, ctx);
+	EC_POINT_add(init_group, res->C2, ciphertext1->C2, ciphertext1->C2, ctx);
+
+	//gamal_add(res, res, temp);
+	//ciphertext1 = res;
+	//printf("DEBUG: %d\n", res);
+	//cout<<"DEBUG res [ "<< it << " ] ="<< res << endl;
+	BN_CTX_free(ctx);
+	}
+*/
+
+	return 0;
+
+}
+
 int crtgamal_ciphertext_new(crtgamal_ciphertext_t ciphertext, int num_partitions) {
     ciphertext->num_ciphertexts = num_partitions;
     ciphertext->ciphertexts = malloc(sizeof(gamal_ciphertext_t) * num_partitions);

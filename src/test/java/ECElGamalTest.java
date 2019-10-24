@@ -69,6 +69,7 @@ public class ECElGamalTest {
 
     @Test
     public void simpleAdd() {
+	System.out.println(String.format("simpleADD key32\n"));
         ECElGamal.ECElGamalCiphertext cipher1,cipher2;
         int val1 = 2, val2 = -3;
         cipher1 = ECElGamal.encrypt(BigInteger.valueOf(val1), key32);
@@ -80,10 +81,14 @@ public class ECElGamalTest {
 
     @Test
     public void randTestInt() {
+	System.out.println(String.format("randTest_Int integer key32\n"));
         int val1, val2;
-        for (int i=0; i<100; i++) {
+        for (int i=0; i<3; i++) {
             val1 = rand.nextInt()/2;
             val2 = rand.nextInt()/2;
+            
+            System.out.println("val1 = " + val1);
+            System.out.println("val2 = " + val2);
 
             ECElGamal.ECElGamalCiphertext cipher1, cipher2;
 
@@ -93,13 +98,40 @@ public class ECElGamalTest {
             int decriptedVal = ECElGamal.decrypt32(cipher1, key32);
             assertEquals(val1 + val2, decriptedVal);
             System.out.println("ok " + i);
+            System.out.println("res_add = " + decriptedVal);
         }
     }
 
+	@Test
+    public void randTestInt_Mult() {
+	System.out.println(String.format("randTest_Int Mult integer key32\n"));
+        int val1, val2;
+        //BigInteger val2;
+        for (int i=0; i<3; i++) {
+            val1 = rand.nextInt()/2;
+            val2 = 2; //rand.nextInt()/2;
+            
+            System.out.println("val1 = " + val1);
+            System.out.println("val2 = " + val2);
+
+            ECElGamal.ECElGamalCiphertext cipher1;
+
+            cipher1 = ECElGamal.encrypt(BigInteger.valueOf(val1), key32);
+            //cipher2 = ECElGamal.encrypt(BigInteger.valueOf(val2), key32);
+            cipher1 = ECElGamal.mult(cipher1, val2);
+            int decriptedVal = ECElGamal.decrypt32(cipher1, key32);
+            //assertEquals(val1 * val2, decriptedVal);
+            //System.out.println("ok " + i);
+            System.out.println("res_mult = " + decriptedVal);
+        }
+    }
+    
+    
     @Test
     public void randTestLong() {
+	System.out.println(String.format("randTest_Long integer key64\n"));
         long val1, val2;
-        for (int i=0; i<100; i++) {
+        for (int i=0; i<10; i++) {
             val1 = rand.nextLong()/2;
             val2 = rand.nextLong()/2;
 
@@ -122,9 +154,10 @@ public class ECElGamalTest {
 
     @Test
     public void measureTime() {
+	System.out.println(String.format("measureTime\n"));
         long val1, val2, timeadd;
         int add = 10;
-        for (int i=0; i<100; i++) {
+        for (int i=0; i<10; i++) {
             val1 = rand.nextLong()/10000;
             val2 = rand.nextLong()/10000;
 
@@ -152,6 +185,7 @@ public class ECElGamalTest {
 
     @Test
     public void encodeDecode() {
+	System.out.println(String.format("encodeDecode\n"));
         int val = 10;
         ECElGamal.ECElGamalCiphertext cipher = ECElGamal.encrypt(BigInteger.valueOf(val), key32);
         byte[] encode = cipher.encode();
@@ -162,6 +196,7 @@ public class ECElGamalTest {
 
     @Test
     public void paramsPrint() {
+	System.out.println(String.format("parasPrint\n"));
         ECElGamal.CRTParams params = ECElGamal.generateCRTParams(new SecureRandom(), 13, 5);
         System.out.println(params.getStringRep());
     }

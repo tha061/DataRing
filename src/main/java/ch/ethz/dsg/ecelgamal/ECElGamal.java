@@ -220,7 +220,27 @@ public class ECElGamal {
         }
         return new ECElGamalCiphertext(result);
     }
-
+ 
+ /** Tham added
+     * Multiply EC-El-Gamal ciphertexts and a plaintext outputs the resulting ciphertext.
+     * @param c1 first ciphertext
+     * @param pt plaintext
+     * @return the resulting ciphertext of the addition
+     */
+    public static ECElGamalCiphertext mult(ECElGamalCiphertext c1, int c2) {
+        byte[][] result = new byte[c1.getNumPartitions()][];
+        //byte[][] temp = new byte[c1.getNumPartitions()][];
+       // ECElGamalCiphertext temp;
+        for(int i = 0; i < c2 -1; i++){
+        	for(int iter=0; iter<result.length; iter++) {
+            	result[iter] = homAdd(c1.ciphertexts[iter], c1.ciphertexts[iter]);
+            	//temp[iter] = homAdd(result.ciphertexts[iter], c1.ciphertexts[iter]);
+            	//result[iter] = homAdd(result[iter], temp[iter]);
+        	}
+        }
+        return new ECElGamalCiphertext(result);
+    }
+ 
 
     //native functions
     private static native int initEcElGamal(int group_id);

@@ -41,6 +41,9 @@
 #include <inttypes.h>
 #include "uthash.h"
 
+/** Tham extracted from ecparam.c file
+ * workaround for the SECG curve names secp192r1 and secp256r1 (which are the same as the curves prime192v1 and prime256v1 defined in X9.62
+ */
 #define DEFAULT_CURVE NID_X9_62_prime192v1
 #define CURVE_256_SEC NID_X9_62_prime256v1
 
@@ -136,6 +139,28 @@ int gamal_cipher_new(gamal_ciphertext_t cipher);
 int gamal_generate_keys(gamal_key_t keys);
 
 /**
+ * Added by Tham
+ * Generates an collective EC-ElGamal key pair from number of parties
+ * @param coll_keys: the collective keypair
+ * @return
+ */
+//int gamal_collective_key_gen(gamal_key_t coll_keys);
+int gamal_collective_key_gen(gamal_key_t coll_keys, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3);
+
+//gamal_key_t gamal_collective_key_gen(int party);
+
+/**
+ * Added by Tham
+ * Re-encrypt a ciphertext under a collective public key of a group of servers to a ciphertext under a new public key
+ * This function is used by a participant
+ * @param keys1
+ * @param
+ * @param
+ * @return
+ */
+int gamal_key_switching(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_key_t keysNew);
+
+/**
  * Encrypts an Integer with additadive homomorphic EC-ElGamal
  * @param ciphertext
  * @param key
@@ -152,7 +177,19 @@ int gamal_encrypt(gamal_ciphertext_t ciphertext, gamal_key_t key, dig_t plaintex
  * @param table if NULL bruteforce is used
  * @return
  */
+
 int gamal_decrypt(dig_t *res, gamal_key_t key, gamal_ciphertext_t ciphertext, bsgs_table_t table);
+
+/**
+ * Added by Tham
+ * Collective decrypts an EC-ElGamal ciphertext by all parties
+ * @param
+ * @param
+ * @param
+ *
+ */
+
+int gamal_coll_decrypt(dig_t *res, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_ciphertext_t ciphertext, bsgs_table_t table);
 
 /**
  * Adds two EC-Elgamal ciphertext and stores it in res.
@@ -162,5 +199,27 @@ int gamal_decrypt(dig_t *res, gamal_key_t key, gamal_ciphertext_t ciphertext, bs
  * @return
  */
 int gamal_add(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciphertext_t ciphertext2);
+
+/**
+ * Multiply EC-Elgamal ciphertext and a plaintext and stores it in res.
+ * @param res the resulting ciphertext
+ * @param ciphertext
+ * @param plaintext
+ * @return
+ */
+
+int gamal_mult(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, dig_t pt);
+
+/**
+ * Added by Tham for optimize the mult(cipher, plain)
+ *
+ *
+ */
+
+int gamal_mult_opt(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext, dig_t pt);
+
+int* convert_to_bin(int binary_arr[64], dig_t number, int bit_num);
+int* convert_to_NAF(int naf_arr[64], dig_t number, int bit_num[2]);
+int mods_func(int number);
 
 #endif //ECELGAMAL_ECELGAMAL_H

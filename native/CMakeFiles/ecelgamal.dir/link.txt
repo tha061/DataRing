@@ -1,0 +1,1 @@
+/usr/bin/c++   -O3 -std=c++11   CMakeFiles/ecelgamal.dir/testing.cpp.o CMakeFiles/ecelgamal.dir/ecelgamal.c.o CMakeFiles/ecelgamal.dir/crtecelgamal.c.o  -o out/ecelgamal -lcrypto -lssl 

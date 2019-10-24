@@ -120,6 +120,14 @@ int crtgamal_decrypt(dig_t *res, crtgamal_key_t key, crtgamal_ciphertext_t ciphe
 int crtgamal_add(crtgamal_ciphertext_t res, crtgamal_ciphertext_t ciphertext1, crtgamal_ciphertext_t ciphertext2);
 
 /**
+ * Multi a ciphertext and a plaintext
+ * @param res the resulting ciphertext
+ * @param ciphertext
+ * @param plaintext
+ * @return
+ */
+int crtgamal_multi(crtgamal_ciphertext_t res, crtgamal_ciphertext_t ciphertext1, dig_t plaintext, crtgamal_ciphertext_t temp);
+/**
  * Initializes the library with the given elliptic curve
  * @param curve_id (ex. DEFAULT_CURVE, CURVE_256_SEC)
  * @return

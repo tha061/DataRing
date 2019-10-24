@@ -33,6 +33,9 @@
  */
 
 #include "ecelgamal.h"
+#include <stdio.h>
+#include <math.h>
+
 
 #define KEY_UNCOMPRESSED 0
 #define KEY_COMPRESSED 1
@@ -84,6 +87,91 @@ int add_value_to_table(bsgs_table_t table, EC_POINT *point, uint32_t value) {
     BN_CTX_free(ctx);
     return 0;
 }
+
+// Added by Tham to convert an integer to its binary representation
+int* convert_to_bin(int binary_arr[64], dig_t number, int bit_num){
+    //dig_t binary = 0, counter = 0;
+    //double x;
+    //int bit_num;
+    //bit_num = 32;
+    //number = 100;
+   // x = log2(number);
+    //printf("%f\n", x);
+   // bit_num = ceil(x);
+    //printf("%d\n", bit_num);
+
+   //int binary_arr[bit_num];
+    //binary_arr[64]={0};
+    int remainder, counter = 0;
+    //int binary_arr[32];
+
+    while(number > 0){
+        remainder = number % 2;
+        number /= 2;
+        //binary += pow(10, counter) * remainder;
+        binary_arr[counter] = remainder;
+        counter++;
+    }
+
+    //for(int it=counter; it<= bit_num - 1; it++){
+    //	binary_arr[it] = 0;
+   // }
+
+    //binary_arr[counter] = 1;
+//#if 0
+   // for(int it=0; it<=bit_num - 1; it++){
+    	//binary_arr_correct[it] = binary_arr[bit_num - 1 - it];
+    	//printf("%d", binary_arr[it]);
+   // }
+   // printf("\n");
+//#endif    //return 0;
+
+    return binary_arr;
+}
+
+/**Added by Tham, function to decode an integer to the form of non-adjacent form,
+ * to reduce the number of point addition in scalar multiplication
+ * paras
+ */
+int* convert_to_NAF(int naf_arr[64], dig_t number, int bit_num[2]){
+
+	int i;
+	while (number > 0){
+		if ((number % 2) == 1) {
+			naf_arr[i] = mods_func(number);//number mods 2^2
+			number = number - naf_arr[i];
+		}
+		else naf_arr[i] = 0;
+		number = number / 2;
+		i++;
+	}
+	bit_num[0] = i-1;
+	//int res_naf_arr[i];
+	//for(int it=0; it<=i; it++){
+	  //  	res_naf_arr[i] = naf_arr[i];
+	  //  }
+
+    //for(int it=bit_num[0]; it>=0; it--){
+    	//binary_arr_correct[it] = binary_arr[bit_num - 1 - it];
+     // printf("%d", naf_arr[it]);
+   // }
+    //  printf("\n");
+
+    //return naf_arr;
+	return bit_num;
+
+}
+
+/**
+ * added by Tham, compute the "mods" function
+ */
+int mods_func(int number){
+	if ((number % 4) >= 2)
+		return (number % 4) - 4; //(number mode 2^2) - 2^2
+	else
+		return (number % 4);
+}
+
 
 int bsgs_table_init(EC_GROUP *curve_group, bsgs_table_t table, dig_t t_size) {
     dig_t count = 0;
@@ -283,6 +371,47 @@ int gamal_generate_keys(gamal_key_t keys) {
     BN_CTX_free(ctx);
     return 0;
 }
+//added by Tham
+int gamal_collective_key_gen(gamal_key_t coll_keys, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3) {
+//gamal_key_t gamal_collective_key_gen(int party) {
+	//party = 2;
+	//gamal_key_t coll_keys;
+	//gamal_key_t key1, key2, key3;//, key3;
+
+	gamal_init(CURVE_256_SEC);
+	//gamal_generate_keys(key1);
+	//gamal_generate_keys(key2);
+	//gamal_generate_keys(key3);
+
+
+	BN_CTX *ctx = BN_CTX_new();
+	BIGNUM *ord, *coll_key;
+
+	ord = BN_new();
+	//coll_key = BN_new(); //coll secret key
+	coll_keys->Y = EC_POINT_new(init_group);
+	EC_GROUP_get_order(init_group, ord, ctx);
+
+	coll_keys->is_public = 0;
+
+	//EC_POINT_add(const EC_GROUP *group, EC_POINT *r, const EC_POINT *a, const EC_POINT *b, BN_CTX *ctx); //in ec.h
+
+	EC_POINT_add(init_group, coll_keys->Y, keys2->Y, keys1->Y, ctx);
+	EC_POINT_add(init_group, coll_keys->Y, coll_keys->Y, keys3->Y, ctx);
+
+
+	//int BN_add(BIGNUM *r, const BIGNUM *a, const BIGNUM *b); //in bn.h
+
+	//BN_add(coll_key, keys1->secret, keys2->secret);
+	//coll_keys->secret = coll_key;
+	//BN_add(coll_key, coll_keys->secret, key3->secret);
+	//coll_keys->secret = coll_key;
+
+	//BN_free(ord);
+	BN_CTX_free(ctx);
+	return 0;
+}
+
 
 int gamal_encrypt(gamal_ciphertext_t ciphertext, gamal_key_t key, dig_t plaintext) {
     BIGNUM *bn_plain, *ord, *rand;
@@ -308,16 +437,101 @@ int gamal_encrypt(gamal_ciphertext_t ciphertext, gamal_key_t key, dig_t plaintex
     return 0;
 }
 
+//added by Tham
+int gamal_key_switching(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_key_t keysNew){
+	// (C1, C2) = (r*B, x + r*(K1 + K2)) => (C1, C2) = (v*B, x + v*Knew)
+	//K1 = k_1*B; K2 = k_2*B
+	//Knew = k_new*B
+	//printf("key switch Test begin\n");
+	BIGNUM  *ord, *rand1, *rand2, *rand3;
+	BN_CTX *ctx = BN_CTX_new();
+	//gamal_ciphertext_t temp;
+	EC_POINT *M1, *M2, *M3, *temp1, *temp2, * temp3;// *temp;
+	gamal_ciphertext_t temp;
+
+	//bn_plain = BN_new();
+	ord = BN_new();
+	rand1 = BN_new();
+	rand2 = BN_new();
+	rand3 = BN_new();
+	new_cipher->C1 = EC_POINT_new(init_group);//nothing
+	new_cipher->C2 = EC_POINT_new(init_group);
+	temp->C1 = EC_POINT_new(init_group);
+
+	//server 1 modifies the tuple:
+	//printf("key switch Test OK\n");
+	temp->C1 = multiply_generator(rand1, init_group);
+	EC_POINT_add(init_group,new_cipher->C1, new_cipher->C1,temp->C1, ctx);//v_1*B
+	//printf("key switch Test OK1\n");
+	M1 = multiply_constant(cipher->C1, keys1->secret, init_group); //rB*k_1
+	//printf("key switch Test OK2\n");
+	EC_POINT_invert(init_group, M1, ctx);// -rB*k_1
+	//printf("key switch Test OK3\n");
+	EC_POINT_add(init_group, new_cipher->C2, cipher->C2, M1, ctx); //C2 - rB*k_1
+	//printf("key switch Test OK4\n");
+	temp1 = multiply_constant(keysNew->Y, rand1, init_group); //v_1 * Knew
+	//printf("key switch Test OK5\n");
+	EC_POINT_add(init_group,new_cipher->C2, new_cipher->C2, temp1,ctx); //c2 - rB*k_1 + v_1 * K_new
+	//printf("key switch Test OK6\n");
+
+	//server 2 modifies the tuple:
+	temp->C1 = multiply_generator(rand2, init_group);
+	EC_POINT_add(init_group,new_cipher->C1, new_cipher->C1, temp->C1, ctx);//v_1*B + v_2*B
+	//printf("key switch Test OK7\n");
+	M2 = multiply_constant(cipher->C1, keys2->secret, init_group); //rB*k_2
+	//printf("key switch Test OK8\n");
+	EC_POINT_invert(init_group, M2, ctx);// -rB*k_2
+	//printf("key switch Test OK9\n");
+	EC_POINT_add(init_group,new_cipher->C2, new_cipher->C2, M2, ctx); //C2 - rB*k_1 + v_1*B - rB*k_2
+	//printf("key switch Test OK10\n");
+	temp2 = multiply_constant(keysNew->Y, rand2, init_group); //v_2 * Knew
+	EC_POINT_add(init_group,new_cipher->C2, new_cipher->C2, temp2, ctx); //C2 - rB*k_1 + v_1*Knew - rB*k_2 + v_2*Knew = x + (v_1 + v_2)*Knew
+	//printf("key switch Test OK11\n");
+
+	//#if 0 // server 3 modifies the tuple
+	temp->C1 = multiply_generator(rand3, init_group);
+	EC_POINT_add(init_group,new_cipher->C1, new_cipher->C1, temp->C1, ctx);//v_1*B + v_2*B + v_3*B
+	//printf("key switch Test OK7\n");
+	M3 = multiply_constant(cipher->C1, keys3->secret, init_group); //rB*k_3
+	//printf("key switch Test OK8\n");
+	EC_POINT_invert(init_group, M3, ctx);// -rB*k_3
+	//printf("key switch Test OK9\n");
+	EC_POINT_add(init_group,new_cipher->C2, new_cipher->C2, M3, ctx); //C2 - rB*k_1 + v_1*B - rB*k_2 + v_2*Knew - rB*k_3
+	//printf("key switch Test OK10\n");
+	temp3 = multiply_constant(keysNew->Y, rand3, init_group); //v_3 * Knew
+	EC_POINT_add(init_group,new_cipher->C2, new_cipher->C2, temp3, ctx); //C2 - rB*k_1 + v_1*Knew - rB*k_2 + v_2*Knew - rB*k_3 + v3*Knew
+	//printf("key switch Test OK11\n");
+	//#endif
+	BN_clear_free(rand1);
+	BN_clear_free(rand2);
+	BN_clear_free(rand3);
+	BN_free(ord);
+	BN_CTX_free(ctx);
+	EC_POINT_clear_free(M1);
+	EC_POINT_clear_free(M2);
+	EC_POINT_clear_free(M3);
+	EC_POINT_clear_free(temp1);
+	EC_POINT_clear_free(temp2);
+	EC_POINT_clear_free(temp3);
+	//printf("key switch Test OK12\n");
+
+	return 0;
+}
+
 // if table == NULL use bruteforce
 int gamal_decrypt(dig_t *res, gamal_key_t key, gamal_ciphertext_t ciphertext, bsgs_table_t table) {
-    EC_POINT *M;
+
+	EC_POINT *M;
     uint64_t plaintext;
     BN_CTX *ctx = BN_CTX_new();
 
 
     M = multiply_constant(ciphertext->C1, key->secret, init_group);
+
     EC_POINT_invert(init_group, M, ctx);
+
     EC_POINT_add(init_group, M, ciphertext->C2, M, ctx);
+
 
     if (table != NULL) {
         solve_ecdlp_bsgs(table, &plaintext, M, 1L << MAX_BITS);
@@ -326,19 +540,254 @@ int gamal_decrypt(dig_t *res, gamal_key_t key, gamal_ciphertext_t ciphertext, bs
     }
     *res = (dig_t) plaintext;
 
+
     BN_CTX_free(ctx);
     EC_POINT_clear_free(M);
     return 0;
 }
 
+//added by Tham
+int gamal_coll_decrypt(dig_t *res, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_ciphertext_t ciphertext, bsgs_table_t table){
+		EC_POINT *M1, *M2, *M3;
+	    uint64_t plaintext;
+	    BN_CTX *ctx = BN_CTX_new();
+
+
+	    M1 = multiply_constant(ciphertext->C1, keys1->secret, init_group); //rB*sk1
+	    M2 = multiply_constant(ciphertext->C1, keys2->secret, init_group); //rB*sk2
+	    M3 = multiply_constant(ciphertext->C1, keys3->secret, init_group); //rB*sk3
+	    //EC_POINT_add(init_group, M2, ciphertext->C1, M1, ctx); //rB*k1 + rB*k2 = r(K1 + K2)
+	    EC_POINT_add(init_group, M2, M2, M1, ctx); //rB*k1 + rB*k2 = r(K1 + K2)
+	    EC_POINT_add(init_group, M3, M3, M2, ctx); //rB*k1 + rB*k2 + rB*k3= r(K1 + K2 + K3)
+	    EC_POINT_invert(init_group, M3, ctx); // -r(K1 + K2 + K3) = -rK
+	    EC_POINT_add(init_group, M3, ciphertext->C2, M3, ctx); // m + rK - r(K1+K2+K3) = m +rK - rK = m
+
+	    if (table != NULL) {
+	        solve_ecdlp_bsgs(table, &plaintext, M3, 1L << MAX_BITS);
+	    } else {
+	        solve_dlog_brute(init_group, M3, &plaintext, 1L << MAX_BITS);
+	    }
+	    *res = (dig_t) plaintext;
+
+	    BN_CTX_free(ctx);
+	    EC_POINT_clear_free(M1);
+	    EC_POINT_clear_free(M2);
+	    EC_POINT_clear_free(M3);
+	    return 0;
+}
 
 int gamal_add(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciphertext_t ciphertext2) {
+
+
+	/*
+		int EC_POINT_add(const EC_GROUP *group, EC_POINT *r, const EC_POINT *a,
+		                 const EC_POINT *b, BN_CTX *ctx)
+		*/
+	res->C1 = EC_POINT_new(init_group);
+	res->C2 = EC_POINT_new(init_group);
+
     BN_CTX *ctx = BN_CTX_new();
     EC_POINT_add(init_group, res->C1, ciphertext1->C1, ciphertext2->C1, ctx);
     EC_POINT_add(init_group, res->C2, ciphertext1->C2, ciphertext2->C2, ctx);
     BN_CTX_free(ctx);
     return 0;
 }
+
+//int gamal_mult(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, int pt);
+//added by Tham
+int gamal_mult(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, dig_t pt) {
+
+	gamal_ciphertext_t temp;
+/**
+	res->C1 = EC_POINT_new(init_group);
+	res->C2 = EC_POINT_new(init_group);
+	temp->C1 = EC_POINT_new(init_group);
+	temp->C2 = EC_POINT_new(init_group);
+	if (pt == 1) {
+		//res = ciphertext1;
+				res->C1 = ciphertext1->C1;
+				res->C2 = ciphertext1->C2;
+	} else if (pt == 2){
+		BN_CTX *ctx = BN_CTX_new();
+		EC_POINT_dbl(init_group, res->C1, ciphertext1->C1, ctx);
+		EC_POINT_dbl(init_group, res->C2, ciphertext1->C2, ctx);
+		BN_CTX_free(ctx);
+
+	} else {
+
+		temp->C1 = ciphertext1->C1;
+		temp->C2 = ciphertext1->C2;
+		for(int it=0; it<pt-1; it++){
+				gamal_add(res,temp,ciphertext1);
+				temp->C1 = res->C1;
+				temp->C2 = res->C2;
+			}
+	}
+*/
+
+	    res->C1 = EC_POINT_new(init_group);
+		res->C2 = EC_POINT_new(init_group);
+		temp->C1 = EC_POINT_new(init_group);
+		temp->C2 = EC_POINT_new(init_group);
+
+		if (pt == 1) {
+			//res = ciphertext1;
+					res->C1 = ciphertext1->C1;
+					res->C2 = ciphertext1->C2;
+		} else {
+
+			temp->C1 = ciphertext1->C1;
+			temp->C2 = ciphertext1->C2;
+			for(int it=0; it<pt-1; it++){
+					gamal_add(res,temp,ciphertext1);
+					temp->C1 = res->C1;
+					temp->C2 = res->C2;
+				}
+		}
+
+
+
+    return 0;
+
+}
+
+//Added by Tham
+int gamal_mult_opt(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext, dig_t pt) {
+
+	//printf("Test begin\n");
+	gamal_ciphertext_t temp, temp1;
+	BN_CTX *ctx = BN_CTX_new();
+	EC_POINT *M1, *M2;
+	double x = log2(pt);
+	int num_bit = floor(x) + 1;
+	int bit_num[2];
+	int naf_binary_arr[64];
+	//int counter1 = 0, counter2 = 0;
+
+	res->C1 = EC_POINT_new(init_group);
+	res->C2 = EC_POINT_new(init_group);
+
+
+
+///** n-1 doublings and m - 1 additions: double-and-add binary-correct
+	if (pt == 0) {
+			res->C1 = 0;
+			res->C2 = 0;
+
+		} else if (pt == 1){
+			res->C1 = ciphertext->C1;
+			res->C2 = ciphertext->C2;
+		}
+		else {
+			int binary_arr[num_bit];
+
+				convert_to_bin(binary_arr, pt, num_bit);//binary_arr = 100010000....
+				//for (int it = num_bit-1; it>=0; it--){
+						//printf("%d", binary_arr[it]);
+					//}
+					//printf("\n");
+
+				temp->C1 = ciphertext->C1;
+				temp->C2 = ciphertext->C2;
+
+
+				for(int it= num_bit - 2; it >= 0; it--){
+
+					EC_POINT_dbl(init_group, res->C1, temp->C1, ctx);
+					EC_POINT_dbl(init_group, res->C2, temp->C2, ctx);
+
+
+					if (binary_arr[it]==1) {
+						//counter1++;
+						EC_POINT_add(init_group, res->C1, res->C1, ciphertext->C1, ctx);
+						EC_POINT_add(init_group, res->C2, res->C2, ciphertext->C2, ctx);
+					}
+					temp->C1 = res->C1;
+					temp->C2 = res->C2;
+
+				}
+		}
+//*/
+
+/** non-adjacent form to reduce number of additions
+
+	if (pt == 0) {
+				res->C1 = 0;
+				res->C2 = 0;
+
+	} else if (pt == 1){
+				res->C1 = ciphertext->C1;
+				res->C2 = ciphertext->C2;
+			} else {
+				//printf("Test begin\n");
+
+					convert_to_NAF(naf_binary_arr, pt, bit_num); //naf_binary_arr = 100010000-1000-1-1011....
+					//printf("Test OK\n");
+
+					//for (int it = bit_num[0]; it>=0; it--){
+						//printf("%d", naf_binary_arr[it]);
+					//}
+					//printf("\n");
+
+					//temp->C1 = EC_POINT_new(init_group);;
+					//temp->C2 = EC_POINT_new(init_group);;
+
+					temp->C1 = ciphertext->C1;
+					temp->C2 = ciphertext->C2;
+					//res->C1 = ciphertext->C1;
+					//res->C2 = ciphertext->C2;
+					//EC_POINT_invert(init_group, ciphertext->C2, ctx);
+					//M1 = ciphertext->C1;
+					//M2 = ciphertext->C2;
+
+					M1 = ciphertext->C1;
+					M2 = ciphertext->C2;
+					//EC_POINT_invert(init_group, ciphertext->C1, ctx); // -P
+					//EC_POINT_invert(init_group, ciphertext->C2, ctx); // -P
+
+
+					for(int it= bit_num[0]-1; it >= 0; it--){
+
+
+						EC_POINT_dbl(init_group, res->C1, temp->C1, ctx);
+						EC_POINT_dbl(init_group, res->C2, temp->C2, ctx);
+						//printf("Test OK 0\n");
+
+
+						if (naf_binary_arr[it]== 1) {
+							//counter1++;
+							EC_POINT_add(init_group, res->C1, res->C1, ciphertext->C1, ctx);
+							EC_POINT_add(init_group, res->C2, res->C2, ciphertext->C2, ctx);
+							//printf("Test OK 1\n");
+						}
+						 else if (naf_binary_arr[it]== -1) {
+							EC_POINT_invert(init_group, M1, ctx); // -P
+							EC_POINT_invert(init_group, M2, ctx); // -P
+
+							EC_POINT_add(init_group, res->C1, res->C1, M1, ctx);
+							EC_POINT_add(init_group, res->C2, res->C2, M2, ctx);
+
+							EC_POINT_invert(init_group, M1, ctx); // P
+							EC_POINT_invert(init_group, M2, ctx); // P
+							//printf("Test OK -1\n");
+						}
+
+						temp->C1 = res->C1;
+						temp->C2 = res->C2;
+
+					}
+			}
+*/
+
+	BN_CTX_free(ctx);
+	EC_POINT_clear_free(M1);
+	EC_POINT_clear_free(M2);
+
+	//printf("Test mult end\n");
+    return 0;
+
+}
+
 
 EC_GROUP *gamal_get_current_group() {
     return init_group;
