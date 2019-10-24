@@ -1,5 +1,5 @@
 #NOTE: 
-For dataring, we only work with the native folder currently. The files for implementing new features to ec-elgamal are ecelgamal.h, ecelgamal.c and testing.cpp!!!
+For dataring, we only work with the native folder currently. The files for implementing and testing new features of our cryptosystem in dataring are ecelgamal.h, ecelgamal.c and testing.cpp!!!
 
 # EC-ElGamal
 
