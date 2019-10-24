@@ -1133,7 +1133,7 @@ int main() {
    // std::cout << "Plain EC-ElGamal 32-bit integers" << std::endl;
    // bench_elgamal_mult(10, 16, 1000000);
     //std::cout<<"Test mult opt: "<<std::endl;
-    test_mult_opt(10000000,1000000);
+    test_mult_opt(100,1000);
 
    //std::cout<<"Test query computation: "<<std::endl;
    // test_COUNT_query_computation(1000000);
