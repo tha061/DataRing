@@ -1,3 +1,6 @@
+#NOTE: 
+For dataring, we only work with the native folder currently. The files for implementing new features to ec-elgamal are ecelgamal.h, ecelgamal.c and testing.cpp!!!
+
 # EC-ElGamal
 
 This repository contains a C implementation of the additive homomorphic elliptic curve based EL-Gamal cryptographic scheme and a corresponding Java JNI wrapper. The elliptic curve operations of OpenSSL are used for the implementation.
