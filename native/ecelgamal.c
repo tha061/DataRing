@@ -172,6 +172,132 @@ int mods_func(int number){
 		return (number % 4);
 }
 
+/**
+ * Added by Tham to generate random PIR vector in clear
+ * Utility function to find ceiling of r in arr[l..h]
+ */
+int findCeil(int arr[], int r, int l, int h)
+{
+    int mid;
+    while (l < h)
+    {
+         mid = l + ((h - l) >> 1);  // Same as mid = (l+h)/2
+        (r > arr[mid]) ? (l = mid + 1) : (h = mid);
+    }
+    return (arr[l] >= r) ? l : -1;
+}
+
+/**
+ * Added by Tham to generate random PIR vector in clear
+ * The main function that returns a random number from arr[] according to
+ * distribution array defined by freq[]. n is size of arrays.
+ */
+
+int myRand(int arr[], int freq[], int n)
+{
+    // Create and fill prefix array
+    int prefix[n], i;
+    prefix[0] = freq[0];
+    for (i = 1; i < n; ++i)
+        prefix[i] = prefix[i - 1] + freq[i];
+
+    // prefix[n-1] is sum of all frequencies. Generate a random number
+    // with value from 1 to this sum
+    int r = (rand() % prefix[n - 1]) + 1;
+
+    // Find index of ceiling of r in prefix arrat
+    int indexc = findCeil(prefix, r, 0, n - 1);
+    return arr[indexc];
+}
+
+int* hist_gen(int histogr[], int arr[], int freq[], int datasize, int scale_up)
+{
+	//int arr[]  = {1, 0};
+	//int freq1[] = {1, 99};
+	//int freq2[] = {1, scale_up};
+	//histogr[datasize*scale_up] = {0};
+	int n = sizeof(arr) / sizeof(arr[0]);
+	int count_bin1 = 0;
+	int index;
+	  for (index = 0; index < datasize*scale_up; index++){
+		   histogr[index] = myRand(arr, freq, 2);
+		  // printf("%d\n", myrand_arr[i]);
+		   if (histogr[index] == 1) count_bin1 ++;
+		   if (count_bin1 >= datasize)
+			   {
+				 // printf("break when i = %d\n", index --);
+				   break;
+			   }
+		   //i++;
+	   }
+	  // printf("i= %d\n", i);
+
+	  int i;
+	  if (count_bin1 < datasize){
+		   for(i=datasize*scale_up -1; i>=0; i--){
+			   histogr[i] = 1;
+			   count_bin1++;
+			   i--;
+			   i--;
+			   if (count_bin1 >= datasize)
+				   {
+					 // printf("second break when i = %d\n", i--);
+					   break;
+				   }
+		   }
+	   }
+	  // printf("%d\n",histogr[i]);
+	   printf("number of bins '1' = %d\n", count_bin1);
+
+//	  for (index = 0; index < datasize*scale_up; index++){
+		 // printf("%d", histogr[index]);
+	 // }
+	  //printf("\n");
+}
+
+int* pir_gen(int myPIR_arr[], int arr[], int freq[], int datasize, int pv_ratio)
+{
+	int pv_size = (int)datasize/pv_ratio; //1% of dataset
+	//printf("pv size = %d\n", pv_size);
+	//int arr[]  = {1, 0};
+	//int freq1[] = {1, 99};
+	//int freq2[] = {1, scale_up};
+	int n = sizeof(arr) / sizeof(arr[0]);
+	//int myPIR_arr[datasize];
+
+	int count_1 = 0;
+	int i;
+
+	   for (i = 0; i < datasize; i++){
+		   myPIR_arr[i] = myRand(arr, freq, n);
+		  // printf("%d\n", myrand_arr[i]);
+		   if (myPIR_arr[i] == 1) count_1 ++;
+		   if (count_1 >= pv_size)
+			   {
+				  //printf("break when i = %d\n", i--);
+				   break;
+			   }
+		   //i++;
+	   }
+	  // printf("i= %d\n", i);
+
+	   if (count_1 < pv_size){
+		   for(int i=datasize-1; i>=0; i--){
+			   myPIR_arr[i] = 1;
+			   count_1++;
+			   i--;
+			   i--;
+			   if (count_1 >= pv_size)
+				   {
+					   //printf("second break when i = %d\n", i--);
+					   break;
+				   }
+		   }
+	   }
+
+	   printf("number of '1' for PV collect = %d\n", count_1);
+}
+
 
 int bsgs_table_init(EC_GROUP *curve_group, bsgs_table_t table, dig_t t_size) {
     dig_t count = 0;
@@ -371,7 +497,7 @@ int gamal_generate_keys(gamal_key_t keys) {
     BN_CTX_free(ctx);
     return 0;
 }
-//added by Tham
+//added by Tham for generate collective key => need to improve so that only public keys are the input of the function
 int gamal_collective_key_gen(gamal_key_t coll_keys, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3) {
 //gamal_key_t gamal_collective_key_gen(int party) {
 	//party = 2;
@@ -396,8 +522,8 @@ int gamal_collective_key_gen(gamal_key_t coll_keys, gamal_key_t keys1, gamal_key
 
 	//EC_POINT_add(const EC_GROUP *group, EC_POINT *r, const EC_POINT *a, const EC_POINT *b, BN_CTX *ctx); //in ec.h
 
-	EC_POINT_add(init_group, coll_keys->Y, keys2->Y, keys1->Y, ctx);
-	EC_POINT_add(init_group, coll_keys->Y, coll_keys->Y, keys3->Y, ctx);
+	EC_POINT_add(init_group, coll_keys->Y, keys2->Y, keys1->Y, ctx);//added up all public keys
+	EC_POINT_add(init_group, coll_keys->Y, coll_keys->Y, keys3->Y, ctx); //added up all public keys
 
 
 	//int BN_add(BIGNUM *r, const BIGNUM *a, const BIGNUM *b); //in bn.h
@@ -437,7 +563,7 @@ int gamal_encrypt(gamal_ciphertext_t ciphertext, gamal_key_t key, dig_t plaintex
     return 0;
 }
 
-//added by Tham
+//added by Tham for re-encrypt a ciphertext by a new public key, switching from collective public key of 3 servers
 int gamal_key_switching(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_key_t keysNew){
 	// (C1, C2) = (r*B, x + r*(K1 + K2)) => (C1, C2) = (v*B, x + v*Knew)
 	//K1 = k_1*B; K2 = k_2*B
@@ -546,7 +672,7 @@ int gamal_decrypt(dig_t *res, gamal_key_t key, gamal_ciphertext_t ciphertext, bs
     return 0;
 }
 
-//added by Tham
+//added by Tham for threshold decryption by multiple servers
 int gamal_coll_decrypt(dig_t *res, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_ciphertext_t ciphertext, bsgs_table_t table){
 		EC_POINT *M1, *M2, *M3;
 	    uint64_t plaintext;
@@ -575,6 +701,62 @@ int gamal_coll_decrypt(dig_t *res, gamal_key_t keys1, gamal_key_t keys2, gamal_k
 	    EC_POINT_clear_free(M3);
 	    return 0;
 }
+
+//added by Tham: this is for a server who takes lead the decryption
+int gamal_coll_decrypt_lead(gamal_ciphertext_t ciphertext_update, gamal_key_t keys, gamal_ciphertext_t ciphertext, bsgs_table_t table){
+
+		ciphertext_update->C1 = multiply_constant(ciphertext->C1, keys->secret, init_group); //rB*sk1
+	    return 0;
+}
+//added by Tham: function for other server partially decrypt the ciphertext
+int gamal_coll_decrypt_follow(gamal_ciphertext_t ciphertext_update, gamal_key_t keys, gamal_ciphertext_t ciphertext, bsgs_table_t table){
+		EC_POINT *M;
+	    //uint64_t plaintext;
+	    BN_CTX *ctx = BN_CTX_new();
+
+
+	    M = multiply_constant(ciphertext->C1, keys->secret, init_group); //rB*sk1
+	    EC_POINT_add(init_group, ciphertext_update->C1, ciphertext_update->C1, M, ctx);
+	    // printf("Testdecrypt_follow OK\n");
+
+	    BN_CTX_free(ctx);
+	    EC_POINT_clear_free(M);
+
+
+	    //EC_POINT_clear_free(M3);
+	    return 0;
+}
+//added by Tham: function for fusion all partially decryption to get plaintext
+int gamal_fusion_decrypt(dig_t *res, int num_server, gamal_key_t key_lead, gamal_key_t key_follow[], gamal_ciphertext_t ciphertext_update, gamal_ciphertext_t ciphertext, bsgs_table_t table){
+	//EC_POINT *M1, *M2, *M3;
+    uint64_t plaintext;
+    BN_CTX *ctx = BN_CTX_new();
+
+
+    gamal_coll_decrypt_lead(ciphertext_update, key_lead, ciphertext, table);
+   // gamal_coll_decrypt_follow(ciphertext_update, key_follow[0], ciphertext,table);
+    //gamal_coll_decrypt_follow(ciphertext_update, key_follow[1], ciphertext,table);
+    for(int i=0; i<num_server-1; i++){
+    	gamal_coll_decrypt_follow(ciphertext_update, key_follow[i], ciphertext, table);
+    }
+
+    EC_POINT_invert(init_group, ciphertext_update->C1, ctx); // -r(K1 + K2 + K3) = -rK
+    EC_POINT_add(init_group, ciphertext->C2, ciphertext->C2, ciphertext_update->C1, ctx); // m + rK - r(K1+K2+K3) = m +rK - rK = m
+
+    if (table != NULL) {
+        solve_ecdlp_bsgs(table, &plaintext, ciphertext->C2, 1L << MAX_BITS);
+    } else {
+        solve_dlog_brute(init_group, ciphertext->C2, &plaintext, 1L << MAX_BITS);
+    }
+    *res = (dig_t) plaintext;
+
+   // printf("Test Decrypt fusion OK\n");
+
+    BN_CTX_free(ctx);
+
+    return 0;
+}
+
 
 int gamal_add(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciphertext_t ciphertext2) {
 
@@ -651,7 +833,7 @@ int gamal_mult(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, dig_t pt)
 
 }
 
-//Added by Tham
+//Added by Tham for better multiplication between a ciphertext and a plaintext (scalar multiplication)
 int gamal_mult_opt(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext, dig_t pt) {
 
 	//printf("Test begin\n");
@@ -709,7 +891,7 @@ int gamal_mult_opt(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext, dig_t 
 		}
 //*/
 
-/** non-adjacent form to reduce number of additions
+/** non-adjacent form to reduce number of additions =>need to check the errors
 
 	if (pt == 0) {
 				res->C1 = 0;
