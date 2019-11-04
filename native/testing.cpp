@@ -1317,6 +1317,135 @@ void partialViewCollect_histogram(int datasize, int scale_up){
 //#endif
 }
 
+void partialViewCollect_histogram_map(int datasize, int scale_up){
+			gamal_key_t key;
+			//gamal_ciphertext_t  myPIR_enc[datasize], histogr_encrypt[scale_up*datasize];//, temp_ciph;
+			int *myPIR_arr, *histogr;
+			gamal_ciphertext_t *myPIR_enc, *histogr_encrypt;
+			myPIR_arr = new int[datasize];
+			myPIR_enc = new gamal_ciphertext_t[datasize];
+			histogr = new int[scale_up*datasize];
+			histogr_encrypt = new gamal_ciphertext_t[scale_up*datasize];
+
+			//int myPIR_arr[2*datasize] = {0};
+			//int histogr[scale_up*datasize], data[datasize] = {1}, dummy[(scale_up - 1)*datasize] = {0};
+			bsgs_table_t table;
+
+			// Use a different seed value for every run.
+			srand (time(NULL));
+			int randomBit;
+			double pir_clear_gen_time = 0, pir_enc_time = 0, hist_gen_time = 0, pir_apply_hist_time = 0;//, avg_dec = 0;
+
+			int plain1 = 1, plain0 = 0;
+
+			gamal_init(CURVE_256_SEC);
+			gamal_generate_keys(key);
+			gamal_init_bsgs_table(table, (dig_t) 1L << 16);
+
+
+			//generate pir vector in clear : V of (1) and n-V of (0)
+
+			int arr[]  = {1, 0};
+			int freq1[] = {1, 99};
+			int freq2[] = {1, scale_up};
+			int pv_ratio = 100;
+
+			high_resolution_clock::time_point t1 = high_resolution_clock::now();
+			pir_gen(myPIR_arr, arr, freq1, datasize, pv_ratio);
+			high_resolution_clock::time_point t2 = high_resolution_clock::now();
+			pir_clear_gen_time = duration_cast<nanoseconds>(t2-t1).count();
+
+
+
+
+//#if 0
+			 //generate encrypted pir vector: V enc(1) and n-V enc(0)
+///**
+			t1 = high_resolution_clock::now();
+			for (int it=0; it<=datasize-1; it++){
+
+				if (myPIR_arr[it] == 1){
+					gamal_encrypt(myPIR_enc[it], key, plain1); //this step can use pre-encryption of 1 from the setup phase
+				}
+				else {
+					   gamal_encrypt(myPIR_enc[it], key, plain0); //this step can use pre-encryption of 0 from the setup phase
+				}
+			}
+			t2 = high_resolution_clock::now();
+			pir_enc_time = duration_cast<nanoseconds>(t2-t1).count();
+
+			delete[] myPIR_arr;
+
+			extern EC_GROUP *init_group;
+					BIGNUM *x = BN_new();
+					BIGNUM *y = BN_new();
+
+
+
+			//for (int it=0; it<3; it++){
+				printf("encryption #%d->C1:\n", datasize-1);
+					if(EC_POINT_get_affine_coordinates_GFp(init_group, myPIR_enc[datasize-1]->C1, x, y, NULL)) {
+						BN_print_fp(stdout, x);
+						putc('\n', stdout);
+						BN_print_fp(stdout, y);
+						putc('\n', stdout);
+					}
+					else {
+								std::cerr << "Can't get point coordinates." << std::endl;
+							}
+				printf("encryption #%d->C2:\n", datasize-1);
+				if(EC_POINT_get_affine_coordinates_GFp(init_group, myPIR_enc[datasize-1]->C2, x, y, NULL)) {
+					BN_print_fp(stdout, x);
+					putc('\n', stdout);
+					BN_print_fp(stdout, y);
+					putc('\n', stdout);
+				}
+				else {
+							std::cerr << "Can't get point coordinates." << std::endl;
+						}
+
+			//}
+
+//*/
+			// dataset and dummy data to histogram
+
+			t1 = high_resolution_clock::now();
+			hist_gen(histogr, arr, freq2, datasize, scale_up);
+			t2 = high_resolution_clock::now();
+			hist_gen_time = duration_cast<nanoseconds>(t2-t1).count();
+			//printf("Histogram start: \n");
+			//for(int it=0; it<=datasize*scale_up -1; it++){
+			//	printf("%d",histogr[it]);
+			//}
+		   // printf("\n");
+
+
+		    //applying pir_enc to histogram by participant
+		    int index_pir = 0;
+		    t1 = high_resolution_clock::now();
+		    for (int it=0; it< datasize*scale_up; it++){
+		    	if (histogr[it] == 1) {
+		    		gamal_mult_opt(histogr_encrypt[it], myPIR_enc[index_pir], histogr[it]);
+		    		index_pir++;
+		    	}
+		    	else {
+		    		gamal_encrypt(histogr_encrypt[it], key, histogr[it]); //this step can use pre-encryption of 0 from the setup phase
+		    	}
+		    }
+		    t2 = high_resolution_clock::now();
+		    pir_apply_hist_time = duration_cast<nanoseconds>(t2-t1).count();
+
+		    delete[] histogr;
+
+		    std::cout<<"PIR clear gen time: "<<pir_clear_gen_time/1000000.0<<" ms"<<std::endl;
+			std::cout<<"PIR enc time: "<<pir_enc_time/1000000.0<<" ms"<<std::endl;
+			std::cout<<"Hist gen time: "<<hist_gen_time/1000000.0<<" ms"<<std::endl;
+			std::cout<<"pir_apply_hist_time: "<<pir_apply_hist_time/1000000.0<<" ms"<<std::endl;
+			std::cout<<"histogr_encrypt [1] address = "<<histogr_encrypt[0]<<std::endl;
+
+//#endif
+}
+
 
 int main() {
     std::cout << OPENSSL_VERSION_TEXT << std::endl;
@@ -1325,9 +1454,9 @@ int main() {
     //====== SETUP ========
     //pre_encryption(5000);
 
-    //partialViewCollect_histogram(1000000, 5);
+    partialViewCollect_histogram(1000000, 5);
 
-
+    partialViewCollect_histogram_map(1000,2);
 
     // ======= Plain EC-ElGamal =====
 
@@ -1348,9 +1477,9 @@ int main() {
 
 
     //==== Collective Key Gen for EC-ElGamal=====
-     std::cout<< "EC ElGamal test collective key gen and threshold decryption"<<std::endl;
+     //std::cout<< "EC ElGamal test collective key gen and threshold decryption"<<std::endl;
      //test_coll_key_gen(500);
-     test_threshold_decrypt(10);
+    // test_threshold_decrypt(100);
     //test_coll_decrypt();
     //std::cout<< "EC ElGamal test key switching"<<std::endl;
     //test_key_switch(1000);

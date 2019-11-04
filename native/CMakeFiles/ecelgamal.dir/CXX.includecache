@@ -35,6 +35,8 @@ time.h
 -
 cmath
 -
+stack
+-
 openssl/ec.h
 -
 openssl/bn.h
@@ -49,6 +51,12 @@ ecelgamal.h
 /home/dataring/ecelgamal/native/ecelgamal.h
 crtecelgamal.h
 /home/dataring/ecelgamal/native/crtecelgamal.h
+sys/time.h
+-
+sys/resource.h
+-
+errno.h
+-
 
 include/uthash.h
 string.h
