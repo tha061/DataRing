@@ -6,23 +6,23 @@
 
 #IncludeRegexTransform: 
 
-/home/dataring/ecelgamal/native/crtecelgamal.c
+/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/crtecelgamal.c
 crtecelgamal.h
-/home/dataring/ecelgamal/native/crtecelgamal.h
+/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/crtecelgamal.h
 
-/home/dataring/ecelgamal/native/crtecelgamal.h
+/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/crtecelgamal.h
 ecelgamal.h
-/home/dataring/ecelgamal/native/ecelgamal.h
+/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.h
 
-/home/dataring/ecelgamal/native/ecelgamal.c
+/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.c
 ecelgamal.h
-/home/dataring/ecelgamal/native/ecelgamal.h
+/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.h
 stdio.h
 -
 math.h
 -
 
-/home/dataring/ecelgamal/native/ecelgamal.h
+/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.h
 openssl/ec.h
 -
 openssl/bn.h
@@ -32,7 +32,7 @@ openssl/objects.h
 inttypes.h
 -
 uthash.h
-/home/dataring/ecelgamal/native/uthash.h
+/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/uthash.h
 
 include/uthash.h
 string.h

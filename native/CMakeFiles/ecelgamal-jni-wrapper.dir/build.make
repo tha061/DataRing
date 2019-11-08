@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/dataring/ecelgamal/native
+CMAKE_SOURCE_DIR = /home/namjose/Desktop/encrypto_intern/dataring_implementation/native
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/dataring/ecelgamal/native
+CMAKE_BINARY_DIR = /home/namjose/Desktop/encrypto_intern/dataring_implementation/native
 
 # Include any dependencies generated for this target.
 include CMakeFiles/ecelgamal-jni-wrapper.dir/depend.make
@@ -59,16 +59,16 @@ include CMakeFiles/ecelgamal-jni-wrapper.dir/flags.make
 
 CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.o: CMakeFiles/ecelgamal-jni-wrapper.dir/flags.make
 CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.o: crtecelgamal_jni_wrapper.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/dataring/ecelgamal/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.o   -c /home/dataring/ecelgamal/native/crtecelgamal_jni_wrapper.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.o   -c /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/crtecelgamal_jni_wrapper.c
 
 CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/dataring/ecelgamal/native/crtecelgamal_jni_wrapper.c > CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.i
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/crtecelgamal_jni_wrapper.c > CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.i
 
 CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/dataring/ecelgamal/native/crtecelgamal_jni_wrapper.c -o CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.s
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/crtecelgamal_jni_wrapper.c -o CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.s
 
 CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.o.requires:
 
@@ -83,16 +83,16 @@ CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.o.provides.build
 
 CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.o: CMakeFiles/ecelgamal-jni-wrapper.dir/flags.make
 CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.o: ecelgamal.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/dataring/ecelgamal/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.o   -c /home/dataring/ecelgamal/native/ecelgamal.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.o   -c /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.c
 
 CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/dataring/ecelgamal/native/ecelgamal.c > CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.i
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.c > CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.i
 
 CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/dataring/ecelgamal/native/ecelgamal.c -o CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.s
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.c -o CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.s
 
 CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.o.requires:
 
@@ -117,7 +117,7 @@ out/libecelgamal-jni-wrapper.so: CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgam
 out/libecelgamal-jni-wrapper.so: CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.o
 out/libecelgamal-jni-wrapper.so: CMakeFiles/ecelgamal-jni-wrapper.dir/build.make
 out/libecelgamal-jni-wrapper.so: CMakeFiles/ecelgamal-jni-wrapper.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/dataring/ecelgamal/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking C shared library out/libecelgamal-jni-wrapper.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking C shared library out/libecelgamal-jni-wrapper.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ecelgamal-jni-wrapper.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -135,6 +135,6 @@ CMakeFiles/ecelgamal-jni-wrapper.dir/clean:
 .PHONY : CMakeFiles/ecelgamal-jni-wrapper.dir/clean
 
 CMakeFiles/ecelgamal-jni-wrapper.dir/depend:
-	cd /home/dataring/ecelgamal/native && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/dataring/ecelgamal/native /home/dataring/ecelgamal/native /home/dataring/ecelgamal/native /home/dataring/ecelgamal/native /home/dataring/ecelgamal/native/CMakeFiles/ecelgamal-jni-wrapper.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/namjose/Desktop/encrypto_intern/dataring_implementation/native && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/namjose/Desktop/encrypto_intern/dataring_implementation/native /home/namjose/Desktop/encrypto_intern/dataring_implementation/native /home/namjose/Desktop/encrypto_intern/dataring_implementation/native /home/namjose/Desktop/encrypto_intern/dataring_implementation/native /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles/ecelgamal-jni-wrapper.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/ecelgamal-jni-wrapper.dir/depend
 

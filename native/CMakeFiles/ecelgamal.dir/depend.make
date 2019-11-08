@@ -12,6 +12,10 @@ CMakeFiles/ecelgamal.dir/ecelgamal.c.o: include/uthash.h
 
 CMakeFiles/ecelgamal.dir/testing.cpp.o: crtecelgamal.h
 CMakeFiles/ecelgamal.dir/testing.cpp.o: ecelgamal.h
+CMakeFiles/ecelgamal.dir/testing.cpp.o: generate_enc_vectors.c
+CMakeFiles/ecelgamal.dir/testing.cpp.o: process_data.cpp
+CMakeFiles/ecelgamal.dir/testing.cpp.o: process_data.h
+CMakeFiles/ecelgamal.dir/testing.cpp.o: process_partial_view.cpp
 CMakeFiles/ecelgamal.dir/testing.cpp.o: testing.cpp
 CMakeFiles/ecelgamal.dir/testing.cpp.o: include/uthash.h
 

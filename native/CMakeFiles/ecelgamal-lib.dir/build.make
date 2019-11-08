@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/dataring/ecelgamal/native
+CMAKE_SOURCE_DIR = /home/namjose/Desktop/encrypto_intern/dataring_implementation/native
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/dataring/ecelgamal/native
+CMAKE_BINARY_DIR = /home/namjose/Desktop/encrypto_intern/dataring_implementation/native
 
 # Include any dependencies generated for this target.
 include CMakeFiles/ecelgamal-lib.dir/depend.make
@@ -59,16 +59,16 @@ include CMakeFiles/ecelgamal-lib.dir/flags.make
 
 CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.o: CMakeFiles/ecelgamal-lib.dir/flags.make
 CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.o: ecelgamal.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/dataring/ecelgamal/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.o   -c /home/dataring/ecelgamal/native/ecelgamal.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.o   -c /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.c
 
 CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/dataring/ecelgamal/native/ecelgamal.c > CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.i
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.c > CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.i
 
 CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/dataring/ecelgamal/native/ecelgamal.c -o CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.s
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.c -o CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.s
 
 CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.o.requires:
 
@@ -83,16 +83,16 @@ CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.o.provides.build: CMakeFiles/ecelgamal-
 
 CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.o: CMakeFiles/ecelgamal-lib.dir/flags.make
 CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.o: crtecelgamal.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/dataring/ecelgamal/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.o   -c /home/dataring/ecelgamal/native/crtecelgamal.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.o   -c /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/crtecelgamal.c
 
 CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/dataring/ecelgamal/native/crtecelgamal.c > CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.i
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/crtecelgamal.c > CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.i
 
 CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/dataring/ecelgamal/native/crtecelgamal.c -o CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.s
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/crtecelgamal.c -o CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.s
 
 CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.o.requires:
 
@@ -117,7 +117,7 @@ out/libecelgamal-lib.so: CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.o
 out/libecelgamal-lib.so: CMakeFiles/ecelgamal-lib.dir/crtecelgamal.c.o
 out/libecelgamal-lib.so: CMakeFiles/ecelgamal-lib.dir/build.make
 out/libecelgamal-lib.so: CMakeFiles/ecelgamal-lib.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/dataring/ecelgamal/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking C shared library out/libecelgamal-lib.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking C shared library out/libecelgamal-lib.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ecelgamal-lib.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -135,6 +135,6 @@ CMakeFiles/ecelgamal-lib.dir/clean:
 .PHONY : CMakeFiles/ecelgamal-lib.dir/clean
 
 CMakeFiles/ecelgamal-lib.dir/depend:
-	cd /home/dataring/ecelgamal/native && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/dataring/ecelgamal/native /home/dataring/ecelgamal/native /home/dataring/ecelgamal/native /home/dataring/ecelgamal/native /home/dataring/ecelgamal/native/CMakeFiles/ecelgamal-lib.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/namjose/Desktop/encrypto_intern/dataring_implementation/native && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/namjose/Desktop/encrypto_intern/dataring_implementation/native /home/namjose/Desktop/encrypto_intern/dataring_implementation/native /home/namjose/Desktop/encrypto_intern/dataring_implementation/native /home/namjose/Desktop/encrypto_intern/dataring_implementation/native /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles/ecelgamal-lib.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/ecelgamal-lib.dir/depend
 

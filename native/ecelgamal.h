@@ -49,10 +49,12 @@
 
 #define MAX_BITS 32
 
-struct gamal_key {
+// KEY
+struct gamal_key
+{
     char is_public;
-    EC_POINT *Y;
-    BIGNUM *secret;
+    EC_POINT *Y; //public_key for encrypt
+    BIGNUM *secret; //private_key for decrypt
 };
 
 typedef struct gamal_key *gamal_key_ptr;
@@ -60,10 +62,12 @@ typedef struct gamal_key gamal_key_t[1];
 typedef uint64_t dig_t;
 
 size_t get_encoded_key_size(gamal_key_t key, int compressed);
-int encode_key(unsigned char* buff, int size, gamal_key_t key, int compressed);
-int decode_key(gamal_key_t key, unsigned char* buff, int size);
+int encode_key(unsigned char *buff, int size, gamal_key_t key, int compressed);
+int decode_key(gamal_key_t key, unsigned char *buff, int size);
 
-struct gamal_ciphertext {
+// EC POINTS - tuple of Encrytion of x
+struct gamal_ciphertext
+{
     EC_POINT *C1;
     EC_POINT *C2;
 };
@@ -72,16 +76,18 @@ typedef struct gamal_ciphertext *gamal_ciphertext_ptr;
 typedef struct gamal_ciphertext gamal_ciphertext_t[1];
 
 size_t get_encoded_ciphertext_size(gamal_ciphertext_t ciphertext);
-int encode_ciphertext(unsigned char* buff, int size, gamal_ciphertext_t ciphertext);
-int decode_ciphertext(gamal_ciphertext_t ciphertext, unsigned char* buff, int size);
+int encode_ciphertext(unsigned char *buff, int size, gamal_ciphertext_t ciphertext);
+int decode_ciphertext(gamal_ciphertext_t ciphertext, unsigned char *buff, int size);
 
-typedef struct bsgs_hash_table_entry {
+typedef struct bsgs_hash_table_entry
+{
     unsigned char *key;
     uint32_t value;
     UT_hash_handle hh;
 } bsgs_hash_table_entry_t;
 
-struct bsgs_table_s {
+struct bsgs_table_s
+{
     bsgs_hash_table_entry_t *table;
     EC_POINT *mG, *mG_inv;
     EC_GROUP *group;
@@ -188,7 +194,6 @@ int gamal_collective_key_gen(gamal_key_t coll_keys, gamal_key_t keys1, gamal_key
  */
 int gamal_key_switching(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_key_t keysNew);
 
-
 /**
  * Added by Tham
  * Collective decrypts an EC-ElGamal ciphertext by all parties
@@ -225,12 +230,12 @@ int gamal_mult_opt(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext, dig_t 
 /**
  * Added by Tham for utility functions
  */
-int* convert_to_bin(int binary_arr[64], dig_t number, int bit_num);
-int* convert_to_NAF(int naf_arr[64], dig_t number, int bit_num[2]);
+int *convert_to_bin(int binary_arr[64], dig_t number, int bit_num);
+int *convert_to_NAF(int naf_arr[64], dig_t number, int bit_num[2]);
 int mods_func(int number);
 int findCeil(int arr[], int r, int l, int h);
 int myRand(int arr[], int freq[], int n);
-int* hist_gen(int histogr[], int arr[], int freq[], int datasize, int scale_up);
-int* pir_gen(int myPIR_arr[], int arr[], int freq[], int datasize, int pv_ratio);
+int *hist_gen(int histogr[], int arr[], int freq[], int datasize, int scale_up);
+int *pir_gen(int myPIR_arr[], int arr[], int freq[], int datasize, int pv_ratio);
 
 #endif //ECELGAMAL_ECELGAMAL_H

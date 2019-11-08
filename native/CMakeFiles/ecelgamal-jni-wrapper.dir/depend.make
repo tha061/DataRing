@@ -3,8 +3,8 @@
 
 CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.o: crtecelgamal_jni_wrapper.c
 CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.o: ecelgamal.h
-CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.o: /usr/lib/jvm/java-11-openjdk-amd64/include/jni.h
-CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.o: /usr/lib/jvm/java-11-openjdk-amd64/include/linux/jni_md.h
+CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.o: /usr/lib/jvm/java-8-openjdk-amd64/include/jni.h
+CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.o: /usr/lib/jvm/java-8-openjdk-amd64/include/linux/jni_md.h
 CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.o: include/uthash.h
 
 CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.o: ecelgamal.c

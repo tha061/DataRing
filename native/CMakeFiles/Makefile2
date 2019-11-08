@@ -54,10 +54,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/dataring/ecelgamal/native
+CMAKE_SOURCE_DIR = /home/namjose/Desktop/encrypto_intern/dataring_implementation/native
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/dataring/ecelgamal/native
+CMAKE_BINARY_DIR = /home/namjose/Desktop/encrypto_intern/dataring_implementation/native
 
 #=============================================================================
 # Target rules for target CMakeFiles/ecelgamal-jni-wrapper.dir
@@ -66,7 +66,7 @@ CMAKE_BINARY_DIR = /home/dataring/ecelgamal/native
 CMakeFiles/ecelgamal-jni-wrapper.dir/all:
 	$(MAKE) -f CMakeFiles/ecelgamal-jni-wrapper.dir/build.make CMakeFiles/ecelgamal-jni-wrapper.dir/depend
 	$(MAKE) -f CMakeFiles/ecelgamal-jni-wrapper.dir/build.make CMakeFiles/ecelgamal-jni-wrapper.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/dataring/ecelgamal/native/CMakeFiles --progress-num=5,6,7 "Built target ecelgamal-jni-wrapper"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles --progress-num=5,6,7 "Built target ecelgamal-jni-wrapper"
 .PHONY : CMakeFiles/ecelgamal-jni-wrapper.dir/all
 
 # Include target in all.
@@ -76,9 +76,9 @@ all: CMakeFiles/ecelgamal-jni-wrapper.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/ecelgamal-jni-wrapper.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/dataring/ecelgamal/native/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles 3
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/ecelgamal-jni-wrapper.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/dataring/ecelgamal/native/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles 0
 .PHONY : CMakeFiles/ecelgamal-jni-wrapper.dir/rule
 
 # Convenience name for target.
@@ -103,7 +103,7 @@ clean: CMakeFiles/ecelgamal-jni-wrapper.dir/clean
 CMakeFiles/ecelgamal.dir/all:
 	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/depend
 	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/dataring/ecelgamal/native/CMakeFiles --progress-num=1,2,3,4 "Built target ecelgamal"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles --progress-num=1,2,3,4 "Built target ecelgamal"
 .PHONY : CMakeFiles/ecelgamal.dir/all
 
 # Include target in all.
@@ -113,9 +113,9 @@ all: CMakeFiles/ecelgamal.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/ecelgamal.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/dataring/ecelgamal/native/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/ecelgamal.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/dataring/ecelgamal/native/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles 0
 .PHONY : CMakeFiles/ecelgamal.dir/rule
 
 # Convenience name for target.
@@ -140,7 +140,7 @@ clean: CMakeFiles/ecelgamal.dir/clean
 CMakeFiles/ecelgamal-lib.dir/all:
 	$(MAKE) -f CMakeFiles/ecelgamal-lib.dir/build.make CMakeFiles/ecelgamal-lib.dir/depend
 	$(MAKE) -f CMakeFiles/ecelgamal-lib.dir/build.make CMakeFiles/ecelgamal-lib.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/dataring/ecelgamal/native/CMakeFiles --progress-num=8,9,10 "Built target ecelgamal-lib"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles --progress-num=8,9,10 "Built target ecelgamal-lib"
 .PHONY : CMakeFiles/ecelgamal-lib.dir/all
 
 # Include target in all.
@@ -150,9 +150,9 @@ all: CMakeFiles/ecelgamal-lib.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/ecelgamal-lib.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/dataring/ecelgamal/native/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles 3
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/ecelgamal-lib.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/dataring/ecelgamal/native/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles 0
 .PHONY : CMakeFiles/ecelgamal-lib.dir/rule
 
 # Convenience name for target.
