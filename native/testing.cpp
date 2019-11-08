@@ -1200,8 +1200,32 @@ void partialViewCollect_dataset(int datasize, int attr_num, dig_t big_data_point
 	std::cout << "time: " << avg_mult / 1000000000.0 << " sec" << std::endl;
 }
 
+int getRandomInRange(int min, int max);
+void decryptFind(map<string, gamal_ciphertext_t *> enc_domain_map, gamal_key_t key, bsgs_table_t table);
+
+void timeEvaluate(string task_name, high_resolution_clock::time_point t1, high_resolution_clock::time_point t2)
+{
+	double time_diff = duration_cast<nanoseconds>(t2 - t1).count();
+	cout << "\n -------------------------------------------------------------------- \n";
+	cout << "\nTime Evaluation \n";
+	cout << task_name << " : "  << time_diff / 1000000.0 << " ms" << endl;
+	cout << "\n -------------------------------------------------------------------- \n";
+}
+
 int main()
 {
+	srand(time(NULL));
+	// initialize key
+	gamal_key_t key;
+	bsgs_table_t table;
+	gamal_init(CURVE_256_SEC);
+	gamal_generate_keys(key);
+	gamal_init_bsgs_table(table, (dig_t)1L << 16);
+
+	// initialize time evaluation
+	high_resolution_clock::time_point t1;
+    high_resolution_clock::time_point t2;
+
 	hash_map hashMap;
 	int_vector index_vector;
 
@@ -1224,7 +1248,10 @@ int main()
 	shuffle_vector(index_vector);
 	cout << "Total rows in vector: " << index_vector.size() << endl;
 
-	gamal_ciphertext_t *myPIR_enc = createRandomEncrypVector(index_vector); // encryption vector from sever
+	t1 = high_resolution_clock::now();
+	gamal_ciphertext_t *myPIR_enc = createRandomEncrypVector(key, table, index_vector); // encryption vector from sever
+	t2 = high_resolution_clock::now();
+	timeEvaluate("Server randomly encrypt 1 or 0 from shuffle vector", t1, t2);
 
 	// printEncData(size_dataset-1, myPIR_enc);
 	// printEncData(0, myPIR_enc);
@@ -1232,46 +1259,112 @@ int main()
 	print_hash_map(hashMap);
 	cout << endl;
 
-	// ======================= ADD UP CIPHERTEXT IN EACH DOMAIN ================================= //
-	cout << "======================= ADD UP CIPHERTEXT IN EACH DOMAIN =================================" << endl;
-	// typedef vector<pair<string, gamal_ciphertext_t*>> ENC_DOMAIN_VECTOR;
-	typedef map<string, gamal_ciphertext_t*> ENC_DOMAIN_MAP;
-	// ENC_DOMAIN_VECTOR enc_domain_vector;
+
+	t1 = high_resolution_clock::now();
+	// ======================= SUM UP CIPHERTEXT IN EACH DOMAIN ================================= //
+	typedef map<string, gamal_ciphertext_t *> ENC_DOMAIN_MAP;
 	ENC_DOMAIN_MAP enc_domain_map;
 
 	int counter_row = 0;
 	int upper_bound = 0;
 	for (hash_map::iterator itr = hashMap.begin(); itr != hashMap.end(); ++itr)
 	{
-		counter_row++;
-		string key = itr->first;
+		string domain = itr->first;
 		upper_bound += itr->second;
-		int size_domain = itr->second;
 
 		gamal_ciphertext_t *sum_enc_ciphertext = new gamal_ciphertext_t[1];
+		gamal_cipher_new(sum_enc_ciphertext[0]);
+
+		gamal_ciphertext_t temp;
+		gamal_cipher_new(temp);
+
+		int track = 0;
 		for (counter_row; counter_row < upper_bound; counter_row++)
 		{
-			gamal_add(sum_enc_ciphertext[0], myPIR_enc[counter_row - 1], myPIR_enc[counter_row]);
-		}
-		if (size_domain == 1)
-		{
-			gamal_cipher_new(sum_enc_ciphertext[0]);
-			sum_enc_ciphertext[0]->C1 = myPIR_enc[counter_row-1]->C1;
-			sum_enc_ciphertext[0]->C2 = myPIR_enc[counter_row-1]->C2;
+			if (track == 0)
+			{
+				sum_enc_ciphertext[0]->C1 = myPIR_enc[counter_row]->C1;
+				sum_enc_ciphertext[0]->C2 = myPIR_enc[counter_row]->C2;
+			}
+			else
+			{
+				// add ciphertext
+				temp->C1 = sum_enc_ciphertext[0]->C1;
+				temp->C2 = sum_enc_ciphertext[0]->C2;
+				gamal_add(sum_enc_ciphertext[0], temp, myPIR_enc[counter_row]);
+			}
 
-			enc_domain_map.insert({key, sum_enc_ciphertext}); // insert ciphertext of only one row
+			track++;
 		}
-		else
-		{
-			enc_domain_map.insert({key, sum_enc_ciphertext}); // insert ciphertext of summation
-		}
+
+		enc_domain_map.insert({domain, sum_enc_ciphertext});
+		// delete[] sum_enc_ciphertext;
+	}
+	t2 = high_resolution_clock::now();
+	timeEvaluate("Pariticipant A check the enc vector and group by domain and make sum of encryption", t1, t2);
+
+	int o_domain_size = enc_domain_map.size();
+	cout << "Size of original enc_domain_map: " << o_domain_size << endl;
+	
+	// ============================================== ADD DUMMY ============================================== /
+	int pv_size = 2 * size_dataset;
+	const int MAX_COL_1 = 40000;
+	const int MIN_COL_1 = 1000;
+	const int MAX_COL_2 = 40000;
+	const int MIN_COL_2 = 1000;
+	const int MAX_COL_3 = 40000;
+	const int MIN_COL_3 = 0;
+
+	t1 = high_resolution_clock::now();
+	while (enc_domain_map.size() < pv_size)
+	{
+		int col1 = getRandomInRange(MIN_COL_1, MAX_COL_1);
+		int col2 = getRandomInRange(MIN_COL_2, MAX_COL_2);
+		int col3 = getRandomInRange(MIN_COL_3, MAX_COL_3);
+
+		string domain = to_string(col1) + " " + to_string(col2) + " " + to_string(col3);
+		// cout << domain << endl;
+
+		int plain0 = 0;
+		gamal_ciphertext_t *dummy_cipher_list = new gamal_ciphertext_t[1];
+		gamal_encrypt(dummy_cipher_list[0], key, plain0);
+
+		enc_domain_map.insert({domain, dummy_cipher_list});
 	}
 
-	printEncMap("1000 1000 1000", enc_domain_map);
-	printEncMap("10000 10000 7451", enc_domain_map);
-	printEncMap("1000 1000 750", enc_domain_map);
+	cout << "Total size of partial view hash map: " << enc_domain_map.size() << endl
+		 << endl;
+	
+	t2 = high_resolution_clock::now();
+	timeEvaluate("Add dummy to create final partial hash map", t1, t2);
+
+	// ============== TEST DECRYPT ======================= /
+	decryptFind(enc_domain_map, key, table);
+
+
 
 	return 0;
+}
+
+void decryptFind(map<string, gamal_ciphertext_t *> enc_domain_map, gamal_key_t key, bsgs_table_t table)
+{
+	int count1 = 0;
+	dig_t res;
+	for (map<string, gamal_ciphertext_t *>::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); ++itr)
+	{
+		gamal_decrypt(&res, key, itr->second[0], table);
+		if (res > 0)
+		{
+			count1 += res;
+			cout << "Decrypt: " << res << " of key " << itr->first << endl;
+		}
+	}
+	cout << "Total count of chosen plaintext 1 from server: " << count1 << endl;
+}
+
+int getRandomInRange(int min, int max)
+{
+	return min + (rand() % (max - min + 1));
 }
 
 int main1()

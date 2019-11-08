@@ -9,6 +9,7 @@
 #include <iterator>
 #include <utility>
 #include <algorithm>
+#include<iterator> // for iterators 
 #include "process_data.h"
 
 using namespace std;

@@ -87,7 +87,7 @@ int *hist_gen(int histogr[], int arr[], int freq[], int datasize, int scale_up)
     //printf("\n");
 }
 
-int *pir_gen(int* myPIR_arr, int arr[], int freq[], int datasize, int pv_ratio)
+int *pir_gen(int *myPIR_arr, int arr[], int freq[], int datasize, int pv_ratio)
 {
     // printf("freq[1] %d\n", freq[1]);
     int pv_size = (int)datasize / pv_ratio; //1% of dataset
@@ -101,10 +101,9 @@ int *pir_gen(int* myPIR_arr, int arr[], int freq[], int datasize, int pv_ratio)
 
     for (i = 0; i < datasize; i++)
     {
-        if (count_1 >= pv_size) // if total number of E(1) > threshold 
+        if (count_1 >= pv_size) // if total number of E(1) > threshold
         {
             myPIR_arr[i] = 0;
-            
         }
         myPIR_arr[i] = myRand(arr, freq, n);
         if (myPIR_arr[i] == 1)
@@ -117,8 +116,11 @@ int *pir_gen(int* myPIR_arr, int arr[], int freq[], int datasize, int pv_ratio)
     {
         for (int i = datasize - 1; i >= 0; i--)
         {
-            myPIR_arr[i] = 1;
-            count_1++;
+            if (myPIR_arr[i] != 1)
+            {
+                myPIR_arr[i] = 1;
+                count_1++;
+            }
             i--;
             i--;
             if (count_1 >= pv_size)
@@ -129,7 +131,7 @@ int *pir_gen(int* myPIR_arr, int arr[], int freq[], int datasize, int pv_ratio)
         }
     }
 
-    printf("\n/=======================pir_gen=====================/\n");
+    printf("\n/======================= Server random pick up plaintext 1 or 0 from shuffle vector =====================/\n");
     printf("pv size = %d\n", pv_size);
     printf("number of '1' for PV collect = %d\n", count_1);
     printf("\n/============================================/\n");

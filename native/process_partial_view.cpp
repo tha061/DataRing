@@ -28,10 +28,13 @@ extern "C"
 using namespace std::chrono;
 using namespace std;
 
-gamal_ciphertext_t *createRandomEncrypVector(int_vector shuffle_vector)
+gamal_ciphertext_t *createRandomEncrypVector(gamal_key_t key, bsgs_table_t table, int_vector shuffle_vector)
 {
+    // gamal_init(CURVE_256_SEC);
+    // gamal_generate_keys(key);
+    // gamal_init_bsgs_table(table, (dig_t)1L << 16);
+
     int datasize = shuffle_vector.size();
-    gamal_key_t key;
     //gamal_ciphertext_t  myPIR_enc[datasize], histogr_encrypt[scale_up*datasize];//, temp_ciph;
     int *myPIR_arr, *new_myPIR_arr; //final array with value of encryp type after reverting from shuffle array
 
@@ -45,37 +48,21 @@ gamal_ciphertext_t *createRandomEncrypVector(int_vector shuffle_vector)
     myPIR_arr = new int[datasize];
     myPIR_enc = new gamal_ciphertext_t[datasize];
 
-    //int myPIR_arr[2*datasize] = {0};
-    //int histogr[scale_up*datasize], data[datasize] = {1}, dummy[(scale_up - 1)*datasize] = {0};
-    bsgs_table_t table;
-
     // Use a different seed value for every run.
-    srand(time(NULL));
+    // srand(time(NULL));
 
     pir_gen(myPIR_arr, enc_types, freq, datasize, pv_ratio); // function that server place 1 or 0 randomly
 
     for (int i = 0; i < datasize; i++)
     {
-        // cout << shuffle_vector[i] << ": " << myPIR_arr[i] << ", ";
         int index = shuffle_vector[i];
         new_myPIR_arr[index] = myPIR_arr[i];
-        // if(myPIR_arr[i] == 1){
-        //     cout << "Index " << i << " is 1" << endl;
-        // }
     }
 
     delete[] myPIR_arr;
 
-    // for (int i = 0; i < datasize; i++)
-    // {
-    //     cout << new_myPIR_arr[i] << " ";
-    // }
-
     // ========== Encrypt the vector =============== //
 
-    gamal_init(CURVE_256_SEC);
-    gamal_generate_keys(key);
-    gamal_init_bsgs_table(table, (dig_t)1L << 16);
     int plain1 = 1, plain0 = 0;
 
     for (int i = 0; i < datasize; i++)
