@@ -10,6 +10,7 @@ CMakeFiles/ecelgamal.dir/ecelgamal.c.o: ecelgamal.c
 CMakeFiles/ecelgamal.dir/ecelgamal.c.o: ecelgamal.h
 CMakeFiles/ecelgamal.dir/ecelgamal.c.o: include/uthash.h
 
+CMakeFiles/ecelgamal.dir/testing.cpp.o: backup_enc.cpp
 CMakeFiles/ecelgamal.dir/testing.cpp.o: crtecelgamal.h
 CMakeFiles/ecelgamal.dir/testing.cpp.o: ecelgamal.h
 CMakeFiles/ecelgamal.dir/testing.cpp.o: generate_enc_vectors.c

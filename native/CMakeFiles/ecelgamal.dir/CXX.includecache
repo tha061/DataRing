@@ -6,6 +6,22 @@
 
 #IncludeRegexTransform: 
 
+/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/backup_enc.cpp
+iostream
+-
+chrono
+-
+stdio.h
+-
+stdlib.h
+-
+time.h
+-
+cmath
+-
+stack
+-
+
 /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/crtecelgamal.h
 ecelgamal.h
 /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.h
@@ -119,6 +135,8 @@ process_data.cpp
 /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/process_data.cpp
 process_partial_view.cpp
 /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/process_partial_view.cpp
+backup_enc.cpp
+/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/backup_enc.cpp
 ecelgamal.h
 /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.h
 crtecelgamal.h

@@ -15,7 +15,7 @@
 using namespace std;
 
 typedef vector<int> int_vector;
-typedef std::map<std::string, int> hash_map;
+typedef std::map<pair<string, string>, int> hash_map;
 
 void print_hash_map (hash_map hashMap);
 
@@ -44,13 +44,16 @@ void processData(hash_map &hashMap)
         if(str.empty()){
            continue; 
         }
-        string name;
+        string id, name;
         int count;
         istringstream iss(str);
+        getline(iss, id, ',');
         getline(iss, name, ',');
         iss >> count;
 
-        hashMap.insert({name, count});
+        // cout << name << ", " << count << endl;
+
+        hashMap.insert({make_pair(id, name), count});
     }
 
     // shuffle_vector(index_vector);
@@ -66,6 +69,6 @@ void print_hash_map (hash_map hashMap){
         if(i > 10){
             break ;
         }
-        cout << itr->first << "|" << itr->second << endl;
+        cout << itr->first.second << "|" << itr->second << endl;
     }
 }

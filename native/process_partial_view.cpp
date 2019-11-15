@@ -28,7 +28,7 @@ extern "C"
 using namespace std::chrono;
 using namespace std;
 
-gamal_ciphertext_t *createRandomEncrypVector(gamal_key_t key, bsgs_table_t table, int_vector shuffle_vector)
+gamal_ciphertext_t *createRandomEncrypVector(gamal_key_t key, bsgs_table_t table, int_vector shuffle_vector, int *plain_track_list)
 {
     // gamal_init(CURVE_256_SEC);
     // gamal_generate_keys(key);
@@ -57,6 +57,8 @@ gamal_ciphertext_t *createRandomEncrypVector(gamal_key_t key, bsgs_table_t table
     {
         int index = shuffle_vector[i];
         new_myPIR_arr[index] = myPIR_arr[i];
+        // test-only
+        plain_track_list[index] = myPIR_arr[i];
     }
 
     delete[] myPIR_arr;
@@ -83,8 +85,8 @@ gamal_ciphertext_t *createRandomEncrypVector(gamal_key_t key, bsgs_table_t table
     return myPIR_enc;
 }
 
-void printEncMap(string key, map<string, gamal_ciphertext_t*> enc_domain_map)
-{	
+void printEncMap(string key, map<string, gamal_ciphertext_t *> enc_domain_map)
+{
     extern EC_GROUP *init_group;
     BIGNUM *x = BN_new();
     BIGNUM *y = BN_new();
@@ -119,8 +121,8 @@ void printEncMap(string key, map<string, gamal_ciphertext_t*> enc_domain_map)
     printf("\n");
 }
 
-void printEncData(int index, gamal_ciphertext_t * myPIR_enc)
-{	
+void printEncData(int index, gamal_ciphertext_t *myPIR_enc)
+{
     extern EC_GROUP *init_group;
     BIGNUM *x = BN_new();
     BIGNUM *y = BN_new();

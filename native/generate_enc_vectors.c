@@ -105,13 +105,18 @@ int *pir_gen(int *myPIR_arr, int arr[], int freq[], int datasize, int pv_ratio)
         {
             myPIR_arr[i] = 0;
         }
-        myPIR_arr[i] = myRand(arr, freq, n);
-        if (myPIR_arr[i] == 1)
-            count_1++;
+        else
+        {
+            myPIR_arr[i] = myRand(arr, freq, n);
+            if (myPIR_arr[i] == 1)
+                count_1++;
+        }
+
         //i++;
     }
     // printf("i= %d\n", i);
-
+    // printf("count_1: %d\n", count_1);
+    // printf("pv_size: %d\n", pv_size);
     if (count_1 < pv_size)
     {
         for (int i = datasize - 1; i >= 0; i--)
