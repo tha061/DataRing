@@ -6,17 +6,6 @@
 #include <time.h>
 #include <cmath>
 #include <stack>
-//using namespace std;
-/**
-#include <openssl/ec.h>
-#include <openssl/bn.h>
-#include <openssl/objects.h>
-#include <inttypes.h>
-#include "uthash.h"
-*/
-
-// process data
-// #include "process_data.h"
 
 extern "C"
 {
@@ -28,15 +17,18 @@ extern "C"
 using namespace std::chrono;
 using namespace std;
 
-gamal_ciphertext_t *createRandomEncrypVector(gamal_key_t key, bsgs_table_t table, int_vector shuffle_vector, int *plain_track_list)
+void _timeEvaluate(string task_name, high_resolution_clock::time_point t1, high_resolution_clock::time_point t2)
 {
-    // gamal_init(CURVE_256_SEC);
-    // gamal_generate_keys(key);
-    // gamal_init_bsgs_table(table, (dig_t)1L << 16);
+	double time_diff = duration_cast<nanoseconds>(t2 - t1).count();
+	cout << "\n -------------------------------------------------------------------- \n";
+	cout << "\nTime Evaluation \n";
+	cout << task_name << " : " << time_diff / 1000000.0 << " ms" << endl;
+	cout << "\n -------------------------------------------------------------------- \n";
+}
 
-    int datasize = shuffle_vector.size();
-    //gamal_ciphertext_t  myPIR_enc[datasize], histogr_encrypt[scale_up*datasize];//, temp_ciph;
-    int *myPIR_arr, *new_myPIR_arr; //final array with value of encryp type after reverting from shuffle array
+gamal_ciphertext_t *createRandomEncrypVector(gamal_key_t key, bsgs_table_t table, int datasize, int *plain_track_list, ENC_Stack pre_enc_stack)
+{
+    int *myPIR_arr; //final array with value of encryp type after reverting from shuffle array
 
     int enc_types[] = {1, 0};
     int freq[] = {1, 99};
@@ -44,7 +36,6 @@ gamal_ciphertext_t *createRandomEncrypVector(gamal_key_t key, bsgs_table_t table
 
     gamal_ciphertext_t *myPIR_enc; // (C1, C2) - Encryption List
 
-    new_myPIR_arr = new int[datasize];
     myPIR_arr = new int[datasize];
     myPIR_enc = new gamal_ciphertext_t[datasize];
 
@@ -53,15 +44,6 @@ gamal_ciphertext_t *createRandomEncrypVector(gamal_key_t key, bsgs_table_t table
 
     pir_gen(myPIR_arr, enc_types, freq, datasize, pv_ratio); // function that server place 1 or 0 randomly
 
-    for (int i = 0; i < datasize; i++)
-    {
-        int index = shuffle_vector[i];
-        new_myPIR_arr[index] = myPIR_arr[i];
-        // test-only
-        plain_track_list[index] = myPIR_arr[i];
-    }
-
-    delete[] myPIR_arr;
 
     // ========== Encrypt the vector =============== //
 
@@ -69,18 +51,18 @@ gamal_ciphertext_t *createRandomEncrypVector(gamal_key_t key, bsgs_table_t table
 
     for (int i = 0; i < datasize; i++)
     {
-
-        if (new_myPIR_arr[i] == 1)
+        plain_track_list[i] = myPIR_arr[i];
+        if (myPIR_arr[i] == 1)
         {
-            gamal_encrypt(myPIR_enc[i], key, plain1); //this step can use pre-encryption of 1 from the setup phase
+            pre_enc_stack.pop_E1(myPIR_enc[i]);
         }
         else
         {
-            gamal_encrypt(myPIR_enc[i], key, plain0); //this step can use pre-encryption of 0 from the setup phase
+            pre_enc_stack.pop_E0(myPIR_enc[i]);
         }
     }
 
-    delete[] new_myPIR_arr;
+    delete[] myPIR_arr;
 
     return myPIR_enc;
 }

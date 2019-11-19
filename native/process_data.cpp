@@ -17,6 +17,8 @@ using namespace std;
 typedef vector<int> int_vector;
 typedef std::map<pair<string, string>, int> hash_map;
 
+static const string DATA_DIR = "./data/unique_domains.csv";
+
 void print_hash_map (hash_map hashMap);
 
 void shuffle_vector(int_vector &index_vector)
@@ -27,7 +29,7 @@ void shuffle_vector(int_vector &index_vector)
 
 void processData(hash_map &hashMap)
 {
-    std::ifstream data("./data/histogram_data.csv");
+    std::ifstream data(DATA_DIR);
     if (!data.is_open())
     {
         std::exit(EXIT_FAILURE);

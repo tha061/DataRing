@@ -41,28 +41,18 @@
 #include <stack>
 #include <algorithm>
 #include <functional>
-//using namespace std;
-/**
-#include <openssl/ec.h>
-#include <openssl/bn.h>
-#include <openssl/objects.h>
-#include <inttypes.h>
-#include "uthash.h"
-*/
-
-// process data
-// #include "process_data.h"
-#include "process_data.cpp"
-#include "process_partial_view.cpp"
-#include "backup_enc.cpp"
 
 extern "C"
 {
 #include "ecelgamal.h"
 #include "crtecelgamal.h"
 }
+#include "backup_enc.cpp"
+#include "process_data.cpp"
+#include "process_partial_view.cpp"
 
 using namespace std::chrono;
+typedef map<pair<string, string>, gamal_ciphertext_t *> ENC_DOMAIN_MAP;
 //EC_GROUP *init_group = NULL;
 
 /*============================ Plain EC-ElGamal ===================================*/
@@ -1214,6 +1204,7 @@ void timeEvaluate(string task_name, high_resolution_clock::time_point t1, high_r
 }
 
 void testWithoutDecrypt(hash_map plain_domain_map);
+void addDummy(hash_map &hashMap);
 
 int main()
 {
@@ -1230,7 +1221,6 @@ int main()
 	high_resolution_clock::time_point t2;
 
 	hash_map hashMap;
-	int_vector index_vector;
 
 	// server get the shuffle vector from input data from participant
 	processData(hashMap);
@@ -1243,139 +1233,178 @@ int main()
 	cout << "Total rows: " << size_dataset << endl;
 	cout << "Total domains: " << hashMap.size() << endl;
 
-	ENC_Stack pre_enc_stack(10*size_dataset, key);
+	/////////////////////////// INITIALIZE CIPHERTEXT STACK /////////////////////////
+	ENC_Stack pre_enc_stack(2 * size_dataset, key);
 
+	t1 = high_resolution_clock::now();
 	pre_enc_stack.initializeStack_E0();
-	pre_enc_stack.initializeStack_E1();
-
-	// dig_t res;
-	// gamal_decrypt(&res, key, pre_enc_stack.myPIR_enc1[2], table);
-	// cout << "Decrypt: " << res << " of key " << 2 << endl;
-	// cout << endl;
-
-	// res;
-	// gamal_decrypt(&res, key, pre_enc_stack.myPIR_enc0[2], table);
-	// cout << "Decrypt: " << res << " of key " << 2 << endl;
-	// cout << endl;
-
-
-	// for (int i = 0; i < size_dataset; i++)
-	// {
-	// 	index_vector.push_back(i);
-	// }
-
-	// shuffle_vector(index_vector);
-	// cout << "Total rows in vector: " << index_vector.size() << endl;
-
-	// int *plain_track_list = new int[size_dataset];
-
-	// t1 = high_resolution_clock::now();
-	// gamal_ciphertext_t *myPIR_enc = createRandomEncrypVector(key, table, index_vector, plain_track_list); // encryption vector from sever
-	// t2 = high_resolution_clock::now();
-	// timeEvaluate("Server randomly encrypt 1 or 0 from shuffle vector", t1, t2);
-
-	// print_hash_map(hashMap);
+	t2 = high_resolution_clock::now();
+	_timeEvaluate("Initialize E0 Stack", t1, t2);
 	cout << endl;
 
-	// t1 = high_resolution_clock::now();
-	// // ======================= SUM UP CIPHERTEXT IN EACH DOMAIN ================================= //
-	// hash_map plain_domain_map; // testng map to check the summation without decryption
+	t1 = high_resolution_clock::now();
+	pre_enc_stack.initializeStack_E1();
+	t2 = high_resolution_clock::now();
+	_timeEvaluate("Initialize E1 Stack", t1, t2);
+	cout << endl;
 
-	// typedef map<pair<string, string>, gamal_ciphertext_t *> ENC_DOMAIN_MAP;
-	// ENC_DOMAIN_MAP enc_domain_map;
+	int *plain_track_list = new int[size_dataset];
+	t1 = high_resolution_clock::now();
+	gamal_ciphertext_t *myPIR_enc = createRandomEncrypVector(key, table, size_dataset, plain_track_list, pre_enc_stack); // encryption vector from sever
+	t2 = high_resolution_clock::now();
+	timeEvaluate("Server randomly encrypt 1 or 0 from index vector", t1, t2);
+	cout << endl;
 
-	// int counter_row = 0;
-	// int upper_bound = 0;
-	// for (hash_map::iterator itr = hashMap.begin(); itr != hashMap.end(); ++itr)
-	// {
-	// 	int sum = 0;
+	// // ============================================== ADD DUMMY ============================================== /
 
-	// 	pair<string, string> domain = itr->first;
-	// 	upper_bound += itr->second;
+	t1 = high_resolution_clock::now();
+	addDummy(hashMap);
+	t2 = high_resolution_clock::now();
+	timeEvaluate("Add dummy to create dummy hash map", t1, t2);
 
-	// 	gamal_ciphertext_t *sum_enc_ciphertext = new gamal_ciphertext_t[1];
-	// 	gamal_cipher_new(sum_enc_ciphertext[0]);
+	// =======================  MULTIPLY CIPHERTEXT IN EACH DOMAIN TO SCALAR IN VECTOR ================================= //
+	t1 = high_resolution_clock::now();
+	hash_map plain_domain_map; // testng map to check the summation without decryption
 
-	// 	gamal_ciphertext_t temp;
-	// 	gamal_cipher_new(temp);
+	ENC_DOMAIN_MAP enc_domain_map;
 
-	// 	int track = 0;
-	// 	for (counter_row; counter_row < upper_bound; counter_row++)
-	// 	{
-	// 		if (track == 0)
-	// 		{
-	// 			sum = plain_track_list[counter_row];
+	int counter_row = 0;
+	int upper_bound = 0;
+	for (hash_map::iterator itr = hashMap.begin(); itr != hashMap.end(); ++itr)
+	{
+		int decypt_cip = 0;
 
-	// 			sum_enc_ciphertext[0]->C1 = myPIR_enc[counter_row]->C1;
-	// 			sum_enc_ciphertext[0]->C2 = myPIR_enc[counter_row]->C2;
-	// 		}
-	// 		else
-	// 		{
-	// 			sum += plain_track_list[counter_row];
-	// 			// add ciphertext
-	// 			temp->C1 = sum_enc_ciphertext[0]->C1;
-	// 			temp->C2 = sum_enc_ciphertext[0]->C2;
-	// 			gamal_add(sum_enc_ciphertext[0], temp, myPIR_enc[counter_row]);
-	// 		}
+		pair<string, string> domain = itr->first;
+		upper_bound += itr->second;
+		int domain_count = itr->second;
 
-	// 		track++;
-	// 	}
+		gamal_ciphertext_t *mul_enc_ciphertext = new gamal_ciphertext_t[1];
 
-	// 	enc_domain_map.insert({domain, sum_enc_ciphertext});
-	// 	plain_domain_map.insert({domain, sum});
-	// 	// delete[] sum_enc_ciphertext;
-	// }
-	// t2 = high_resolution_clock::now();
-	// timeEvaluate("Pariticipant A check the enc vector and group by domain and make sum of encryption", t1, t2);
+		int track = 0;
+		for (counter_row; counter_row < upper_bound; counter_row++)
+		{
+			if (track == 0)
+			{
+				decypt_cip = plain_track_list[counter_row] * domain_count;
+				gamal_mult_opt(mul_enc_ciphertext[0], myPIR_enc[counter_row], domain_count);
+			}
+			track++;
+		}
 
-	// ============================================== ADD DUMMY ============================================== /
-	// int o_domain_size = enc_domain_map.size();
-	// cout << "Size of original enc_domain_map: " << o_domain_size << endl;
+		enc_domain_map.insert({domain, mul_enc_ciphertext});
+		plain_domain_map.insert({domain, decypt_cip});
+	}
+	t2 = high_resolution_clock::now();
+	timeEvaluate("Pariticipant A check the enc vector and group by domain and make mul of encryption and domain count", t1, t2);
 
-	// int pv_size = 2 * size_dataset;
-	// const int MAX_COL_1 = 40000;
-	// const int MIN_COL_1 = 1000;
-	// const int MAX_COL_2 = 40000;
-	// const int MIN_COL_2 = 1000;
-	// const int MAX_COL_3 = 40000;
-	// const int MIN_COL_3 = 0;
 
-	// t1 = high_resolution_clock::now();
-	// while (enc_domain_map.size() < pv_size)
-	// {
-	// 	int col1 = getRandomInRange(MIN_COL_1, MAX_COL_1);
-	// 	int col2 = getRandomInRange(MIN_COL_2, MAX_COL_2);
-	// 	int col3 = getRandomInRange(MIN_COL_3, MAX_COL_3);
-
-	// 	string domain = to_string(col1) + " " + to_string(col2) + " " + to_string(col3);
-	// 	// cout << domain << endl;
-
-	// 	int plain0 = 0;
-	// 	gamal_ciphertext_t *dummy_cipher_list = new gamal_ciphertext_t[1];
-	// 	gamal_encrypt(dummy_cipher_list[0], key, plain0);
-
-	// 	enc_domain_map.insert({domain, dummy_cipher_list});
-	// }
-
-	// cout << "Total size of partial view hash map: " << enc_domain_map.size() << endl
-	// 	 << endl;
-
-	// t2 = high_resolution_clock::now();
-	// timeEvaluate("Add dummy to create final partial hash map", t1, t2);
 
 	// ============== TEST DECRYPT ======================= /
 	// decryptFind(enc_domain_map, key, table);
 
-	// testWithoutDecrypt(plain_domain_map);
+	testWithoutDecrypt(plain_domain_map);
 
 	return 0;
 }
+
+void addDummy(hash_map &hashMap)
+{
+	int domain_size = hashMap.size();
+	cout << "Size of original histogram: " << domain_size << endl;
+	int pv_size = 2 * domain_size;
+	const int MAX_COL_1 = 40000;
+	const int MIN_COL_1 = 1000;
+	const int MAX_COL_2 = 40000;
+	const int MIN_COL_2 = 1000;
+	const int MAX_COL_3 = 40000;
+	const int MIN_COL_3 = 0;
+	const float MAX_COL_4 = 110000000.0;
+	const float MIN_COL_4 = 0.0;
+	const int DISTINCT_COL_5 = 2;
+	const int DISTINCT_COL_7 = 7;
+	const int DISTINCT_COL_8 = 12;
+	const int DISTINCT_COL_9 = 3;
+	const int DISTINCT_COL_10 = 6;
+
+	int dummy_id = domain_size;
+	while (hashMap.size() < pv_size)
+	{
+		int col1 = getRandomInRange(MIN_COL_1, MAX_COL_1);
+		int col2 = getRandomInRange(MIN_COL_2, MAX_COL_2);
+		int col3 = getRandomInRange(MIN_COL_3, MAX_COL_3);
+		float col4 = 0.0 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (110000000.0 - 0.0)));
+		int col5 = getRandomInRange(0, DISTINCT_COL_5 - 1);
+		float col6 = 5.31 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (30.99 - 5.31)));
+		int col7 = getRandomInRange(0, DISTINCT_COL_7 - 1);
+		int col8 = getRandomInRange(-1, 10);
+		int col9 = getRandomInRange(0, DISTINCT_COL_9 - 1);
+		int col10 = getRandomInRange(0, DISTINCT_COL_10 - 1);
+
+		string dummy_domain = to_string(col1) + " " + to_string(col2) + " " + to_string(col3) + " " + to_string(col4) + " " + to_string(col5) + " " + to_string(col6) + " " + to_string(col7) + " " + to_string(col8) + " " + to_string(col9) + " " + to_string(col10);
+
+		hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
+		dummy_id++;
+	}
+
+	cout << "Total size of partial view histogram: " << hashMap.size() << endl
+		 << endl;
+
+}
+
+// void addDummy(ENC_DOMAIN_MAP &enc_domain_map, hash_map &plain_domain_map, ENC_Stack pre_enc_stack)
+// {
+// 	int size_dataset = enc_domain_map.size();
+// 	cout << "Size of original enc_domain_map: " << size_dataset << endl;
+
+// 	int pv_size = 2 * size_dataset;
+// 	const int MAX_COL_1 = 40000;
+// 	const int MIN_COL_1 = 1000;
+// 	const int MAX_COL_2 = 40000;
+// 	const int MIN_COL_2 = 1000;
+// 	const int MAX_COL_3 = 40000;
+// 	const int MIN_COL_3 = 0;
+// 	const float MAX_COL_4 = 110000000.0;
+// 	const float MIN_COL_4 = 0.0;
+// 	const int DISTINCT_COL_5 = 2;
+// 	const int DISTINCT_COL_7 = 7;
+// 	const int DISTINCT_COL_8 = 12;
+// 	const int DISTINCT_COL_9 = 3;
+// 	const int DISTINCT_COL_10 = 6;
+
+// 	int dummy_id = size_dataset;
+// 	while (enc_domain_map.size() < pv_size)
+// 	{
+// 		int col1 = getRandomInRange(MIN_COL_1, MAX_COL_1);
+// 		int col2 = getRandomInRange(MIN_COL_2, MAX_COL_2);
+// 		int col3 = getRandomInRange(MIN_COL_3, MAX_COL_3);
+// 		float col4 = 0.0 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (110000000.0 - 0.0)));
+// 		int col5 = getRandomInRange(0, DISTINCT_COL_5 - 1);
+// 		float col6 = 5.31 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (30.99 - 5.31)));
+// 		int col7 = getRandomInRange(0, DISTINCT_COL_7 - 1);
+// 		int col8 = getRandomInRange(-1, 10);
+// 		int col9 = getRandomInRange(0, DISTINCT_COL_9 - 1);
+// 		int col10 = getRandomInRange(0, DISTINCT_COL_10 - 1);
+
+// 		string dummy_domain = to_string(col1) + " " + to_string(col2) + " " + to_string(col3) + " " + to_string(col4) + " " + to_string(col5) + " " + to_string(col6) + " " + to_string(col7) + " " + to_string(col8) + " " + to_string(col9) + " " + to_string(col10);
+
+// 		// cout << domain << endl;
+// 		// encryp 0 from stack
+// 		gamal_ciphertext_t *dummy_cipher_list = new gamal_ciphertext_t[1];
+// 		pre_enc_stack.pop_E0(dummy_cipher_list[0]);
+// 		enc_domain_map.insert({make_pair(to_string(dummy_id), dummy_domain), dummy_cipher_list});
+// 		plain_domain_map.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
+// 		dummy_id++;
+// 	}
+
+// 	cout << "Total size of partial view hash map: " << enc_domain_map.size() << endl
+// 		 << endl;
+// }
 
 void testWithoutDecrypt(hash_map plain_domain_map)
 {
 	fstream fout;
 	// Open an existing file
-	fout.open("./data/report.csv", ios::out | ios::app);
+	fout.open("./data/report.csv", ios::out | ios::trunc);
 	fout << "ID, DOMAIN, SUM\n";
 	int count = 0;
 	int sum_value;
