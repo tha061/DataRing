@@ -239,6 +239,141 @@ ecelgamal.c.s:
 	$(MAKE) -f CMakeFiles/ecelgamal-lib.dir/build.make CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.s
 .PHONY : ecelgamal.c.s
 
+src/ENC_Stack.o: src/ENC_Stack.cpp.o
+
+.PHONY : src/ENC_Stack.o
+
+# target to build an object file
+src/ENC_Stack.cpp.o:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o
+.PHONY : src/ENC_Stack.cpp.o
+
+src/ENC_Stack.i: src/ENC_Stack.cpp.i
+
+.PHONY : src/ENC_Stack.i
+
+# target to preprocess a source file
+src/ENC_Stack.cpp.i:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.i
+.PHONY : src/ENC_Stack.cpp.i
+
+src/ENC_Stack.s: src/ENC_Stack.cpp.s
+
+.PHONY : src/ENC_Stack.s
+
+# target to generate assembly for a file
+src/ENC_Stack.cpp.s:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.s
+.PHONY : src/ENC_Stack.cpp.s
+
+src/Participant.o: src/Participant.cpp.o
+
+.PHONY : src/Participant.o
+
+# target to build an object file
+src/Participant.cpp.o:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/Participant.cpp.o
+.PHONY : src/Participant.cpp.o
+
+src/Participant.i: src/Participant.cpp.i
+
+.PHONY : src/Participant.i
+
+# target to preprocess a source file
+src/Participant.cpp.i:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/Participant.cpp.i
+.PHONY : src/Participant.cpp.i
+
+src/Participant.s: src/Participant.cpp.s
+
+.PHONY : src/Participant.s
+
+# target to generate assembly for a file
+src/Participant.cpp.s:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/Participant.cpp.s
+.PHONY : src/Participant.cpp.s
+
+src/Server.o: src/Server.cpp.o
+
+.PHONY : src/Server.o
+
+# target to build an object file
+src/Server.cpp.o:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/Server.cpp.o
+.PHONY : src/Server.cpp.o
+
+src/Server.i: src/Server.cpp.i
+
+.PHONY : src/Server.i
+
+# target to preprocess a source file
+src/Server.cpp.i:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/Server.cpp.i
+.PHONY : src/Server.cpp.i
+
+src/Server.s: src/Server.cpp.s
+
+.PHONY : src/Server.s
+
+# target to generate assembly for a file
+src/Server.cpp.s:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/Server.cpp.s
+.PHONY : src/Server.cpp.s
+
+src/Servers.o: src/Servers.cpp.o
+
+.PHONY : src/Servers.o
+
+# target to build an object file
+src/Servers.cpp.o:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/Servers.cpp.o
+.PHONY : src/Servers.cpp.o
+
+src/Servers.i: src/Servers.cpp.i
+
+.PHONY : src/Servers.i
+
+# target to preprocess a source file
+src/Servers.cpp.i:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/Servers.cpp.i
+.PHONY : src/Servers.cpp.i
+
+src/Servers.s: src/Servers.cpp.s
+
+.PHONY : src/Servers.s
+
+# target to generate assembly for a file
+src/Servers.cpp.s:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/Servers.cpp.s
+.PHONY : src/Servers.cpp.s
+
+src/generate_enc_vectors.o: src/generate_enc_vectors.c.o
+
+.PHONY : src/generate_enc_vectors.o
+
+# target to build an object file
+src/generate_enc_vectors.c.o:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o
+.PHONY : src/generate_enc_vectors.c.o
+
+src/generate_enc_vectors.i: src/generate_enc_vectors.c.i
+
+.PHONY : src/generate_enc_vectors.i
+
+# target to preprocess a source file
+src/generate_enc_vectors.c.i:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.i
+.PHONY : src/generate_enc_vectors.c.i
+
+src/generate_enc_vectors.s: src/generate_enc_vectors.c.s
+
+.PHONY : src/generate_enc_vectors.s
+
+# target to generate assembly for a file
+src/generate_enc_vectors.c.s:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.s
+.PHONY : src/generate_enc_vectors.c.s
+
 testing.o: testing.cpp.o
 
 .PHONY : testing.o
@@ -286,6 +421,21 @@ help:
 	@echo "... ecelgamal.o"
 	@echo "... ecelgamal.i"
 	@echo "... ecelgamal.s"
+	@echo "... src/ENC_Stack.o"
+	@echo "... src/ENC_Stack.i"
+	@echo "... src/ENC_Stack.s"
+	@echo "... src/Participant.o"
+	@echo "... src/Participant.i"
+	@echo "... src/Participant.s"
+	@echo "... src/Server.o"
+	@echo "... src/Server.i"
+	@echo "... src/Server.s"
+	@echo "... src/Servers.o"
+	@echo "... src/Servers.i"
+	@echo "... src/Servers.s"
+	@echo "... src/generate_enc_vectors.o"
+	@echo "... src/generate_enc_vectors.i"
+	@echo "... src/generate_enc_vectors.s"
 	@echo "... testing.o"
 	@echo "... testing.i"
 	@echo "... testing.s"

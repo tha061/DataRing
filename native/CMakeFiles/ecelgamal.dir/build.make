@@ -129,11 +129,136 @@ CMakeFiles/ecelgamal.dir/crtecelgamal.c.o.provides: CMakeFiles/ecelgamal.dir/crt
 CMakeFiles/ecelgamal.dir/crtecelgamal.c.o.provides.build: CMakeFiles/ecelgamal.dir/crtecelgamal.c.o
 
 
+CMakeFiles/ecelgamal.dir/src/Participant.cpp.o: CMakeFiles/ecelgamal.dir/flags.make
+CMakeFiles/ecelgamal.dir/src/Participant.cpp.o: src/Participant.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/ecelgamal.dir/src/Participant.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ecelgamal.dir/src/Participant.cpp.o -c /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Participant.cpp
+
+CMakeFiles/ecelgamal.dir/src/Participant.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ecelgamal.dir/src/Participant.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Participant.cpp > CMakeFiles/ecelgamal.dir/src/Participant.cpp.i
+
+CMakeFiles/ecelgamal.dir/src/Participant.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ecelgamal.dir/src/Participant.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Participant.cpp -o CMakeFiles/ecelgamal.dir/src/Participant.cpp.s
+
+CMakeFiles/ecelgamal.dir/src/Participant.cpp.o.requires:
+
+.PHONY : CMakeFiles/ecelgamal.dir/src/Participant.cpp.o.requires
+
+CMakeFiles/ecelgamal.dir/src/Participant.cpp.o.provides: CMakeFiles/ecelgamal.dir/src/Participant.cpp.o.requires
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/Participant.cpp.o.provides.build
+.PHONY : CMakeFiles/ecelgamal.dir/src/Participant.cpp.o.provides
+
+CMakeFiles/ecelgamal.dir/src/Participant.cpp.o.provides.build: CMakeFiles/ecelgamal.dir/src/Participant.cpp.o
+
+
+CMakeFiles/ecelgamal.dir/src/Server.cpp.o: CMakeFiles/ecelgamal.dir/flags.make
+CMakeFiles/ecelgamal.dir/src/Server.cpp.o: src/Server.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/ecelgamal.dir/src/Server.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ecelgamal.dir/src/Server.cpp.o -c /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Server.cpp
+
+CMakeFiles/ecelgamal.dir/src/Server.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ecelgamal.dir/src/Server.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Server.cpp > CMakeFiles/ecelgamal.dir/src/Server.cpp.i
+
+CMakeFiles/ecelgamal.dir/src/Server.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ecelgamal.dir/src/Server.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Server.cpp -o CMakeFiles/ecelgamal.dir/src/Server.cpp.s
+
+CMakeFiles/ecelgamal.dir/src/Server.cpp.o.requires:
+
+.PHONY : CMakeFiles/ecelgamal.dir/src/Server.cpp.o.requires
+
+CMakeFiles/ecelgamal.dir/src/Server.cpp.o.provides: CMakeFiles/ecelgamal.dir/src/Server.cpp.o.requires
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/Server.cpp.o.provides.build
+.PHONY : CMakeFiles/ecelgamal.dir/src/Server.cpp.o.provides
+
+CMakeFiles/ecelgamal.dir/src/Server.cpp.o.provides.build: CMakeFiles/ecelgamal.dir/src/Server.cpp.o
+
+
+CMakeFiles/ecelgamal.dir/src/Servers.cpp.o: CMakeFiles/ecelgamal.dir/flags.make
+CMakeFiles/ecelgamal.dir/src/Servers.cpp.o: src/Servers.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/ecelgamal.dir/src/Servers.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ecelgamal.dir/src/Servers.cpp.o -c /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Servers.cpp
+
+CMakeFiles/ecelgamal.dir/src/Servers.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ecelgamal.dir/src/Servers.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Servers.cpp > CMakeFiles/ecelgamal.dir/src/Servers.cpp.i
+
+CMakeFiles/ecelgamal.dir/src/Servers.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ecelgamal.dir/src/Servers.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Servers.cpp -o CMakeFiles/ecelgamal.dir/src/Servers.cpp.s
+
+CMakeFiles/ecelgamal.dir/src/Servers.cpp.o.requires:
+
+.PHONY : CMakeFiles/ecelgamal.dir/src/Servers.cpp.o.requires
+
+CMakeFiles/ecelgamal.dir/src/Servers.cpp.o.provides: CMakeFiles/ecelgamal.dir/src/Servers.cpp.o.requires
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/Servers.cpp.o.provides.build
+.PHONY : CMakeFiles/ecelgamal.dir/src/Servers.cpp.o.provides
+
+CMakeFiles/ecelgamal.dir/src/Servers.cpp.o.provides.build: CMakeFiles/ecelgamal.dir/src/Servers.cpp.o
+
+
+CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o: CMakeFiles/ecelgamal.dir/flags.make
+CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o: src/ENC_Stack.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o -c /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/ENC_Stack.cpp
+
+CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/ENC_Stack.cpp > CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.i
+
+CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/ENC_Stack.cpp -o CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.s
+
+CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o.requires:
+
+.PHONY : CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o.requires
+
+CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o.provides: CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o.requires
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o.provides.build
+.PHONY : CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o.provides
+
+CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o.provides.build: CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o
+
+
+CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o: CMakeFiles/ecelgamal.dir/flags.make
+CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o: src/generate_enc_vectors.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o   -c /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/generate_enc_vectors.c
+
+CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.i"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/generate_enc_vectors.c > CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.i
+
+CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.s"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/generate_enc_vectors.c -o CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.s
+
+CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o.requires:
+
+.PHONY : CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o.requires
+
+CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o.provides: CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o.requires
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o.provides.build
+.PHONY : CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o.provides
+
+CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o.provides.build: CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o
+
+
 # Object files for target ecelgamal
 ecelgamal_OBJECTS = \
 "CMakeFiles/ecelgamal.dir/testing.cpp.o" \
 "CMakeFiles/ecelgamal.dir/ecelgamal.c.o" \
-"CMakeFiles/ecelgamal.dir/crtecelgamal.c.o"
+"CMakeFiles/ecelgamal.dir/crtecelgamal.c.o" \
+"CMakeFiles/ecelgamal.dir/src/Participant.cpp.o" \
+"CMakeFiles/ecelgamal.dir/src/Server.cpp.o" \
+"CMakeFiles/ecelgamal.dir/src/Servers.cpp.o" \
+"CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o" \
+"CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o"
 
 # External object files for target ecelgamal
 ecelgamal_EXTERNAL_OBJECTS =
@@ -141,9 +266,14 @@ ecelgamal_EXTERNAL_OBJECTS =
 out/ecelgamal: CMakeFiles/ecelgamal.dir/testing.cpp.o
 out/ecelgamal: CMakeFiles/ecelgamal.dir/ecelgamal.c.o
 out/ecelgamal: CMakeFiles/ecelgamal.dir/crtecelgamal.c.o
+out/ecelgamal: CMakeFiles/ecelgamal.dir/src/Participant.cpp.o
+out/ecelgamal: CMakeFiles/ecelgamal.dir/src/Server.cpp.o
+out/ecelgamal: CMakeFiles/ecelgamal.dir/src/Servers.cpp.o
+out/ecelgamal: CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o
+out/ecelgamal: CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o
 out/ecelgamal: CMakeFiles/ecelgamal.dir/build.make
 out/ecelgamal: CMakeFiles/ecelgamal.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable out/ecelgamal"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable out/ecelgamal"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ecelgamal.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -154,6 +284,11 @@ CMakeFiles/ecelgamal.dir/build: out/ecelgamal
 CMakeFiles/ecelgamal.dir/requires: CMakeFiles/ecelgamal.dir/testing.cpp.o.requires
 CMakeFiles/ecelgamal.dir/requires: CMakeFiles/ecelgamal.dir/ecelgamal.c.o.requires
 CMakeFiles/ecelgamal.dir/requires: CMakeFiles/ecelgamal.dir/crtecelgamal.c.o.requires
+CMakeFiles/ecelgamal.dir/requires: CMakeFiles/ecelgamal.dir/src/Participant.cpp.o.requires
+CMakeFiles/ecelgamal.dir/requires: CMakeFiles/ecelgamal.dir/src/Server.cpp.o.requires
+CMakeFiles/ecelgamal.dir/requires: CMakeFiles/ecelgamal.dir/src/Servers.cpp.o.requires
+CMakeFiles/ecelgamal.dir/requires: CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o.requires
+CMakeFiles/ecelgamal.dir/requires: CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o.requires
 
 .PHONY : CMakeFiles/ecelgamal.dir/requires
 

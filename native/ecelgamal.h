@@ -173,6 +173,14 @@ int gamal_decrypt(dig_t *res, gamal_key_t key, gamal_ciphertext_t ciphertext, bs
 int gamal_add(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciphertext_t ciphertext2);
 
 /**
+ * Added by Nam
+ * Generates an collective EC-ElGamal key pair from number of parties
+ * @param coll_keys: the collective keypair
+ * @return
+ */
+int gamal_collective_key_gen_fixed(gamal_key_t coll_keys, EC_POINT **p_key_list, int size_key_list);
+
+/**
  * Added by Tham
  * Generates an collective EC-ElGamal key pair from number of parties
  * @param coll_keys: the collective keypair

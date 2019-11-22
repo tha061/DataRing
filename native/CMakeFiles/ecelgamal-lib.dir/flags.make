@@ -6,5 +6,5 @@ C_FLAGS =  -O3 -fPIC
 
 C_DEFINES = -Decelgamal_lib_EXPORTS
 
-C_INCLUDES = -I/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/include -I/usr/lib/jvm/java-8-openjdk-amd64/include -I/usr/lib/jvm/java-8-openjdk-amd64/include/linux 
+C_INCLUDES = -I/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/include -I/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src -I/usr/lib/jvm/java-8-openjdk-amd64/include -I/usr/lib/jvm/java-8-openjdk-amd64/include/linux 
 

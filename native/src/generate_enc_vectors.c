@@ -1,3 +1,6 @@
+#include "generate_enc_vectors.h"
+
+
 /**
  * Added by Tham to generate random PIR vector in clear
  * Utility function to find ceiling of r in arr[l..h]
@@ -38,10 +41,6 @@ int myRand(int arr[], int freq[], int n)
     return arr[indexc]; // return arr[1] -> 0 | arr[0] -> 1
 }
 
-// histgen()
-// histogr (scale_up x datasize) added dummy data
-// arr {1, 0}
-// freq {1, scale_up}
 int *hist_gen(int histogr[], int arr[], int freq[], int datasize, int scale_up)
 {
     int n = sizeof(arr) / sizeof(arr[0]); // = 2
@@ -78,24 +77,13 @@ int *hist_gen(int histogr[], int arr[], int freq[], int datasize, int scale_up)
             }
         }
     }
-    // printf("%d\n",histogr[i]);
     printf("number of bins '1' after adding dummy = %d\n", count_bin1);
-
-    //	  for (index = 0; index < datasize*scale_up; index++){
-    // printf("%d", histogr[index]);
-    // }
-    //printf("\n");
 }
 
 int *pir_gen(int *myPIR_arr, int arr[], int freq[], int datasize, int pv_ratio)
 {
-    // printf("freq[1] %d\n", freq[1]);
-    int pv_size = (int)datasize / pv_ratio; //1% of dataset
-    int n = sizeof(arr) / sizeof(arr[0]);   // 2
-    // printf("sizeof(arr) = %d\n", sizeof(arr));
-    // printf("sizeof(arr[0]) = %d\n", sizeof(arr[0]));
-    // printf("n = %d\n", n);
-
+    int pv_size = (int)datasize / pv_ratio; 
+    int n = sizeof(arr) / sizeof(arr[0]);  
     int count_1 = 0;
     int i;
 
@@ -114,9 +102,6 @@ int *pir_gen(int *myPIR_arr, int arr[], int freq[], int datasize, int pv_ratio)
 
         //i++;
     }
-    // printf("i= %d\n", i);
-    // printf("count_1: %d\n", count_1);
-    // printf("pv_size: %d\n", pv_size);
     if (count_1 < pv_size)
     {
         for (int i = datasize - 1; i >= 0; i--)

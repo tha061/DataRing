@@ -7,11 +7,11 @@ C_FLAGS =  -O3
 
 C_DEFINES = 
 
-C_INCLUDES = -I/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/include -I/usr/lib/jvm/java-8-openjdk-amd64/include -I/usr/lib/jvm/java-8-openjdk-amd64/include/linux 
+C_INCLUDES = -I/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/include -I/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src -I/usr/lib/jvm/java-8-openjdk-amd64/include -I/usr/lib/jvm/java-8-openjdk-amd64/include/linux 
 
 CXX_FLAGS =  -O3 -std=c++11  
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/include -I/usr/lib/jvm/java-8-openjdk-amd64/include -I/usr/lib/jvm/java-8-openjdk-amd64/include/linux 
+CXX_INCLUDES = -I/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/include -I/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src -I/usr/lib/jvm/java-8-openjdk-amd64/include -I/usr/lib/jvm/java-8-openjdk-amd64/include/linux 
 

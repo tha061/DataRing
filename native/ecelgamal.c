@@ -179,8 +179,6 @@ int mods_func(int number)
         return (number % 4);
 }
 
-
-
 int bsgs_table_init(EC_GROUP *curve_group, bsgs_table_t table, dig_t t_size)
 {
     dig_t count = 0;
@@ -262,9 +260,15 @@ int solve_ecdlp_bsgs(bsgs_table_t bsgs_table, uint64_t *result, EC_POINT *M, int
     EC_POINT *curPointNeg = EC_POINT_dup(M, curve_group);
     BN_CTX *ctx = BN_CTX_new();
 
+    // printf("maxIt %ld\n", maxIt);
+    // printf("i %ld\n", i);
     while (i <= maxIt)
     {
+        // printf("maxIt %ld\n", maxIt);
+        // printf("i %ld\n", i);
+        // printf("error");
         ok = get_power_from_table(&j, bsgs_table, curPoint);
+        // printf("ok %ld\n", ok);
         if (ok == 0)
         {
             *result = i * bsgs_table->tablesize + j;
@@ -273,6 +277,9 @@ int solve_ecdlp_bsgs(bsgs_table_t bsgs_table, uint64_t *result, EC_POINT *M, int
         EC_POINT_add(curve_group, curPoint, curPoint, bsgs_table->mG_inv, ctx);
         i = i + 1;
     }
+
+    // printf("after maxIt %ld\n", maxIt);
+    // printf("after i %ld\n", i);
 
     if (i > maxIt)
     {
@@ -402,6 +409,41 @@ int gamal_generate_keys(gamal_key_t keys)
     BN_CTX_free(ctx);
     return 0;
 }
+
+// generate collective key with only public keys input
+int gamal_collective_key_gen_fixed(gamal_key_t coll_keys, EC_POINT **p_key_list, int size_key_list)
+{
+    gamal_init(CURVE_256_SEC);
+
+    BN_CTX *ctx = BN_CTX_new();
+    BIGNUM *ord, *secret_key;
+
+    ord = BN_new();
+    secret_key = BN_new(); //coll secret key
+    coll_keys->Y = EC_POINT_new(init_group);
+    EC_GROUP_get_order(init_group, ord, ctx);
+
+    coll_keys->is_public = 0;
+
+    EC_POINT *tmp;
+    for (int i = 0; i < size_key_list; i++)
+    {
+        if (i == 0)
+        {
+            coll_keys->Y = p_key_list[i];
+        }
+        else
+        {
+            tmp = coll_keys->Y;
+            EC_POINT_add(init_group, coll_keys->Y, tmp, p_key_list[i], ctx); //added up all public keys
+        }
+    }
+    coll_keys->secret = secret_key;
+
+    BN_CTX_free(ctx);
+    return 0;
+}
+
 //added by Tham for generate collective key => need to improve so that only public keys are the input of the function
 int gamal_collective_key_gen(gamal_key_t coll_keys, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3)
 {
@@ -553,7 +595,6 @@ int gamal_key_switching(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher
 // if table == NULL use bruteforce
 int gamal_decrypt(dig_t *res, gamal_key_t key, gamal_ciphertext_t ciphertext, bsgs_table_t table)
 {
-
     EC_POINT *M;
     uint64_t plaintext;
     BN_CTX *ctx = BN_CTX_new();
@@ -662,6 +703,7 @@ int gamal_fusion_decrypt(dig_t *res, int num_server, gamal_key_t key_lead, gamal
     {
         solve_dlog_brute(init_group, ciphertext->C2, &plaintext, 1L << MAX_BITS);
     }
+
     *res = (dig_t)plaintext;
 
     // printf("Test Decrypt fusion OK\n");

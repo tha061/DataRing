@@ -10,13 +10,63 @@ CMakeFiles/ecelgamal.dir/ecelgamal.c.o
  /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.c
  /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.h
  include/uthash.h
-CMakeFiles/ecelgamal.dir/testing.cpp.o
- /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/backup_enc.cpp
+CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.o
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/generate_enc_vectors.c
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/generate_enc_vectors.h
+CMakeFiles/ecelgamal.dir/src/ENC_Stack.cpp.o
  /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/crtecelgamal.h
  /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.h
- /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/generate_enc_vectors.c
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/include/public_header.h
  /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/process_data.cpp
- /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/process_data.h
  /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/process_partial_view.cpp
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/ENC_Stack.cpp
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/ENC_Stack.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/generate_enc_vectors.h
+ include/uthash.h
+CMakeFiles/ecelgamal.dir/src/Participant.cpp.o
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/crtecelgamal.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/include/public_header.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/process_data.cpp
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/process_partial_view.cpp
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/ENC_Stack.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Participant.cpp
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Participant.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/generate_enc_vectors.h
+ include/uthash.h
+CMakeFiles/ecelgamal.dir/src/Server.cpp.o
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/crtecelgamal.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/include/public_header.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/process_data.cpp
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/process_partial_view.cpp
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/ENC_Stack.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Server.cpp
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Server.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/generate_enc_vectors.h
+ include/uthash.h
+CMakeFiles/ecelgamal.dir/src/Servers.cpp.o
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/crtecelgamal.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/include/public_header.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/process_data.cpp
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/process_partial_view.cpp
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/ENC_Stack.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Server.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Servers.cpp
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Servers.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/generate_enc_vectors.h
+ include/uthash.h
+CMakeFiles/ecelgamal.dir/testing.cpp.o
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/crtecelgamal.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/ecelgamal.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/include/public_header.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/process_data.cpp
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/process_partial_view.cpp
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/ENC_Stack.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Participant.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Server.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/Servers.h
+ /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/src/generate_enc_vectors.h
  /home/namjose/Desktop/encrypto_intern/dataring_implementation/native/testing.cpp
  include/uthash.h

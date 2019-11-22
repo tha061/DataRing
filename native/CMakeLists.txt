@@ -26,7 +26,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/out)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
 
-add_executable(ecelgamal testing.cpp ecelgamal.h ecelgamal.c crtecelgamal.c crtecelgamal.h)
+set(src/Participant.cpp src/Participant.h src/Server.cpp src/Server.h src/Servers.h src/Servers.cpp src/ENC_Stack.h src/ENC_Stack.cpp src/generate_enc_vectors.h src/generate_enc_vectors.cpp )
+include_directories(src)
+
+add_executable(ecelgamal testing.cpp ecelgamal.h ecelgamal.c crtecelgamal.c crtecelgamal.h src/Participant.h src/Participant.cpp src/Server.cpp src/Server.h src/Servers.h src/Servers.cpp src/ENC_Stack.h src/ENC_Stack.cpp src/generate_enc_vectors.h src/generate_enc_vectors.c)
 add_library(ecelgamal-lib SHARED ecelgamal.h ecelgamal.c crtecelgamal.c crtecelgamal.h)
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/include ${JNI_INCLUDE_DIRS})
