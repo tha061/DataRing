@@ -791,7 +791,10 @@ int gamal_mult(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, dig_t pt)
 }
 
 //Added by Tham for better multiplication between a ciphertext and a plaintext (scalar multiplication)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6a6a11d32184471619c05f0eb13c3b82f11af098
 int gamal_mult_opt(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext, dig_t pt)
 {
 
@@ -805,17 +808,29 @@ int gamal_mult_opt(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext, dig_t 
     int naf_binary_arr[64];
     //int counter1 = 0, counter2 = 0;
 
+<<<<<<< HEAD
     if (pt == 0)
     {
         printf("gamal_mult_opt(): does not support multiply by 0\n");
         return 0;
     }
+=======
+>>>>>>> 6a6a11d32184471619c05f0eb13c3b82f11af098
     res->C1 = EC_POINT_new(init_group);
     res->C2 = EC_POINT_new(init_group);
 
     ///** n-1 doublings and m - 1 additions: double-and-add binary-correct
+<<<<<<< HEAD
    
     if (pt == 1)
+=======
+    if (pt == 0)
+    {
+        res->C1 = 0;
+        res->C2 = 0;
+    }
+    else if (pt == 1)
+>>>>>>> 6a6a11d32184471619c05f0eb13c3b82f11af098
     {
         res->C1 = ciphertext->C1;
         res->C2 = ciphertext->C2;
@@ -849,10 +864,13 @@ int gamal_mult_opt(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext, dig_t 
             temp->C2 = res->C2;
         }
     }
+<<<<<<< HEAD
    
 
      
 
+=======
+>>>>>>> 6a6a11d32184471619c05f0eb13c3b82f11af098
     BN_CTX_free(ctx);
     EC_POINT_clear_free(M1);
     EC_POINT_clear_free(M2);
@@ -861,7 +879,10 @@ int gamal_mult_opt(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext, dig_t 
     return 0;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6a6a11d32184471619c05f0eb13c3b82f11af098
 EC_GROUP *gamal_get_current_group()
 {
     return init_group;
