@@ -1,0 +1,5 @@
+/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles/edit_cache.dir
+/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles/rebuild_cache.dir
+/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles/ecelgamal-jni-wrapper.dir
+/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles/ecelgamal.dir
+/home/namjose/Desktop/encrypto_intern/dataring_implementation/native/CMakeFiles/ecelgamal-lib.dir

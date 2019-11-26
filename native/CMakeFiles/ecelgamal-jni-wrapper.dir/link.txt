@@ -1,0 +1,1 @@
+/usr/bin/cc -fPIC  -O3  -shared -Wl,-soname,libecelgamal-jni-wrapper.so -o out/libecelgamal-jni-wrapper.so CMakeFiles/ecelgamal-jni-wrapper.dir/crtecelgamal_jni_wrapper.c.o CMakeFiles/ecelgamal-jni-wrapper.dir/ecelgamal.c.o -lcrypto -lssl 
