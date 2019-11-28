@@ -19,6 +19,8 @@ void timeEvaluate(string task_name, high_resolution_clock::time_point t1, high_r
 void printEncData(int index, gamal_ciphertext_t *myPIR_enc);
 void testWithoutDecrypt(hash_map plain_domain_map);
 void addDummy(hash_map &hashMap);
+void printCiphertext(gamal_ciphertext_t ciphertext);
+int data_ring();
 
 string trim(const string &str)
 {
@@ -30,6 +32,41 @@ string trim(const string &str)
 	size_t last = str.find_last_not_of(' ');
 	return str.substr(first, (last - first + 1));
 }
+
+// int main()
+// {
+// 	for(int i=0; i<5; i++)
+// 	{
+// 		data_ring();
+// 	}
+
+// 	return 0;
+// }
+
+// int main()
+// {
+// 	// initialize key & table
+// 	gamal_key_t key;
+// 	bsgs_table_t table;
+// 	gamal_init(CURVE_256_SEC);
+// 	gamal_generate_keys(key);
+// 	gamal_init_bsgs_table(table, (dig_t)1L << 16);
+
+// 	CIPHER_DOMAIN_MAP enc_map;
+
+// 	gamal_ciphertext_t enc;
+// 	gamal_cipher_new(enc);
+// 	gamal_encrypt(enc, key, 1);
+
+// 	enc_map.insert({make_pair("100", "200 300"), enc});
+
+// 	for(CIPHER_DOMAIN_MAP::iterator itr = enc_map.begin(); itr != enc_map.end(); itr++)
+// 	{
+// 		cout << "Domain" << itr->first.second << endl;
+// 		printCiphertext(itr->second);
+// 	}
+// }
+
 
 int main()
 {
@@ -68,7 +105,7 @@ int main()
 	servers.generateCollKey();
 
 	// ============= INITIALIZE CIPHERTEXT STACK ============/
-	ENC_Stack pre_enc_stack(3 * size_dataset, servers.coll_key);
+	ENC_Stack pre_enc_stack(4 * size_dataset, servers.coll_key);
 
 	t1 = high_resolution_clock::now();
 	pre_enc_stack.initializeStack_E0();
@@ -85,46 +122,108 @@ int main()
 	servers.createServersEncrypVector(pre_enc_stack);
 
 	//========================= PARTICIPANT ==========================/
-	part_A.addDummy();
+	part_A.addDummy(2);
+	// part_A.addDummyFake_1(100000, 2);
+	// part_A.addDummyFake_2(100000, 2);
 	part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, pre_enc_stack);
 	part_A.testWithoutDecrypt();
+
 
 	// ========================= SERVER ==========================/
 	// servers.fusionDecrypt(part_A.enc_domain_map, table);
 
 	// ========================= SERVER 1 VERIFICATION =============/
-	int server_id = 0; // Server 1
-	servers.verificationPV(part_A.enc_domain_map, table, server_id);
+	// int server_id = 0; // Server 1
+	// t1 = high_resolution_clock::now();
+	// servers.verificationPV(part_A.enc_domain_map, table, server_id, pre_enc_stack);
+	// t2 = high_resolution_clock::now();
+	// timeEvaluate("verificationPV", t1, t2);	
 
-	// ========================= TEST FUNCTION 1 ===================/
 	Server server1 = servers.server_vect[0];
-	server1.generateTestHashMap_1(pre_enc_stack);
 
-	// cout << server1.enc_known_map.size() << endl;
+	// // ========================= TEST FUNCTION 1 ===================/
+	// t1 = high_resolution_clock::now();
 
-	//========================= PARTICIPANT ==========================/
-	gamal_ciphertext_t sum_cipher;
-	gamal_cipher_new(sum_cipher);
-	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
+	// server1.generateTestHashMap_1(pre_enc_stack, part_A.enc_domain_map);
 
-	// ========================= SERVER ==========================/
-	dig_t decrypt_test_f1 = servers._fusionDecrypt(sum_cipher, table, 0);
-	cout << "Test function - Count of L known data: " << decrypt_test_f1 << endl;
-
-
-	// ========================= TEST FUNCTION 2 ===================/
-	server1.generateTestHashMap_2(pre_enc_stack, part_A.enc_domain_map);
+	// t2 = high_resolution_clock::now();
+	// timeEvaluate("generateTestHashMap_1", t1, t2);	
 
 
 	// // ========================= PARTICIPANT ==========================/
+	// gamal_ciphertext_t sum_cipher;
+	// gamal_cipher_new(sum_cipher);
+	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
+
+	// // ========================= SERVER ==========================/
+	// dig_t decrypt_test_f1 = servers._fusionDecrypt(sum_cipher, table, 0);
+	// cout << "Test function - Count of L known data: " << decrypt_test_f1 << endl;
+
+
+	// ========================= TEST FUNCTION 2 ===================/
+	t1 = high_resolution_clock::now();
+
+	server1.generateTestHashMap_2(pre_enc_stack, part_A.enc_domain_map);
+
+	t2 = high_resolution_clock::now();
+	timeEvaluate("generateTestHashMap_2", t1, t2);	
+
+	// ========================= PARTICIPANT ==========================/
 	gamal_ciphertext_t sum_cipher2;
 	gamal_cipher_new(sum_cipher2);
 	part_A.proceedTestFunction(server1.enc_test_map_2, sum_cipher2);
 
 	// ========================= SERVER ==========================/
 	dig_t decrypt_test_f2 = servers._fusionDecrypt(sum_cipher2, table, 0);
-	cout << "Test functio - Count of V known data: " << decrypt_test_f2 << endl;
+	cout << "Test function - Count of V known data: " << decrypt_test_f2 << endl;
 
+
+	// // ========================= TEST FUNCTION 3 ===================/
+	// // ========================= SERVER ==========================/
+	// t1 = high_resolution_clock::now();
+
+	// server1.generateTestHashMap_3(pre_enc_stack, part_A.enc_domain_map);
+
+	// t2 = high_resolution_clock::now();
+	// timeEvaluate("IgenerateTestHashMap_3", t1, t2);	
+
+	// // ========================= PARTICIPANT ==========================/
+	// gamal_ciphertext_t sum_cipher3;
+	// gamal_cipher_new(sum_cipher3);
+	// part_A.proceedTestFunction(server1.enc_test_map_3, sum_cipher3);
+
+	// // ========================= SERVER ==========================/
+	// dig_t decrypt_test_f3 = servers._fusionDecrypt(sum_cipher3, table, 0);
+	// cout << "Test function - Count of V - r0 data: " << decrypt_test_f3 << endl;
+
+
+
+	// // ========================= TEST FUNCTION 4 ===================/
+	// // ========================= SERVER ==========================/
+	// t1 = high_resolution_clock::now();
+
+	// int col = 2;
+	// string value = "5000";
+	// map<int, string> cols_map;
+	// cols_map.insert({0, "5000"});
+	// cols_map.insert({1, "5000"});
+	// cols_map.insert({2, "5000"});
+	// cols_map.insert({3, "180000.0"});
+	// cols_map.insert({5, "11.99"});
+	// cols_map.insert({6, "B"});
+	// server1.generateTestHashMap_Attr(pre_enc_stack, part_A.enc_domain_map, cols_map);
+
+	// t2 = high_resolution_clock::now();
+	// timeEvaluate("IgenerateTestHashMap_Attr", t1, t2);	
+
+	// // ========================= PARTICIPANT ==========================/
+	// gamal_ciphertext_t sum_cipher4;
+	// gamal_cipher_new(sum_cipher4);
+	// part_A.proceedTestFunction(server1.enc_test_map_4, sum_cipher4);
+
+	// // ========================= SERVER ==========================/
+	// dig_t decrypt_test_f4 = servers._fusionDecrypt(sum_cipher4, table, 0);
+	// cout << "Test function - Count of specified attribute: " << decrypt_test_f4 << endl;
 
 
 	return 0;
@@ -166,6 +265,39 @@ void printEncData(int index, gamal_ciphertext_t *myPIR_enc)
 	printf("\n");
 }
 
+void printCiphertext(gamal_ciphertext_t ciphertext)
+{
+	extern EC_GROUP *init_group;
+	BIGNUM *x = BN_new();
+	BIGNUM *y = BN_new();
+
+	if (EC_POINT_get_affine_coordinates_GFp(init_group, ciphertext->C1, x, y, NULL))
+	{
+		BN_print_fp(stdout, x);
+		putc('\n', stdout);
+		BN_print_fp(stdout, y);
+		putc('\n', stdout);
+	}
+	else
+	{
+		std::cerr << "Can't get point coordinates." << std::endl;
+	}
+	printf("\n");
+	if (EC_POINT_get_affine_coordinates_GFp(init_group, ciphertext->C2, x, y, NULL))
+	{
+		BN_print_fp(stdout, x);
+		putc('\n', stdout);
+		BN_print_fp(stdout, y);
+		putc('\n', stdout);
+	}
+	else
+	{
+		std::cerr << "Can't get point coordinates." << std::endl;
+	}
+
+	printf("\n");
+}
+
 void decryptFind(map<string, gamal_ciphertext_t *> enc_domain_map, gamal_key_t key, bsgs_table_t table)
 {
 	int count1 = 0;
@@ -185,55 +317,6 @@ void decryptFind(map<string, gamal_ciphertext_t *> enc_domain_map, gamal_key_t k
 int getRandomInRange(int min, int max)
 {
 	return min + (rand() % (max - min + 1));
-}
-
-int main1()
-{
-	std::cout << OPENSSL_VERSION_TEXT << std::endl;
-
-	//EC_GROUP *init_group = NULL;
-
-	//====== SETUP ========
-	// pre_encryption(100);
-
-	// partialViewCollect_histogram(1000000, 5);
-
-	// partialViewCollect_histogram_map(1000,2);
-
-	// ======= Plain EC-ElGamal =====
-
-	// test1();
-	// std::cout << "Plain EC-ElGamal 32-bit integers" << std::endl;
-	//bench_elgamal(10, 16);
-	//std::cout << "Plain EC-ElGamal 32-bit integers" << std::endl;
-	//bench_elgamal_add(10, 16);
-	// std::cout << "Plain EC-ElGamal 32-bit integers" << std::endl;
-	// bench_elgamal_mult(10, 16, 1000000);
-	// std::cout<<"Test mult opt: "<<std::endl;
-	// test_mult_opt(100,1000);
-
-	// std::cout<<"Test query computation: "<<std::endl;
-	// test_COUNT_query_computation(1000000);
-	//test_SUM_query_computation(10);
-
-	//==== Collective Key Gen for EC-ElGamal=====
-	// std::cout<< "EC ElGamal test collective key gen and threshold decryption"<<std::endl;
-	// test_coll_key_gen(500);
-	// test_threshold_decrypt(100);
-	//test_coll_decrypt();
-	//std::cout<< "EC ElGamal test key switching"<<std::endl;
-	//test_key_switch(1000);
-
-	//printf("08%d", convert_to_bin(13));
-	//convert_to_bin(13);
-	//std::cout<< convert_to_bin(16)<<std::endl;
-
-	//std::cout<<"Test binary convert"<<std::endl;
-	//test_binary_inter(15000);
-
-	//test_NAF_decode(19);
-
-	return 0;
 }
 
 #if 0

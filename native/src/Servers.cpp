@@ -94,7 +94,7 @@ void Servers::fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table)
 
     for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); ++itr)
     {
-        gamal_fusion_decrypt(&res, server_size, server_vect[0].key, key_follow, ciphertext_update, itr->second[0], table);
+        gamal_fusion_decrypt(&res, server_size, server_vect[0].key, key_follow, ciphertext_update, itr->second, table);
         if (res > 0)
         {
             count += res;
@@ -104,41 +104,91 @@ void Servers::fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table)
     cout << "Total domain encrypted as 1: " << count << endl;
 }
 
-bool Servers::verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId)
+bool Servers::verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack)
 {
-    Server server = server_vect[serverId];
+    Server server = server_vect[serverId]; // shallow copy
     const int KNOWN_VECT_SIZE = server.known_vector.size();
     const int LEAST_DOMAIN = 4;
-    // const int LEAST_DOMAIN = KNOWN_VECT_SIZE / 3;
-    int count = 0;
 
-    gamal_ciphertext_t sum, tmp;
+    gamal_ciphertext_t sum, tmp, encrypt_E0;
     gamal_cipher_new(sum);
     gamal_cipher_new(tmp);
+    gamal_cipher_new(encrypt_E0);
+
+    pre_enc_stack.pop_E0(encrypt_E0);
 
     int counter = 0;
-    for (int i = 0; i < KNOWN_VECT_SIZE; i++)
+
+    gamal_ciphertext_t total_v_decrypt, tmp_v_decrypt;
+    gamal_cipher_new(tmp_v_decrypt);
+    gamal_cipher_new(total_v_decrypt);
+    int count = 0;
+
+    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
     {
-        ENC_DOMAIN_MAP::iterator find = enc_domain_map.find(server.known_vector[i]);
-        if (find != enc_domain_map.end())
+        id_domain_pair domain_pair = itr->first;
+        id_domain_set::iterator find = server.known_vector.find(domain_pair);
+        if (find != server.known_vector.end())
         {
             if (counter == 0)
             {
-                sum->C1 = find->second[0]->C1;
-                sum->C2 = find->second[0]->C2;
+                sum->C1 = itr->second->C1;
+                sum->C2 = itr->second->C2;
             }
             else
             {
                 tmp->C1 = sum->C1;
                 tmp->C2 = sum->C2;
-                gamal_add(sum, tmp, find->second[0]);
+                gamal_add(sum, tmp, itr->second);
+            }
+
+            gamal_ciphertext_t tmp_decrypt;
+            gamal_add(tmp_decrypt, itr->second, encrypt_E0);
+            dig_t domain_decrypt = Servers::_fusionDecrypt(tmp_decrypt, table, serverId);
+            if (domain_decrypt > 0)
+            {
+                cout << "Domain decrypt: " << domain_decrypt << endl;
+                server_vect[serverId].addVerifiedDomain(domain_pair);
             }
 
             counter++;
         }
+
+        if (count == 0)
+        {
+            total_v_decrypt->C1 = itr->second->C1;
+            total_v_decrypt->C2 = itr->second->C2;
+        }
+        else
+        {
+            tmp_v_decrypt->C1 = total_v_decrypt->C1;
+            tmp_v_decrypt->C2 = total_v_decrypt->C2;
+            gamal_add(total_v_decrypt, tmp_v_decrypt, itr->second);
+        }
+
+        count++;
     }
 
-    cout << "Verifiation counter " << counter << endl;
+    dig_t total_v = Servers::_fusionDecrypt(total_v_decrypt, table, serverId);
+    cout << "V - Total number of domain encrypted as 1: " << total_v << endl;
+    if (total_v == (data_size * 0.01))
+    {
+        cout << "Pass V size verification" << endl;
+    }
+    else
+    {
+        cout << "Fail V size verification" << endl;
+    }
+
+    cout << "L - TOtal number of known domain ecrypted from partial view: " << counter << endl;
+    if (counter == server.known_vector.size())
+    {
+        cout << "Pass L size verification" << endl;
+    }
+    else
+    {
+        cout << "Fail L size verification" << endl;
+    }
 
     dig_t sum_res = Servers::_fusionDecrypt(sum, table, serverId);
 

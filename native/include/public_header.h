@@ -51,8 +51,24 @@ public:
     }
 };
 
+struct comp
+{
+    template <typename T>
+    bool operator()(const T &l, const T &r) const
+    {
+        return l.first < r.first;
+    }
+};
+
+typedef pair<string, string> id_domain_pair;
+typedef std::map<id_domain_pair, int, comp> hash_pair_map;
 typedef std::map<string, int> hash_map;
-typedef map<string, gamal_ciphertext_t *> ENC_DOMAIN_MAP;
-typedef vector<string> id_domain_vector;
+
+typedef map<id_domain_pair, gamal_ciphertext_ptr, comp> ENC_DOMAIN_MAP;
+
+typedef vector<id_domain_pair> id_domain_vector;
+typedef set<id_domain_pair, comp> id_domain_set;
+
+typedef map<id_domain_pair, gamal_ciphertext_ptr, comp> CIPHER_DOMAIN_MAP;
 
 #endif

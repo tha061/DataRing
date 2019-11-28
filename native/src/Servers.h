@@ -20,7 +20,7 @@ public:
     dig_t _fusionDecrypt(gamal_ciphertext_t ciphertext, bsgs_table_t table, int serverId);
     void fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table);
     void createServersEncrypVector(ENC_Stack &pre_enc_stack);
-    bool verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId);
+    bool verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack);
 };
 
 #endif

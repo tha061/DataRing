@@ -62,10 +62,10 @@ void Participant::processData()
 
     while (!data.eof())
     {
-        // if(i >= 500000)
-        // {
-        //     break;
-        // }
+        if (i >= 500000)
+        {
+            break;
+        }
         getline(data, str);
         if (str.empty())
         {
@@ -80,11 +80,11 @@ void Participant::processData()
 
         string id_domain = id + " " + name;
 
-        hashMap.insert({id, count});
-        // i++;
+        hashMap.insert({make_pair(id, name), count});
+        i++;
     }
 
-    for (hash_map::iterator itr = hashMap.begin(); itr != hashMap.end(); ++itr)
+    for (hash_pair_map::iterator itr = hashMap.begin(); itr != hashMap.end(); ++itr)
     {
         size_dataset += itr->second;
     }
@@ -94,7 +94,7 @@ void Participant::print_hash_map()
 {
     cout << "\nHash map\n";
     int i = 0;
-    hash_map::iterator itr;
+    hash_pair_map::iterator itr;
     for (itr = hashMap.begin(); itr != hashMap.end(); ++itr)
     {
         i += 1;
@@ -102,16 +102,12 @@ void Participant::print_hash_map()
         {
             break;
         }
-        cout << itr->first << "|" << itr->second << endl;
+        cout << itr->first.first << "|" << itr->first.second << "|" << itr->second << endl;
     }
 }
 
-void Participant::addDummy()
+string getDummyDomain()
 {
-    int domain_size = hashMap.size();
-    cout << "Size of original histogram: " << domain_size << endl;
-    int pv_size = 2 * size_dataset;
-    // int pv_size = 10 + size_dataset;
     const int MAX_COL_1 = 40000;
     const int MIN_COL_1 = 1000;
     const int MAX_COL_2 = 40000;
@@ -126,28 +122,155 @@ void Participant::addDummy()
     const int DISTINCT_COL_9 = 3;
     const int DISTINCT_COL_10 = 6;
 
+    int col1 = _getRandomInRange(MIN_COL_1, MAX_COL_1);
+    int col2 = _getRandomInRange(MIN_COL_2, MAX_COL_2);
+    int col3 = _getRandomInRange(MIN_COL_3, MAX_COL_3);
+    float col4 = 0.0 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (110000000.0 - 0.0)));
+    int col5 = _getRandomInRange(0, DISTINCT_COL_5 - 1);
+    float col6 = 5.31 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (30.99 - 5.31)));
+    int col7 = _getRandomInRange(0, DISTINCT_COL_7 - 1);
+    int col8 = _getRandomInRange(-1, 10);
+    int col9 = _getRandomInRange(0, DISTINCT_COL_9 - 1);
+    int col10 = _getRandomInRange(0, DISTINCT_COL_10 - 1);
+
+    string dummy_domain = to_string(col1) + " " + to_string(col2) + " " + to_string(col3) + " " + to_string(col4) + " " + to_string(col5) + " " + to_string(col6) + " " + to_string(col7) + " " + to_string(col8) + " " + to_string(col9) + " " + to_string(col10);
+
+    return dummy_domain;
+}
+
+void Participant::addDummy(int factorSize)
+{
+    int domain_size = hashMap.size();
+    cout << "Size of original histogram: " << domain_size << endl;
+    int pv_size = factorSize * size_dataset;
+
     int dummy_id = size_dataset;
     while (hashMap.size() < pv_size)
     {
-        int col1 = _getRandomInRange(MIN_COL_1, MAX_COL_1);
-        int col2 = _getRandomInRange(MIN_COL_2, MAX_COL_2);
-        int col3 = _getRandomInRange(MIN_COL_3, MAX_COL_3);
-        float col4 = 0.0 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (110000000.0 - 0.0)));
-        int col5 = _getRandomInRange(0, DISTINCT_COL_5 - 1);
-        float col6 = 5.31 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (30.99 - 5.31)));
-        int col7 = _getRandomInRange(0, DISTINCT_COL_7 - 1);
-        int col8 = _getRandomInRange(-1, 10);
-        int col9 = _getRandomInRange(0, DISTINCT_COL_9 - 1);
-        int col10 = _getRandomInRange(0, DISTINCT_COL_10 - 1);
-
-        string dummy_domain = to_string(dummy_id) + " " + to_string(col1) + " " + to_string(col2) + " " + to_string(col3) + " " + to_string(col4) + " " + to_string(col5) + " " + to_string(col6) + " " + to_string(col7) + " " + to_string(col8) + " " + to_string(col9) + " " + to_string(col10);
-
-        hashMap.insert({to_string(dummy_id), 0});
+        string dummy_domain = getDummyDomain();
+        hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
         dummy_id++;
     }
 
     cout << "Total size of partial view histogram: " << hashMap.size() << endl
          << endl;
+}
+
+void Participant::addDummyFake_1(int keepDomainS, int factorSize)
+{
+    int domain_size = hashMap.size();
+    cout << "Size of original histogram: " << domain_size << endl;
+    int pv_size = factorSize * size_dataset;
+
+    int dummy_id = size_dataset;
+    while (hashMap.size() < pv_size)
+    {
+        string dummy_domain = getDummyDomain();
+        hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
+        dummy_id++;
+    }
+
+    int replaceDomainS = size_dataset - keepDomainS;
+    int counter = 0;
+
+    hash_pair_map::iterator itr = hashMap.begin();
+    for (itr; itr != hashMap.end(); itr++)
+    {
+        if (counter >= replaceDomainS)
+        {
+            break;
+        }
+        int count = itr->second;
+        if (count > 0)
+        {
+            hashMap.erase(itr);
+            string dummy_domain = getDummyDomain();
+            dummy_id++;
+            hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 1});
+            counter++;
+        }
+    }
+    cout << "Total size of fake partial view histogram: " << hashMap.size() << endl
+         << endl;
+}
+
+void Participant::addDummyFake_2(int keepDomainS, int factorSize)
+{
+
+    int domain_size = hashMap.size();
+    cout << "Size of original histogram: " << domain_size << endl;
+    int pv_size = factorSize * size_dataset;
+    int replaceDomainS = size_dataset - keepDomainS;
+
+    int dummy_id = size_dataset;
+    int counterDummy = 0;
+    while (hashMap.size() < pv_size)
+    {
+        string dummy_domain = getDummyDomain();
+        if (counterDummy >= replaceDomainS)
+        {
+            hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
+        }
+        else
+        {
+            hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 1});
+        }
+
+        dummy_id++;
+        counterDummy++;
+    }
+
+    int counter = 0;
+
+    hash_pair_map::iterator itr = hashMap.begin();
+    for (itr; itr != hashMap.end(); itr++)
+    {
+        if (counter >= replaceDomainS)
+        {
+            break;
+        }
+        int count = itr->second;
+        if (count > 0)
+        {
+            itr->second = 0;
+            counter++;
+        }
+    }
+    cout << "Total size of fake partial view histogram: " << hashMap.size() << endl
+         << endl;
+}
+
+void _printCiphertext(gamal_ciphertext_ptr ciphertext)
+{
+    extern EC_GROUP *init_group;
+    BIGNUM *x = BN_new();
+    BIGNUM *y = BN_new();
+
+    if (EC_POINT_get_affine_coordinates_GFp(init_group, ciphertext->C1, x, y, NULL))
+    {
+        BN_print_fp(stdout, x);
+        putc('\n', stdout);
+        BN_print_fp(stdout, y);
+        putc('\n', stdout);
+    }
+    else
+    {
+        std::cerr << "Can't get point coordinates." << std::endl;
+    }
+    printf("\n");
+    if (EC_POINT_get_affine_coordinates_GFp(init_group, ciphertext->C2, x, y, NULL))
+    {
+        BN_print_fp(stdout, x);
+        putc('\n', stdout);
+        BN_print_fp(stdout, y);
+        putc('\n', stdout);
+    }
+    else
+    {
+        std::cerr << "Can't get point coordinates." << std::endl;
+    }
+
+    printf("\n");
 }
 
 // plain_track_list: 1, 0 vector encrypted from Server
@@ -156,11 +279,11 @@ void Participant::multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *en
 {
     int counter_row = 0;
     cout << "PV SIZE " << hashMap.size() << ", VECTOR FROM SERVER SIZE " << size_dataset << endl;
-    for (hash_map::iterator itr = hashMap.begin(); itr != hashMap.end(); ++itr)
+    for (hash_pair_map::iterator itr = hashMap.begin(); itr != hashMap.end(); ++itr)
     {
         int decypt_cip = 0;
 
-        string domain = itr->first;
+        id_domain_pair domain = itr->first;
         int domain_count = itr->second;
 
         gamal_ciphertext_t *mul_enc_ciphertext = new gamal_ciphertext_t[1];
@@ -178,7 +301,7 @@ void Participant::multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *en
             pre_enc_stack.pop_E0(mul_enc_ciphertext[0]);
         }
 
-        enc_domain_map.insert({domain, mul_enc_ciphertext});
+        enc_domain_map.insert({domain, mul_enc_ciphertext[0]});
         plain_domain_map.insert({domain, decypt_cip});
     }
 
@@ -193,14 +316,14 @@ void Participant::testWithoutDecrypt()
     fout << "ID, DOMAIN, SUM\n";
     int count = 0;
     int sum_value;
-    for (hash_map::iterator itr = plain_domain_map.begin(); itr != plain_domain_map.end(); ++itr)
+    for (hash_pair_map::iterator itr = plain_domain_map.begin(); itr != plain_domain_map.end(); ++itr)
     {
         sum_value = itr->second;
         // if (sum_value > 0)
         // {
         count += sum_value;
         // Insert the data to file
-        fout << itr->first << ", " << sum_value << "\n";
+        fout << itr->first.first << ", " << itr->first.second << ", " << sum_value << "\n";
         // cout << "Decrypt: " << sum_value << " of key " << itr->first << endl;
         // }
     }
@@ -223,11 +346,13 @@ void Participant::proceedTestFunction(ENC_DOMAIN_MAP &enc_test_map, gamal_cipher
     int i = 0;
     for (ENC_DOMAIN_MAP::iterator itr = enc_test_map.begin(); itr != enc_test_map.end(); itr++)
     {
-        string domain = itr->first;
-        int value = hashMap[domain];
+        string key = itr->first.first;
+        string domain = itr->first.second;
+
+        int value = hashMap[{key, domain}];
         if (value > 0)
         {
-            gamal_mult_opt(mul_tmp, itr->second[0], value);
+            gamal_mult_opt(mul_tmp, itr->second, value);
 
             if (counter == 0)
             {
