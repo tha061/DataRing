@@ -14,8 +14,14 @@
 #include <utility>
 #include <algorithm>
 #include <iterator> // for iterators
+#include <boost/math/distributions/laplace.hpp>
+#include <boost/array.hpp>
+
 using namespace std::chrono;
 using namespace std;
+
+// using namespace boost;
+using namespace boost::math;
 
 extern "C"
 {

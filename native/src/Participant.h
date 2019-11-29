@@ -21,6 +21,9 @@ public:
     // replace n-keepDomainS by E(0) and make n-keepDomainS dummy E(1)
     void addDummyFake_2(int keepDomainS, int factorSize); 
 
+    // make vector by self and make PV View without Servers
+    void selfIntializePV(ENC_Stack &pre_enc_stack, int fakeEnc1, int factorSize); 
+
     void processData();
     void print_hash_map();
     void multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *myPIR_enc, ENC_Stack &pre_enc_stack);

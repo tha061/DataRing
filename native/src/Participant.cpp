@@ -203,23 +203,6 @@ void Participant::addDummyFake_2(int keepDomainS, int factorSize)
     int replaceDomainS = size_dataset - keepDomainS;
 
     int dummy_id = size_dataset;
-    int counterDummy = 0;
-    while (hashMap.size() < pv_size)
-    {
-        string dummy_domain = getDummyDomain();
-        if (counterDummy >= replaceDomainS)
-        {
-            hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
-        }
-        else
-        {
-            hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 1});
-        }
-
-        dummy_id++;
-        counterDummy++;
-    }
-
     int counter = 0;
 
     hash_pair_map::iterator itr = hashMap.begin();
@@ -236,8 +219,96 @@ void Participant::addDummyFake_2(int keepDomainS, int factorSize)
             counter++;
         }
     }
+
+    int counterDummy = 0;
+    while (hashMap.size() < pv_size)
+    {
+        string dummy_domain = getDummyDomain();
+        if (counterDummy >= replaceDomainS)
+        {
+            hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
+        }
+        else
+        {
+            hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 1});
+        }
+
+        dummy_id++;
+        counterDummy++;
+    }
     cout << "Total size of fake partial view histogram: " << hashMap.size() << endl
          << endl;
+}
+
+void Participant::selfIntializePV(ENC_Stack &pre_enc_stack, int keepDomainS, int factorSize)
+{
+    int replaceDomainS = (size_dataset / 100) - keepDomainS;
+    // cout << "keepDomainS " << keepDomainS << endl;
+
+    int domain_size = hashMap.size();
+    cout << "Size of original histogram: " << domain_size << endl;
+    int pv_size = factorSize * size_dataset;
+
+    int dummy_id = size_dataset;
+    while (hashMap.size() < pv_size)
+    {
+        string dummy_domain = getDummyDomain();
+        hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
+        dummy_id++;
+    }
+
+    int counter_row = 0;
+    cout << "PV SIZE " << hashMap.size() << ", VECTOR FROM SERVER SIZE " << size_dataset << endl;
+
+    for (hash_pair_map::iterator itr = hashMap.begin(); itr != hashMap.end(); ++itr)
+    {
+        int decypt_cip = 0;
+
+        id_domain_pair domain = itr->first;
+        int domain_count = itr->second;
+
+        gamal_ciphertext_t *mul_enc_ciphertext = new gamal_ciphertext_t[1];
+
+        int track = 0;
+        if (domain_count > 0)
+        {
+            if (counter_row < replaceDomainS)
+            {
+                pre_enc_stack.pop_E1(mul_enc_ciphertext[0]);
+                decypt_cip = 1;
+                string dummy_domain = getDummyDomain();
+                dummy_id++;
+                enc_domain_map.insert({make_pair(to_string(dummy_id), dummy_domain), mul_enc_ciphertext[0]});
+                plain_domain_map.insert({make_pair(to_string(dummy_id), dummy_domain), decypt_cip});
+                counter_row++;
+            }
+            else if (counter_row < (size_dataset / 100) && counter_row >= replaceDomainS)
+            {
+                pre_enc_stack.pop_E1(mul_enc_ciphertext[0]);
+                decypt_cip = 1;
+                enc_domain_map.insert({domain, mul_enc_ciphertext[0]});
+                plain_domain_map.insert({domain, decypt_cip});
+                counter_row++;
+            }
+            else
+            {
+                pre_enc_stack.pop_E0(mul_enc_ciphertext[0]);
+                decypt_cip = 0;
+                enc_domain_map.insert({domain, mul_enc_ciphertext[0]});
+                plain_domain_map.insert({domain, decypt_cip});
+            }
+        }
+        else
+        {
+            decypt_cip = 0;
+            pre_enc_stack.pop_E0(mul_enc_ciphertext[0]);
+            enc_domain_map.insert({domain, mul_enc_ciphertext[0]});
+            plain_domain_map.insert({domain, decypt_cip});
+        }
+    }
+
+    cout << "Counter row " << counter_row << endl;
+    cout << "PV size " << hashMap.size() << endl;
 }
 
 void _printCiphertext(gamal_ciphertext_ptr ciphertext)
@@ -312,8 +383,8 @@ void Participant::testWithoutDecrypt()
 {
     fstream fout;
     // Open an existing file
-    fout.open("./data/report.csv", ios::out | ios::trunc);
-    fout << "ID, DOMAIN, SUM\n";
+    // fout.open("./data/report.csv", ios::out | ios::trunc);
+    // fout << "ID, DOMAIN, SUM\n";
     int count = 0;
     int sum_value;
     for (hash_pair_map::iterator itr = plain_domain_map.begin(); itr != plain_domain_map.end(); ++itr)
@@ -323,11 +394,12 @@ void Participant::testWithoutDecrypt()
         // {
         count += sum_value;
         // Insert the data to file
-        fout << itr->first.first << ", " << itr->first.second << ", " << sum_value << "\n";
+        // fout << itr->first.first << ", " << itr->first.second << ", " << sum_value << "\n";
+
         // cout << "Decrypt: " << sum_value << " of key " << itr->first << endl;
         // }
     }
-    fout.close();
+    // fout.close();
     cout << "Total count of chosen plaintext 1 from server: " << count << endl;
 }
 
