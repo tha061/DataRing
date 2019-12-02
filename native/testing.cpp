@@ -75,16 +75,20 @@ int main()
 
 	Participant part_A;
 
+
+	int datasize_row = 500000;
+
 	t1 = high_resolution_clock::now();
-	part_A.processData();
+	part_A.processData(datasize_row);
 	t2 = high_resolution_clock::now();
 	timeEvaluate("Participant import data", t1, t2);
 
 	cout << "Total rows: " << part_A.size_dataset << endl;
 	cout << "Total domains: " << part_A.hashMap.size() << endl;
-	part_A.print_hash_map();
+	// part_A.print_hash_map();
 
 	int size_dataset = part_A.size_dataset;
+
 
 	//========================= SERVER ==========================/
 	//============= SET UP COLLECTIVE KEY ============/
@@ -93,7 +97,7 @@ int main()
 	servers.generateCollKey();
 
 	// ============= INITIALIZE CIPHERTEXT STACK ============/
-	ENC_Stack pre_enc_stack(4 * size_dataset, servers.coll_key);
+	ENC_Stack pre_enc_stack(6 * size_dataset, servers.coll_key);
 
 	t1 = high_resolution_clock::now();
 	pre_enc_stack.initializeStack_E0();
@@ -107,16 +111,19 @@ int main()
 	timeEvaluate("Initialize E1 Stack", t1, t2);
 	cout << endl;
 
+	//========================SERVER==================
+	// Create PV sampling vector
 	servers.createServersEncrypVector(pre_enc_stack);
 
 	//========================= PARTICIPANT ==========================/
 	// part_A.addDummy(2);
-	// part_A.addDummyFake_1(300000, 2);
+	part_A.addDummyFake_1(300000, 2);
 	// part_A.addDummyFake_2(200000, 2);
-	// part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, pre_enc_stack);
-	// part_A.testWithoutDecrypt();
+	part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, pre_enc_stack);
 
-	part_A.selfIntializePV(pre_enc_stack, 100, 2);
+
+	// part_A.selfIntializePV(pre_enc_stack, 1000, 2);
+	part_A.testWithoutDecrypt();
 
 	// ========================= SERVER ==========================/
 	// servers.fusionDecrypt(part_A.enc_domain_map, table);
@@ -128,86 +135,86 @@ int main()
 	t2 = high_resolution_clock::now();
 	timeEvaluate("verificationPV", t1, t2);
 
-	// Server server1 = servers.server_vect[0];
+	Server server1 = servers.server_vect[0];
 
-	// // ========================= TEST FUNCTION 1 ===================/
-	// t1 = high_resolution_clock::now();
+	// ========================= TEST FUNCTION 1 ===================/
+	t1 = high_resolution_clock::now();
 
-	// server1.generateTestHashMap_1(pre_enc_stack, part_A.enc_domain_map);
+	server1.generateTestHashMap_1(pre_enc_stack, part_A.enc_domain_map);
 
-	// t2 = high_resolution_clock::now();
-	// timeEvaluate("generateTestHashMap_1", t1, t2);
+	t2 = high_resolution_clock::now();
+	timeEvaluate("generateTestHashMap_1", t1, t2);
 
-	// // ========================= PARTICIPANT ==========================/
-	// gamal_ciphertext_t sum_cipher;
-	// gamal_cipher_new(sum_cipher);
-	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
+	// ========================= PARTICIPANT ==========================/
+	gamal_ciphertext_t sum_cipher;
+	gamal_cipher_new(sum_cipher);
+	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
 
-	// // ========================= SERVER ==========================/
-	// dig_t decrypt_test_f1 = servers._fusionDecrypt(sum_cipher, table, 0);
-	// cout << "Test function - Count of L known data: " << decrypt_test_f1 << endl;
+	// ========================= SERVER ==========================/
+	dig_t decrypt_test_f1 = servers._fusionDecrypt(sum_cipher, table, server_id);
+	cout << "Test function - Count of L known data: " << decrypt_test_f1 << endl;
 
-	// // ========================= TEST FUNCTION 2 ===================/
-	// t1 = high_resolution_clock::now();
 
-	// server1.generateTestHashMap_2(pre_enc_stack, part_A.enc_domain_map);
+	// ========================= TEST FUNCTION 2 ===================/
+	t1 = high_resolution_clock::now();
 
-	// t2 = high_resolution_clock::now();
-	// timeEvaluate("generateTestHashMap_2", t1, t2);
+	server1.generateTestHashMap_2(pre_enc_stack, part_A.enc_domain_map);
 
-	// // ========================= PARTICIPANT ==========================/
-	// gamal_ciphertext_t sum_cipher2;
-	// gamal_cipher_new(sum_cipher2);
-	// part_A.proceedTestFunction(server1.enc_test_map_2, sum_cipher2);
+	t2 = high_resolution_clock::now();
+	timeEvaluate("generateTestHashMap_2", t1, t2);
 
-	// // ========================= SERVER ==========================/
-	// dig_t decrypt_test_f2 = servers._fusionDecrypt(sum_cipher2, table, 0);
-	// cout << "Test function - Count of V known data: " << decrypt_test_f2 << endl;
+	// ========================= PARTICIPANT ==========================/
+	gamal_cipher_new(sum_cipher);
+	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
 
-	// // ========================= TEST FUNCTION 3 ===================/
-	// // ========================= SERVER ==========================/
-	// t1 = high_resolution_clock::now();
+	// ========================= SERVER ==========================/
+	dig_t decrypt_test_f2 = servers._fusionDecrypt(sum_cipher, table, server_id);
+	cout << "Test function - Count of V known data: " << decrypt_test_f2 << endl;
 
-	// server1.generateTestHashMap_3(pre_enc_stack, part_A.enc_domain_map);
 
-	// t2 = high_resolution_clock::now();
-	// timeEvaluate("IgenerateTestHashMap_3", t1, t2);
+	// ========================= TEST FUNCTION 3 ===================/
+	// ========================= SERVER ==========================/
+	t1 = high_resolution_clock::now();
 
-	// // ========================= PARTICIPANT ==========================/
-	// gamal_ciphertext_t sum_cipher3;
-	// gamal_cipher_new(sum_cipher3);
-	// part_A.proceedTestFunction(server1.enc_test_map_3, sum_cipher3);
+	server1.generateTestHashMap_3(pre_enc_stack, part_A.enc_domain_map);
 
-	// // ========================= SERVER ==========================/
-	// dig_t decrypt_test_f3 = servers._fusionDecrypt(sum_cipher3, table, 0);
-	// cout << "Test function - Count of V - r0 data: " << decrypt_test_f3 << endl;
+	t2 = high_resolution_clock::now();
+	timeEvaluate("IgenerateTestHashMap_3", t1, t2);
 
-	// // ========================= TEST FUNCTION 4 ===================/
-	// // ========================= SERVER ==========================/
-	// t1 = high_resolution_clock::now();
+	// ========================= PARTICIPANT ==========================/
+	gamal_cipher_new(sum_cipher);
+	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
 
-	// int col = 2;
-	// string value = "5000";
-	// map<int, string> cols_map;
-	// cols_map.insert({0, "5000"});
-	// cols_map.insert({1, "5000"});
-	// cols_map.insert({2, "5000"});
-	// cols_map.insert({3, "180000.0"});
-	// cols_map.insert({5, "11.99"});
-	// cols_map.insert({6, "B"});
-	// server1.generateTestHashMap_Attr(pre_enc_stack, part_A.enc_domain_map, cols_map);
+	// ========================= SERVER ==========================/
+	dig_t decrypt_test_f3 = servers._fusionDecrypt(sum_cipher, table, 0);
+	cout << "Test function - Count of V - r0 data: " << decrypt_test_f3 << endl;
 
-	// t2 = high_resolution_clock::now();
-	// timeEvaluate("IgenerateTestHashMap_Attr", t1, t2);
 
-	// // ========================= PARTICIPANT ==========================/
-	// gamal_ciphertext_t sum_cipher4;
-	// gamal_cipher_new(sum_cipher4);
-	// part_A.proceedTestFunction(server1.enc_test_map_4, sum_cipher4);
+	// ========================= TEST FUNCTION 4 ===================/
+	// ========================= SERVER ==========================/
+	t1 = high_resolution_clock::now();
 
-	// // ========================= SERVER ==========================/
-	// dig_t decrypt_test_f4 = servers._fusionDecrypt(sum_cipher4, table, 0);
-	// cout << "Test function - Count of specified attribute: " << decrypt_test_f4 << endl;
+	int col = 2;
+	string value = "5000";
+	map<int, string> cols_map;
+	cols_map.insert({0, "5000"});
+	cols_map.insert({1, "5000"});
+	cols_map.insert({2, "5000"});
+	cols_map.insert({3, "180000.0"});
+	cols_map.insert({5, "11.99"});
+	cols_map.insert({6, "B"});
+	server1.generateTestHashMap_Attr(pre_enc_stack, part_A.enc_domain_map, cols_map);
+
+	t2 = high_resolution_clock::now();
+	timeEvaluate("IgenerateTestHashMap_Attr", t1, t2);
+
+	// ========================= PARTICIPANT ==========================/
+	gamal_cipher_new(sum_cipher);
+	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
+
+	// ========================= SERVER ==========================/
+	dig_t decrypt_test_f4 = servers._fusionDecrypt(sum_cipher, table, 0);
+	cout << "Test function - Count of specified attribute: " << decrypt_test_f4 << endl;
 
 	return 0;
 }

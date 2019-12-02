@@ -11,11 +11,7 @@ public:
     gamal_ciphertext_t *myPIR_enc;
     id_domain_set known_vector;
     ENC_DOMAIN_MAP enc_test_map;
-    ENC_DOMAIN_MAP enc_test_map_2;
-    ENC_DOMAIN_MAP enc_test_map_3;
-    ENC_DOMAIN_MAP enc_test_map_4;
     id_domain_set verified_set;
-    // id_domain_vector known_vector_new;
 
     int *plain_track_list;
     int size_dataset;
