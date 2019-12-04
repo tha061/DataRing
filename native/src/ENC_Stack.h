@@ -22,6 +22,8 @@ public:
     void initializeStack_E1();
     void pop_E1(gamal_ciphertext_t ciphertext);
     void pop_E0(gamal_ciphertext_t ciphertext);
+    void reFillStack_E0(int new_size);
+    void reFillStack_E1(int new_size);
 };
 
 #endif

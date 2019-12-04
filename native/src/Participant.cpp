@@ -90,6 +90,14 @@ void Participant::processData(int datasize_row)
     }
 }
 
+// initialize ciphertext stack for participant
+void Participant::initializePreStack(gamal_key_t coll_key)
+{
+    pre_enc_stack = ENC_Stack(hashMap.size(), coll_key);
+    pre_enc_stack.initializeStack_E0();
+    pre_enc_stack.initializeStack_E1();
+}
+
 void Participant::print_hash_map()
 {
     cout << "\nHash map\n";
@@ -156,7 +164,6 @@ void Participant::addDummy(int factorSize)
          << endl;
 }
 
-
 /*
     Dishonest participant strategy 1: in n original rows, participant A keeps x rows and replace
     n-x rows as dummy rows. Values of bin associated with n original rows (n original domains) are set to 1
@@ -220,50 +227,52 @@ void Participant::addDummyFake_1(int keepDomainS, int factorSize)
 
 void Participant::addDummyFake_2(int keepDomainS, int factorSize)
 {
-
     int domain_size = hashMap.size();
     cout << "Size of original histogram: " << domain_size << endl;
     int pv_size = factorSize * size_dataset;
     int replaceDomainS = size_dataset - keepDomainS;
 
+    // add dummy
     int dummy_id = size_dataset;
-    int counter = 0;
-
-    hash_pair_map::iterator itr = hashMap.begin();
-    for (itr; itr != hashMap.end(); itr++)
-    {
-        if (counter >= replaceDomainS)
-        {
-            break;
-        }
-        int count = itr->second;
-        if (count > 0)
-        {
-            itr->second = 0;
-            counter++;
-        }
-    }
-
-    int counterDummy = 0;
     while (hashMap.size() < pv_size)
     {
         string dummy_domain = getDummyDomain();
-        if (counterDummy >= replaceDomainS)
-        {
-            hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
-        }
-        else
-        {
-            hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 1});
-        }
-
+        int random_id = _getRandomInRange(0, 1);
+        hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
         dummy_id++;
-        counterDummy++;
     }
-    cout << "Total size of fake partial view histogram: " << hashMap.size() << endl
+
+    fakeHashMap = hashMap;
+
+    int replace_counter = 0;
+    while (replace_counter < replaceDomainS)
+    {
+        int random_id = _getRandomInRange(size_dataset, pv_size - 1);
+        hash_pair_map::iterator find = fakeHashMap.find({to_string(random_id), ""});
+        if (find != fakeHashMap.end() && find->second == 0)
+        {
+            find->second = 1;
+            replace_counter++;
+        }
+    }
+
+    replace_counter = 0;
+    while (replace_counter < replaceDomainS)
+    {
+        int random_id = _getRandomInRange(0, size_dataset - 1);
+        hash_pair_map::iterator find = fakeHashMap.find({to_string(random_id), ""});
+        if (find != fakeHashMap.end() && find->second == 1)
+        {
+            find->second = 0;
+            replace_counter++;
+        }
+    }
+
+    cout << "Total size of fake partial view histogram: " << fakeHashMap.size() << endl
+         << endl;
+    cout << "Total size of original partial view histogram: " << hashMap.size() << endl
          << endl;
 }
-
 
 /*
    Dishonest participant A creates PV by itself:
@@ -277,7 +286,7 @@ void Participant::addDummyFake_2(int keepDomainS, int factorSize)
    of L records are in PV, the participant passes this test.
 */
 
-void Participant::selfIntializePV(ENC_Stack &pre_enc_stack, int keepDomainS, int factorSize)
+void Participant::selfIntializePV(int keepDomainS, int factorSize)
 {
 
     int replaceDomainS = (size_dataset / 100) - keepDomainS;
@@ -295,15 +304,15 @@ void Participant::selfIntializePV(ENC_Stack &pre_enc_stack, int keepDomainS, int
         hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
         dummy_id++;
     }
-    hash_pair_map n_hashMap = hashMap;
 
+    fakeHashMap = hashMap;
 
     int replace_counter = 0;
     while (replace_counter < replaceDomainS)
     {
         int random_id = _getRandomInRange(size_dataset, pv_size - 1);
-        hash_pair_map::iterator find = n_hashMap.find({to_string(random_id), ""});
-        if (find != n_hashMap.end() && find->second == 0)
+        hash_pair_map::iterator find = fakeHashMap.find({to_string(random_id), ""});
+        if (find != fakeHashMap.end() && find->second == 0)
         {
             find->second = 1;
             replace_counter++;
@@ -315,8 +324,8 @@ void Participant::selfIntializePV(ENC_Stack &pre_enc_stack, int keepDomainS, int
     while (replace_counter < total_replace_actual)
     {
         int random_id = _getRandomInRange(0, size_dataset - 1);
-        hash_pair_map::iterator find = n_hashMap.find({to_string(random_id), ""});
-        if (find != n_hashMap.end() && find->second == 1)
+        hash_pair_map::iterator find = fakeHashMap.find({to_string(random_id), ""});
+        if (find != fakeHashMap.end() && find->second == 1)
         {
             find->second = 0;
             replace_counter++;
@@ -324,8 +333,7 @@ void Participant::selfIntializePV(ENC_Stack &pre_enc_stack, int keepDomainS, int
     }
 
     int counter_row = 0;
-    cout << "PV SIZE " << n_hashMap.size() << ", VECTOR FROM SERVER SIZE " << size_dataset << endl;
-    for (hash_pair_map::iterator itr = n_hashMap.begin(); itr != n_hashMap.end(); ++itr)
+    for (hash_pair_map::iterator itr = fakeHashMap.begin(); itr != fakeHashMap.end(); ++itr)
     {
         int decypt_cip = 0;
 
@@ -352,7 +360,11 @@ void Participant::selfIntializePV(ENC_Stack &pre_enc_stack, int keepDomainS, int
     }
 
     cout << "Counter row " << counter_row << endl;
-    n_hashMap.clear();
+
+    cout << "Total size of fake partial view histogram: " << fakeHashMap.size() << endl
+         << endl;
+    cout << "Total size of original partial view histogram: " << hashMap.size() << endl
+         << endl;
 }
 
 void _printCiphertext(gamal_ciphertext_ptr ciphertext)
@@ -390,7 +402,7 @@ void _printCiphertext(gamal_ciphertext_ptr ciphertext)
 
 // plain_track_list: 1, 0 vector encrypted from Server
 // enc_list: E1, E0 vector encrypted from Server
-void Participant::multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *enc_list, ENC_Stack &pre_enc_stack)
+void Participant::multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *enc_list)
 {
     int counter_row = 0;
     cout << "PV SIZE " << hashMap.size() << ", VECTOR FROM SERVER SIZE " << size_dataset << endl;
@@ -413,7 +425,40 @@ void Participant::multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *en
         else
         {
             decypt_cip = 0;
-            pre_enc_stack.pop_E0(mul_enc_ciphertext[0]);
+            Participant::pre_enc_stack.pop_E0(mul_enc_ciphertext[0]);
+        }
+
+        enc_domain_map.insert({domain, mul_enc_ciphertext[0]});
+        plain_domain_map.insert({domain, decypt_cip});
+    }
+
+    cout << "Counter row " << counter_row << endl;
+}
+
+void Participant::multiply_enc_fake_map(int *plain_track_list, gamal_ciphertext_t *enc_list)
+{
+    int counter_row = 0;
+    cout << "PV SIZE " << fakeHashMap.size() << ", VECTOR FROM SERVER SIZE " << size_dataset << endl;
+    for (hash_pair_map::iterator itr = fakeHashMap.begin(); itr != fakeHashMap.end(); ++itr)
+    {
+        int decypt_cip = 0;
+
+        id_domain_pair domain = itr->first;
+        int domain_count = itr->second;
+
+        gamal_ciphertext_t *mul_enc_ciphertext = new gamal_ciphertext_t[1];
+
+        int track = 0;
+        if (domain_count > 0)
+        {
+            decypt_cip = plain_track_list[counter_row] * domain_count;
+            gamal_mult_opt(mul_enc_ciphertext[0], enc_list[counter_row], domain_count);
+            counter_row++;
+        }
+        else
+        {
+            decypt_cip = 0;
+            Participant::pre_enc_stack.pop_E0(mul_enc_ciphertext[0]);
         }
 
         enc_domain_map.insert({domain, mul_enc_ciphertext[0]});
@@ -485,4 +530,5 @@ void Participant::proceedTestFunction(ENC_DOMAIN_MAP &enc_test_map, gamal_cipher
             counter++;
         }
     }
+    cout << "Counter " << counter << endl;
 }

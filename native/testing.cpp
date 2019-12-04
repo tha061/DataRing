@@ -7,13 +7,15 @@
 int getRandomInRange(int min, int max);
 void decryptFind(map<string, gamal_ciphertext_t *> enc_domain_map, gamal_key_t key, bsgs_table_t table);
 
-void timeEvaluate(string task_name, high_resolution_clock::time_point t1, high_resolution_clock::time_point t2)
+double timeEvaluate(string task_name, high_resolution_clock::time_point t1, high_resolution_clock::time_point t2)
 {
 	double time_diff = duration_cast<nanoseconds>(t2 - t1).count();
 	cout << "\n -------------------------------------------------------------------- \n";
 	// cout << "\nTime Evaluation \n";
 	cout << task_name << " : " << time_diff / 1000000.0 << " ms";
 	cout << "\n -------------------------------------------------------------------- \n";
+
+	return time_diff / 1000000.0;
 }
 
 void printEncData(int index, gamal_ciphertext_t *myPIR_enc);
@@ -45,25 +47,117 @@ int main2()
 	cout << "max_noise: " << max_noise << endl;
 	cout << "min_noise: " << min_noise << endl;
 
-	float prob100 = 0.9999999;
-	float max_100 = quantile(lp_dist, prob100);
-	float min_100 = quantile(lp_dist, 1 - prob100);
+	float probMax = 0.9999999;
+	float max_100 = quantile(lp_dist, probMax);
+	float min_100 = quantile(lp_dist, 1 - probMax);
 	cout << "range_max: " << max_100 << endl;
 	cout << "range_min: " << min_100 << endl;
 
-	// int n= -9+ int((2* 9+ 1)* 1.* rand()/ (RAND_MAX+ 1.));
-	// cout << n << endl;
+	float n = min_100 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max_100 - min_100)));
+	cout << n << endl;
 	return 0;
 }
 
-int main()
+void trackTaskPerformance(map<string, double> &time_track_map, string task_name, high_resolution_clock::time_point t1, high_resolution_clock::time_point t2)
 {
+	double task_time_diff = timeEvaluate(task_name, t1, t2);
+	time_track_map.insert({task_name, task_time_diff});
+}
+
+int computeTimeEvaluation()
+{
+	std::ifstream data("./data/report.csv");
+	if (!data.is_open())
+	{
+		std::exit(EXIT_FAILURE);
+	}
+
+	int i = 0;
+	std::string str;
+	std::getline(data, str); // skip the first line
+
+	int verify_status_1 = 0;
+	int verify_status_0 = 0;
+
+	while (!data.eof())
+	{
+		getline(data, str);
+		if (str.empty())
+		{
+			continue;
+		}
+		string id;
+		int verify;
+		istringstream iss(str);
+		getline(iss, id, ',');
+		iss >> verify;
+
+		if (verify == 0)
+		{
+			verify_status_0++;
+		}
+
+		// string id_domain = id + " " + to_string(verify);
+		// cout << id_domain << endl;
+		i++;
+	}
+
+	verify_status_1 = i - verify_status_0;
+
+	cout << "Total number of pass verification iteration: " << verify_status_1 << "/" << i << endl;
+	cout << "Total number of fail verification iteration: " << verify_status_0 << "/" << i << endl;
+
+	return -1;
+}
+
+void storeTimeEvaluation(int argc, char **argv, map<string, double> time_track_map, bool verify_status)
+{
+
+	if (argc > 1)
+	{
+		fstream fout;
+		if (strcmp(argv[1], "1") == 0)
+		{
+			fout.open("./data/report.csv", ios::out | ios::trunc);
+			fout << "Iteration, Verification Status";
+			for (auto itr = time_track_map.begin(); itr != time_track_map.end(); itr++)
+			{
+				string column = itr->first;
+				fout << ", " << column;
+			}
+			fout << "\n";
+		}
+		else
+		{
+			fout.open("./data/report.csv", ios::out | ios::app);
+		}
+
+		// Insert the data to file
+		fout << argv[1] << ", " << verify_status;
+		for (auto itr = time_track_map.begin(); itr != time_track_map.end(); itr++)
+		{
+			double time_diff = itr->second;
+			fout << ", " << time_diff;
+		}
+		fout << "\n";
+		fout.close();
+	}
+}
+
+int main(int argc, char **argv)
+{
+	if (argc > 1 && strcmp(argv[1], "-1") == 0)
+	{
+		return computeTimeEvaluation();
+	}
+
 	const int SERVER_SIZE = 3;
+	map<string, double> time_track_map;
 
 	high_resolution_clock::time_point t1, t2;
 
-	// srand(time(NULL));
-	srand(5);
+	srand(time(NULL));
+	// srand(5);
 	// initialize key & table
 	// gamal_key_t key;
 	bsgs_table_t table;
@@ -75,13 +169,12 @@ int main()
 
 	Participant part_A;
 
-
 	int datasize_row = 500000;
 
 	t1 = high_resolution_clock::now();
 	part_A.processData(datasize_row);
 	t2 = high_resolution_clock::now();
-	timeEvaluate("Participant import data", t1, t2);
+	trackTaskPerformance(time_track_map, "Participant process input data", t1, t2);
 
 	cout << "Total rows: " << part_A.size_dataset << endl;
 	cout << "Total domains: " << part_A.hashMap.size() << endl;
@@ -89,40 +182,46 @@ int main()
 
 	int size_dataset = part_A.size_dataset;
 
-
 	//========================= SERVER ==========================/
 	//============= SET UP COLLECTIVE KEY ============/
 	Servers servers(SERVER_SIZE, size_dataset);
 
 	servers.generateCollKey();
 
-	// ============= INITIALIZE CIPHERTEXT STACK ============/
-	ENC_Stack pre_enc_stack(6 * size_dataset, servers.coll_key);
+	part_A.initializePreStack(servers.coll_key);
+
+	// ============= INITIALIZE CIPHERTEXT STACK FOR SERVERS ============/
+	ENC_Stack pre_enc_stack(size_dataset, servers.coll_key);
 
 	t1 = high_resolution_clock::now();
 	pre_enc_stack.initializeStack_E0();
 	t2 = high_resolution_clock::now();
-	timeEvaluate("Initialize E0 Stack", t1, t2);
+	trackTaskPerformance(time_track_map, "Initialize E0 Stack", t1, t2);
 	cout << endl;
 
 	t1 = high_resolution_clock::now();
 	pre_enc_stack.initializeStack_E1();
 	t2 = high_resolution_clock::now();
-	timeEvaluate("Initialize E1 Stack", t1, t2);
+	trackTaskPerformance(time_track_map, "Initialize E1 Stack", t1, t2);
 	cout << endl;
 
-	//========================SERVER==================
+	// ========================SERVER==================
 	// Create PV sampling vector
-	servers.createServersEncrypVector(pre_enc_stack);
+	// servers.createServersEncrypVector(pre_enc_stack);
 
 	//========================= PARTICIPANT ==========================/
 	// part_A.addDummy(2);
-	part_A.addDummyFake_1(300000, 2);
-	// part_A.addDummyFake_2(200000, 2);
-	part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, pre_enc_stack);
+	// part_A.addDummyFake_1(300000, 2);
+	// part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc);
 
+	// part_A.addDummyFake_2(400000, 2);
+	// part_A.multiply_enc_fake_map(servers.s_plain_track_list, servers.s_myPIR_enc);
 
-	// part_A.selfIntializePV(pre_enc_stack, 1000, 2);
+	t1 = high_resolution_clock::now();
+	part_A.selfIntializePV(4000, 2);
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_map, "Part_A Self Initialize PV View", t1, t2);
+
 	part_A.testWithoutDecrypt();
 
 	// ========================= SERVER ==========================/
@@ -131,90 +230,89 @@ int main()
 	// ========================= SERVER 1 VERIFICATION =============/
 	int server_id = 0; // Server 1
 	t1 = high_resolution_clock::now();
-	servers.verificationPV(part_A.enc_domain_map, table, server_id, pre_enc_stack);
+	bool verify_status = servers.verificationPV(part_A.enc_domain_map, table, server_id, pre_enc_stack);
 	t2 = high_resolution_clock::now();
-	timeEvaluate("verificationPV", t1, t2);
+	trackTaskPerformance(time_track_map, "Servers verify the parital view", t1, t2);
 
-	Server server1 = servers.server_vect[0];
+	// Server server1 = servers.server_vect[0];
 
-	// ========================= TEST FUNCTION 1 ===================/
-	t1 = high_resolution_clock::now();
+	// // ========================= TEST FUNCTION 1 ===================/
+	// t1 = high_resolution_clock::now();
 
-	server1.generateTestHashMap_1(pre_enc_stack, part_A.enc_domain_map);
+	// server1.generateTestHashMap_1(pre_enc_stack, part_A.enc_domain_map);
 
-	t2 = high_resolution_clock::now();
-	timeEvaluate("generateTestHashMap_1", t1, t2);
+	// t2 = high_resolution_clock::now();
+	// timeEvaluate("generateTestHashMap_1", t1, t2);
 
-	// ========================= PARTICIPANT ==========================/
-	gamal_ciphertext_t sum_cipher;
-	gamal_cipher_new(sum_cipher);
-	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
+	// // ========================= PARTICIPANT ==========================/
+	// gamal_ciphertext_t sum_cipher;
+	// gamal_cipher_new(sum_cipher);
+	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
 
-	// ========================= SERVER ==========================/
-	dig_t decrypt_test_f1 = servers._fusionDecrypt(sum_cipher, table, server_id);
-	cout << "Test function - Count of L known data: " << decrypt_test_f1 << endl;
+	// // ========================= SERVER ==========================/
+	// dig_t decrypt_test_f1 = servers._fusionDecrypt(sum_cipher, table, server_id);
+	// cout << "Test function - Count of L known data: " << decrypt_test_f1 << endl;
 
+	// // ========================= TEST FUNCTION 2 ===================/
+	// t1 = high_resolution_clock::now();
 
-	// ========================= TEST FUNCTION 2 ===================/
-	t1 = high_resolution_clock::now();
+	// server1.generateTestHashMap_2(pre_enc_stack, part_A.enc_domain_map);
 
-	server1.generateTestHashMap_2(pre_enc_stack, part_A.enc_domain_map);
+	// t2 = high_resolution_clock::now();
+	// timeEvaluate("generateTestHashMap_2", t1, t2);
 
-	t2 = high_resolution_clock::now();
-	timeEvaluate("generateTestHashMap_2", t1, t2);
+	// // ========================= PARTICIPANT ==========================/
+	// gamal_cipher_new(sum_cipher);
+	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
 
-	// ========================= PARTICIPANT ==========================/
-	gamal_cipher_new(sum_cipher);
-	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
+	// // ========================= SERVER ==========================/
+	// dig_t decrypt_test_f2 = servers._fusionDecrypt(sum_cipher, table, server_id);
+	// cout << "Test function - Count of V known data: " << decrypt_test_f2 << endl;
 
-	// ========================= SERVER ==========================/
-	dig_t decrypt_test_f2 = servers._fusionDecrypt(sum_cipher, table, server_id);
-	cout << "Test function - Count of V known data: " << decrypt_test_f2 << endl;
+	// // ========================= TEST FUNCTION 3 ===================/
+	// // ========================= SERVER ==========================/
+	// t1 = high_resolution_clock::now();
 
+	// server1.generateTestHashMap_3(pre_enc_stack, part_A.enc_domain_map);
 
-	// ========================= TEST FUNCTION 3 ===================/
-	// ========================= SERVER ==========================/
-	t1 = high_resolution_clock::now();
+	// t2 = high_resolution_clock::now();
+	// timeEvaluate("IgenerateTestHashMap_3", t1, t2);
 
-	server1.generateTestHashMap_3(pre_enc_stack, part_A.enc_domain_map);
+	// // ========================= PARTICIPANT ==========================/
+	// gamal_cipher_new(sum_cipher);
+	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
 
-	t2 = high_resolution_clock::now();
-	timeEvaluate("IgenerateTestHashMap_3", t1, t2);
+	// // ========================= SERVER ==========================/
+	// dig_t decrypt_test_f3 = servers._fusionDecrypt(sum_cipher, table, 0);
+	// cout << "Test function - Count of V - r0 data: " << decrypt_test_f3 << endl;
 
-	// ========================= PARTICIPANT ==========================/
-	gamal_cipher_new(sum_cipher);
-	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
+	// // ========================= TEST FUNCTION 4 ===================/
+	// // ========================= SERVER ==========================/
+	// t1 = high_resolution_clock::now();
 
-	// ========================= SERVER ==========================/
-	dig_t decrypt_test_f3 = servers._fusionDecrypt(sum_cipher, table, 0);
-	cout << "Test function - Count of V - r0 data: " << decrypt_test_f3 << endl;
+	// int col = 2;
+	// string value = "5000";
+	// map<int, string> cols_map;
+	// cols_map.insert({0, "5000"});
+	// cols_map.insert({1, "5000"});
+	// cols_map.insert({2, "5000"});
+	// cols_map.insert({3, "180000.0"});
+	// cols_map.insert({5, "11.99"});
+	// cols_map.insert({6, "B"});
+	// server1.generateTestHashMap_Attr(pre_enc_stack, part_A.enc_domain_map, cols_map);
 
+	// t2 = high_resolution_clock::now();
+	// timeEvaluate("IgenerateTestHashMap_Attr", t1, t2);
 
-	// ========================= TEST FUNCTION 4 ===================/
-	// ========================= SERVER ==========================/
-	t1 = high_resolution_clock::now();
+	// // ========================= PARTICIPANT ==========================/
+	// gamal_cipher_new(sum_cipher);
+	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
 
-	int col = 2;
-	string value = "5000";
-	map<int, string> cols_map;
-	cols_map.insert({0, "5000"});
-	cols_map.insert({1, "5000"});
-	cols_map.insert({2, "5000"});
-	cols_map.insert({3, "180000.0"});
-	cols_map.insert({5, "11.99"});
-	cols_map.insert({6, "B"});
-	server1.generateTestHashMap_Attr(pre_enc_stack, part_A.enc_domain_map, cols_map);
+	// // ========================= SERVER ==========================/
+	// dig_t decrypt_test_f4 = servers._fusionDecrypt(sum_cipher, table, 0);
+	// cout << "Test function - Count of specified attribute: " << decrypt_test_f4 << endl;
 
-	t2 = high_resolution_clock::now();
-	timeEvaluate("IgenerateTestHashMap_Attr", t1, t2);
-
-	// ========================= PARTICIPANT ==========================/
-	gamal_cipher_new(sum_cipher);
-	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
-
-	// ========================= SERVER ==========================/
-	dig_t decrypt_test_f4 = servers._fusionDecrypt(sum_cipher, table, 0);
-	cout << "Test function - Count of specified attribute: " << decrypt_test_f4 << endl;
+	storeTimeEvaluation(argc, argv, time_track_map, verify_status);
 
 	return 0;
 }
