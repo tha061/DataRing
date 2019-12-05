@@ -15,7 +15,7 @@ public:
     int * s_plain_track_list;
 
     // Servers();
-    Servers(int server_size, int data_size);
+    Servers(int server_size, int data_size, string known_domain_dir);
     void generateCollKey();
     dig_t _fusionDecrypt(gamal_ciphertext_t ciphertext, bsgs_table_t table, int serverId);
     void fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table);

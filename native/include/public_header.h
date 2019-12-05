@@ -16,6 +16,7 @@
 #include <iterator> // for iterators
 #include <boost/math/distributions/laplace.hpp>
 #include <boost/array.hpp>
+#include <cstdlib> 
 
 using namespace std::chrono;
 using namespace std;

@@ -1,11 +1,11 @@
 #include "Servers.h"
 
-Servers::Servers(int server_size, int data_size)
+Servers::Servers(int server_size, int data_size, string known_domain_dir)
 {
     gamal_generate_keys(coll_key);
     for (int i = 0; i < server_size; i++)
     {
-        Server server(data_size);
+        Server server(data_size, known_domain_dir);
         server_vect.push_back(server);
     }
 

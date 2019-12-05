@@ -41,13 +41,20 @@ static int _getRandomInRange(int min, int max)
     return min + (rand() % (max - min + 1));
 }
 
-const string Participant::DATA_DIR = "./data/unique_domains.csv";
+// const string Participant::DATA_DIR = "./data/unique_domains.csv";
 
 Participant::Participant()
 {
     size_dataset = 0;
 }
 
+Participant::Participant(string data_dir)
+{
+    size_dataset = 0;
+    DATA_DIR = data_dir;
+}
+
+// Participant Generates original Histogram
 void Participant::processData(int datasize_row)
 {
     std::ifstream data(DATA_DIR);
@@ -146,6 +153,7 @@ string getDummyDomain()
     return dummy_domain;
 }
 
+// Participant adds dummy bins to the original histogram -> true histogram
 void Participant::addDummy(int factorSize)
 {
     int domain_size = hashMap.size();
@@ -333,6 +341,7 @@ void Participant::selfIntializePV(int keepDomainS, int factorSize)
         gamal_ciphertext_t *mul_enc_ciphertext = new gamal_ciphertext_t[1];
 
         int track = 0;
+
         if (domain_count > 0)
         {
             decypt_cip = 1;
@@ -394,7 +403,7 @@ void _printCiphertext(gamal_ciphertext_ptr ciphertext)
 // enc_list: E1, E0 vector encrypted from Server
 void Participant::multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *enc_list, bool useTruth)
 {
-    hash_pair_map tmp_hashMap = useTruth ? hashMap  : fakeHashMap;
+    hash_pair_map tmp_hashMap = useTruth ? hashMap : fakeHashMap;
     int counter_row = 0;
     cout << "PV SIZE " << tmp_hashMap.size() << ", VECTOR FROM SERVER SIZE " << size_dataset << endl;
     for (hash_pair_map::iterator itr = tmp_hashMap.begin(); itr != tmp_hashMap.end(); ++itr)
@@ -453,7 +462,7 @@ void Participant::testWithoutDecrypt()
 
 void Participant::proceedTestFunction(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth)
 {
-    hash_pair_map tmp_hashMap = useTruth ? hashMap  : fakeHashMap;
+    hash_pair_map tmp_hashMap = useTruth ? hashMap : fakeHashMap;
 
     const int size_test_map = enc_test_map.size();
     // gamal_ciphertext_t *enc_list = new gamal_ciphertext_t[size_test_map];

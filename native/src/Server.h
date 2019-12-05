@@ -17,7 +17,7 @@ public:
     int size_dataset;
 
     Server();
-    Server(int size);
+    Server(int size, string known_domain_dir);
     void createRandomEncrypVector(ENC_Stack &pre_enc_stack);
     void importFile(string file_url);
     // test func() L domains
@@ -27,7 +27,7 @@ public:
     void generateTestHashMap_2(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map); // test the existence of V domains
 
     // test func() specific attributes
-    void generateTestHashMap_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, map<int, string> cols); 
+    void generateTestHashMap_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map); 
 
     // test func() V - r0 domains
     void generateTestHashMap_3(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map); // test the existence of V domains

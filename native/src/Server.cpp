@@ -7,7 +7,7 @@ Server::Server()
     size_dataset = 0;
 }
 
-Server::Server(int size)
+Server::Server(int size, string known_domain_dir)
 {
     gamal_generate_keys(key);
 
@@ -15,8 +15,7 @@ Server::Server(int size)
     plain_track_list = new int[size];
     size_dataset = size;
 
-    const string KNOWN_DOMAIN_DIR = "./data/known_domains_500K.csv";
-    Server::importFile(KNOWN_DOMAIN_DIR);
+    Server::importFile(known_domain_dir);
 }
 
 void Server::importFile(string file_url)
@@ -140,9 +139,44 @@ void Server::generateTestHashMap_3(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_
     }
 }
 
-void Server::generateTestHashMap_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, map<int, string> cols_map)
+void _importQuery(map<int, string> &cols_map)
+{
+    string QUERY_DIR = "./data/query_data.csv";
+
+    std::ifstream data(QUERY_DIR);
+    if (!data.is_open())
+    {
+        std::exit(EXIT_FAILURE);
+    }
+    std::string str;
+    std::getline(data, str); // skip the first line
+    while (!data.eof())
+    {
+        getline(data, str);
+        if (str.empty())
+        {
+            continue;
+        }
+
+        string value;
+        int col_id;
+
+        istringstream iss(str);
+        getline(iss, value, ',');
+        iss >> col_id;
+
+        cout << col_id << " " << value << endl;
+        cols_map.insert({col_id, value});
+    }
+}
+
+void Server::generateTestHashMap_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
 {
     enc_test_map.clear();
+
+
+    map<int, string> columns_map;
+    _importQuery(columns_map);
     const int COLUMN_SIZE = 10;
     int counter = 0;
 
@@ -161,7 +195,7 @@ void Server::generateTestHashMap_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP e
             col_arr.push_back(token);
         }
 
-        for (map<int, string>::iterator colItr = cols_map.begin(); colItr != cols_map.end(); colItr++)
+        for (map<int, string>::iterator colItr = columns_map.begin(); colItr != columns_map.end(); colItr++)
         {
             int col_index = colItr->first;
             string col_value = colItr->second;
