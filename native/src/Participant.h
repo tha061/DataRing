@@ -29,10 +29,9 @@ public:
     void initializePreStack(gamal_key_t coll_key);
     void processData(int datasize_row);
     void print_hash_map();
-    void multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *myPIR_enc);
-    void multiply_enc_fake_map(int *plain_track_list, gamal_ciphertext_t *enc_list);
+    void multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *myPIR_enc, bool useTruth);
     void testWithoutDecrypt();
-    void proceedTestFunction(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher);
+    void proceedTestFunction(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth);
 };
 
 #endif

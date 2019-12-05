@@ -205,3 +205,17 @@ bool Servers::verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, 
         return false;
     }
 }
+
+bool Servers::verificationTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold)
+{
+	dig_t decrypt_test_f = Servers::_fusionDecrypt(sum_cipher, table, serverId);
+	cout << testName << " " << decrypt_test_f << endl;
+    if(decrypt_test_f < threshold)
+    {
+        cout << "Test function fail" << endl;
+        return false;
+    }else{
+        cout << "Test function pass" << endl;
+        return true;
+    }
+}

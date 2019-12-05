@@ -4,6 +4,8 @@
 #include "src/Server.h"
 #include "src/Servers.h"
 
+typedef map<string, string> TRACK_MAP;
+
 int getRandomInRange(int min, int max);
 void decryptFind(map<string, gamal_ciphertext_t *> enc_domain_map, gamal_key_t key, bsgs_table_t table);
 
@@ -58,10 +60,10 @@ int main2()
 	return 0;
 }
 
-void trackTaskPerformance(map<string, double> &time_track_map, string task_name, high_resolution_clock::time_point t1, high_resolution_clock::time_point t2)
+void trackTaskPerformance(TRACK_MAP &time_track_map, string task_name, high_resolution_clock::time_point t1, high_resolution_clock::time_point t2)
 {
 	double task_time_diff = timeEvaluate(task_name, t1, t2);
-	time_track_map.insert({task_name, task_time_diff});
+	time_track_map.insert({task_name, to_string(task_time_diff)});
 }
 
 int computeTimeEvaluation()
@@ -110,7 +112,7 @@ int computeTimeEvaluation()
 	return -1;
 }
 
-void storeTimeEvaluation(int argc, char **argv, map<string, double> time_track_map, bool verify_status)
+void storeTimeEvaluation(int argc, char **argv, TRACK_MAP time_track_map, bool verify_status)
 {
 
 	if (argc > 1)
@@ -136,7 +138,7 @@ void storeTimeEvaluation(int argc, char **argv, map<string, double> time_track_m
 		fout << argv[1] << ", " << verify_status;
 		for (auto itr = time_track_map.begin(); itr != time_track_map.end(); itr++)
 		{
-			double time_diff = itr->second;
+			string time_diff = itr->second;
 			fout << ", " << time_diff;
 		}
 		fout << "\n";
@@ -152,12 +154,12 @@ int main(int argc, char **argv)
 	}
 
 	const int SERVER_SIZE = 3;
-	map<string, double> time_track_map;
+	TRACK_MAP time_track_map;
 
 	high_resolution_clock::time_point t1, t2;
 
-	srand(time(NULL));
-	// srand(5);
+	// srand(time(NULL));
+	srand(5);
 	// initialize key & table
 	// gamal_key_t key;
 	bsgs_table_t table;
@@ -207,84 +209,94 @@ int main(int argc, char **argv)
 
 	// ========================SERVER==================
 	// Create PV sampling vector
-	// servers.createServersEncrypVector(pre_enc_stack);
+	servers.createServersEncrypVector(pre_enc_stack);
 
 	//========================= PARTICIPANT ==========================/
 	// part_A.addDummy(2);
 	// part_A.addDummyFake_1(300000, 2);
-	// part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc);
-
-	// part_A.addDummyFake_2(400000, 2);
-	// part_A.multiply_enc_fake_map(servers.s_plain_track_list, servers.s_myPIR_enc);
+	// part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, true);
 
 	t1 = high_resolution_clock::now();
-	part_A.selfIntializePV(4000, 2);
+	part_A.addDummyFake_2(400000, 2);
+	part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, false);
 	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_map, "Part_A Self Initialize PV View", t1, t2);
+	trackTaskPerformance(time_track_map, "Part_A Add Dummy Fake 2", t1, t2);
+
+	// t1 = high_resolution_clock::now();
+	// part_A.selfIntializePV(2000, 2);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_map, "Part_A Self Initialize PV View", t1, t2);
 
 	part_A.testWithoutDecrypt();
 
 	// ========================= SERVER ==========================/
 	// servers.fusionDecrypt(part_A.enc_domain_map, table);
+	bool test_status;
+	int threshold;
 
 	// ========================= SERVER 1 VERIFICATION =============/
-	int server_id = 0; // Server 1
+	int server_id = 0; // Server 1false
 	t1 = high_resolution_clock::now();
 	bool verify_status = servers.verificationPV(part_A.enc_domain_map, table, server_id, pre_enc_stack);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_map, "Servers verify the parital view", t1, t2);
 
-	// Server server1 = servers.server_vect[0];
+	Server server1 = servers.server_vect[0];
 
-	// // ========================= TEST FUNCTION 1 ===================/
-	// t1 = high_resolution_clock::now();
+	// ========================= TEST FUNCTION 1 ===================/
+	t1 = high_resolution_clock::now();
 
-	// server1.generateTestHashMap_1(pre_enc_stack, part_A.enc_domain_map);
+	server1.generateTestHashMap_1(pre_enc_stack, part_A.enc_domain_map);
 
-	// t2 = high_resolution_clock::now();
-	// timeEvaluate("generateTestHashMap_1", t1, t2);
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_map, "GenerateTestHashMap_1", t1, t2);
 
-	// // ========================= PARTICIPANT ==========================/
-	// gamal_ciphertext_t sum_cipher;
-	// gamal_cipher_new(sum_cipher);
-	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
+	// ========================= PARTICIPANT ==========================/
+	gamal_ciphertext_t sum_cipher;
+	gamal_cipher_new(sum_cipher);
+	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, true);
 
-	// // ========================= SERVER ==========================/
-	// dig_t decrypt_test_f1 = servers._fusionDecrypt(sum_cipher, table, server_id);
-	// cout << "Test function - Count of L known data: " << decrypt_test_f1 << endl;
+	// ========================= SERVER ==========================/
+	threshold = server1.known_vector.size();
+	test_status = servers.verificationTestResult("Test function - Count of L known data:", sum_cipher, table, server_id, threshold);
+	time_track_map.insert({"Test function - L", to_string(test_status)});
 
-	// // ========================= TEST FUNCTION 2 ===================/
-	// t1 = high_resolution_clock::now();
+	// ========================= TEST FUNCTION 2 ===================/
+	t1 = high_resolution_clock::now();
 
-	// server1.generateTestHashMap_2(pre_enc_stack, part_A.enc_domain_map);
+	server1.generateTestHashMap_2(pre_enc_stack, part_A.enc_domain_map);
 
-	// t2 = high_resolution_clock::now();
-	// timeEvaluate("generateTestHashMap_2", t1, t2);
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_map, "GenerateTestHashMap_2", t1, t2);
 
-	// // ========================= PARTICIPANT ==========================/
-	// gamal_cipher_new(sum_cipher);
-	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
+	// ========================= PARTICIPANT ==========================/
+	gamal_cipher_new(sum_cipher);
+	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, true);
 
-	// // ========================= SERVER ==========================/
-	// dig_t decrypt_test_f2 = servers._fusionDecrypt(sum_cipher, table, server_id);
-	// cout << "Test function - Count of V known data: " << decrypt_test_f2 << endl;
+	// ========================= SERVER ==========================/
+	threshold = 4000;
+	test_status = servers.verificationTestResult("Test function - Count of V known data:", sum_cipher, table, server_id, threshold);
+	time_track_map.insert({"Test function - V", to_string(test_status)});
 
-	// // ========================= TEST FUNCTION 3 ===================/
-	// // ========================= SERVER ==========================/
-	// t1 = high_resolution_clock::now();
+	// ========================= TEST FUNCTION 3 ===================/
+	// ========================= SERVER ==========================/
+	t1 = high_resolution_clock::now();
 
-	// server1.generateTestHashMap_3(pre_enc_stack, part_A.enc_domain_map);
+	server1.generateTestHashMap_3(pre_enc_stack, part_A.enc_domain_map);
 
-	// t2 = high_resolution_clock::now();
-	// timeEvaluate("IgenerateTestHashMap_3", t1, t2);
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_map, "GenerateTestHashMap_3", t1, t2);time_track_map.insert({"Test function - L", to_string(test_status)});
 
-	// // ========================= PARTICIPANT ==========================/
-	// gamal_cipher_new(sum_cipher);
-	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
+	// ========================= PARTICIPANT ==========================/
+	gamal_cipher_new(sum_cipher);
+	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, true);
 
-	// // ========================= SERVER ==========================/
-	// dig_t decrypt_test_f3 = servers._fusionDecrypt(sum_cipher, table, 0);
-	// cout << "Test function - Count of V - r0 data: " << decrypt_test_f3 << endl;
+	// ========================= SERVER ==========================/
+	threshold = 4000 - server1.verified_set.size();
+	test_status = servers.verificationTestResult("Test function - Count of V - r0 data:", sum_cipher, table, server_id, threshold);
+	time_track_map.insert({"Test function - V - r0", to_string(test_status)});
+
+
 
 	// // ========================= TEST FUNCTION 4 ===================/
 	// // ========================= SERVER ==========================/
@@ -306,7 +318,7 @@ int main(int argc, char **argv)
 
 	// // ========================= PARTICIPANT ==========================/
 	// gamal_cipher_new(sum_cipher);
-	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher);
+	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, true);
 
 	// // ========================= SERVER ==========================/
 	// dig_t decrypt_test_f4 = servers._fusionDecrypt(sum_cipher, table, 0);

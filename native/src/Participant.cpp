@@ -162,6 +162,8 @@ void Participant::addDummy(int factorSize)
 
     cout << "Total size of partial view histogram: " << hashMap.size() << endl
          << endl;
+
+    fakeHashMap = hashMap;
 }
 
 /*
@@ -212,6 +214,8 @@ void Participant::addDummyFake_1(int keepDomainS, int factorSize)
     }
     cout << "Total size of fake partial view histogram: " << hashMap.size() << endl
          << endl;
+
+    fakeHashMap = hashMap;
 }
 
 /*
@@ -227,22 +231,23 @@ void Participant::addDummyFake_1(int keepDomainS, int factorSize)
 
 void Participant::addDummyFake_2(int keepDomainS, int factorSize)
 {
-    int domain_size = hashMap.size();
-    cout << "Size of original histogram: " << domain_size << endl;
-    int pv_size = factorSize * size_dataset;
+    // int domain_size = hashMap.size();
+    // cout << "Size of original histogram: " << domain_size << endl;
+
+    // // add dummy
+    // int dummy_id = size_dataset;
+    // while (hashMap.size() < pv_size)
+    // {
+    //     string dummy_domain = getDummyDomain();
+    //     int random_id = _getRandomInRange(0, 1);
+    //     hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
+    //     dummy_id++;
+    // }
+
+    // fakeHashMap = hashMap;
+    Participant::addDummy(factorSize);
     int replaceDomainS = size_dataset - keepDomainS;
-
-    // add dummy
-    int dummy_id = size_dataset;
-    while (hashMap.size() < pv_size)
-    {
-        string dummy_domain = getDummyDomain();
-        int random_id = _getRandomInRange(0, 1);
-        hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
-        dummy_id++;
-    }
-
-    fakeHashMap = hashMap;
+    int pv_size = factorSize * size_dataset;
 
     int replace_counter = 0;
     while (replace_counter < replaceDomainS)
@@ -288,24 +293,9 @@ void Participant::addDummyFake_2(int keepDomainS, int factorSize)
 
 void Participant::selfIntializePV(int keepDomainS, int factorSize)
 {
-
+    Participant::addDummy(factorSize);
     int replaceDomainS = (size_dataset / 100) - keepDomainS;
-
-    int domain_size = hashMap.size();
-    cout << "Size of original histogram: " << domain_size << endl;
     int pv_size = factorSize * size_dataset;
-
-    // add dummy
-    int dummy_id = size_dataset;
-    while (hashMap.size() < pv_size)
-    {
-        string dummy_domain = getDummyDomain();
-        int random_id = _getRandomInRange(0, 1);
-        hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
-        dummy_id++;
-    }
-
-    fakeHashMap = hashMap;
 
     int replace_counter = 0;
     while (replace_counter < replaceDomainS)
@@ -402,11 +392,12 @@ void _printCiphertext(gamal_ciphertext_ptr ciphertext)
 
 // plain_track_list: 1, 0 vector encrypted from Server
 // enc_list: E1, E0 vector encrypted from Server
-void Participant::multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *enc_list)
+void Participant::multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *enc_list, bool useTruth)
 {
+    hash_pair_map tmp_hashMap = useTruth ? hashMap  : fakeHashMap;
     int counter_row = 0;
-    cout << "PV SIZE " << hashMap.size() << ", VECTOR FROM SERVER SIZE " << size_dataset << endl;
-    for (hash_pair_map::iterator itr = hashMap.begin(); itr != hashMap.end(); ++itr)
+    cout << "PV SIZE " << tmp_hashMap.size() << ", VECTOR FROM SERVER SIZE " << size_dataset << endl;
+    for (hash_pair_map::iterator itr = tmp_hashMap.begin(); itr != tmp_hashMap.end(); ++itr)
     {
         int decypt_cip = 0;
 
@@ -433,39 +424,7 @@ void Participant::multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *en
     }
 
     cout << "Counter row " << counter_row << endl;
-}
-
-void Participant::multiply_enc_fake_map(int *plain_track_list, gamal_ciphertext_t *enc_list)
-{
-    int counter_row = 0;
-    cout << "PV SIZE " << fakeHashMap.size() << ", VECTOR FROM SERVER SIZE " << size_dataset << endl;
-    for (hash_pair_map::iterator itr = fakeHashMap.begin(); itr != fakeHashMap.end(); ++itr)
-    {
-        int decypt_cip = 0;
-
-        id_domain_pair domain = itr->first;
-        int domain_count = itr->second;
-
-        gamal_ciphertext_t *mul_enc_ciphertext = new gamal_ciphertext_t[1];
-
-        int track = 0;
-        if (domain_count > 0)
-        {
-            decypt_cip = plain_track_list[counter_row] * domain_count;
-            gamal_mult_opt(mul_enc_ciphertext[0], enc_list[counter_row], domain_count);
-            counter_row++;
-        }
-        else
-        {
-            decypt_cip = 0;
-            Participant::pre_enc_stack.pop_E0(mul_enc_ciphertext[0]);
-        }
-
-        enc_domain_map.insert({domain, mul_enc_ciphertext[0]});
-        plain_domain_map.insert({domain, decypt_cip});
-    }
-
-    cout << "Counter row " << counter_row << endl;
+    tmp_hashMap.clear();
 }
 
 void Participant::testWithoutDecrypt()
@@ -492,8 +451,10 @@ void Participant::testWithoutDecrypt()
     cout << "Total count of chosen plaintext 1 from server: " << count << endl;
 }
 
-void Participant::proceedTestFunction(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher)
+void Participant::proceedTestFunction(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth)
 {
+    hash_pair_map tmp_hashMap = useTruth ? hashMap  : fakeHashMap;
+
     const int size_test_map = enc_test_map.size();
     // gamal_ciphertext_t *enc_list = new gamal_ciphertext_t[size_test_map];
 
@@ -510,7 +471,7 @@ void Participant::proceedTestFunction(ENC_DOMAIN_MAP &enc_test_map, gamal_cipher
         string key = itr->first.first;
         string domain = itr->first.second;
 
-        int value = hashMap[{key, domain}];
+        int value = tmp_hashMap[{key, domain}];
         if (value > 0)
         {
             gamal_mult_opt(mul_tmp, itr->second, value);
@@ -531,4 +492,6 @@ void Participant::proceedTestFunction(ENC_DOMAIN_MAP &enc_test_map, gamal_cipher
         }
     }
     cout << "Counter " << counter << endl;
+
+    tmp_hashMap.clear();
 }
