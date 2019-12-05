@@ -15,7 +15,7 @@ Server::Server(int size)
     plain_track_list = new int[size];
     size_dataset = size;
 
-    const string KNOWN_DOMAIN_DIR = "./data/known_domains_500K.csv";
+    const string KNOWN_DOMAIN_DIR = "./data/known_domains.csv";
     Server::importFile(KNOWN_DOMAIN_DIR);
 }
 

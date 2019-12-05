@@ -108,7 +108,7 @@ bool Servers::verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, 
 {
     Server server = server_vect[serverId]; // shallow copy
     const int KNOWN_VECT_SIZE = server.known_vector.size();
-    const int LEAST_DOMAIN = 4;
+    const int LEAST_DOMAIN = 6; // need to be an argument (for eta = 0.90)
 
     gamal_ciphertext_t sum, tmp, encrypt_E0;
     gamal_cipher_new(sum);

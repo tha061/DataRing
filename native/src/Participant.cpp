@@ -48,6 +48,7 @@ Participant::Participant()
     size_dataset = 0;
 }
 
+// Participant Generates original Histogram
 void Participant::processData(int datasize_row)
 {
     std::ifstream data(DATA_DIR);
@@ -146,6 +147,7 @@ string getDummyDomain()
     return dummy_domain;
 }
 
+// Participant adds dummy bins to the original histogram -> true histogram
 void Participant::addDummy(int factorSize)
 {
     int domain_size = hashMap.size();
@@ -292,7 +294,7 @@ void Participant::selfIntializePV(int keepDomainS, int factorSize)
     int replaceDomainS = (size_dataset / 100) - keepDomainS;
 
     int domain_size = hashMap.size();
-    cout << "Size of original histogram: " << domain_size << endl;
+   // cout << "Size of original histogram: " << domain_size << endl;
     int pv_size = factorSize * size_dataset;
 
     // add dummy
@@ -343,6 +345,7 @@ void Participant::selfIntializePV(int keepDomainS, int factorSize)
         gamal_ciphertext_t *mul_enc_ciphertext = new gamal_ciphertext_t[1];
 
         int track = 0;
+        
         if (domain_count > 0)
         {
             decypt_cip = 1;
@@ -365,6 +368,7 @@ void Participant::selfIntializePV(int keepDomainS, int factorSize)
          << endl;
     cout << "Total size of original partial view histogram: " << hashMap.size() << endl
          << endl;
+
 }
 
 void _printCiphertext(gamal_ciphertext_ptr ciphertext)
@@ -400,8 +404,12 @@ void _printCiphertext(gamal_ciphertext_ptr ciphertext)
     printf("\n");
 }
 
-// plain_track_list: 1, 0 vector encrypted from Server
-// enc_list: E1, E0 vector encrypted from Server
+
+/**
+ * A honest participant generates PV using sampling vector from server
+ * @para: plain_track_list: 1, 0 vector encrypted from Server
+ * @para:  enc_list: E1, E0 vector encrypted from Server
+ */
 void Participant::multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *enc_list)
 {
     int counter_row = 0;
@@ -434,6 +442,12 @@ void Participant::multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *en
 
     cout << "Counter row " << counter_row << endl;
 }
+
+/**
+ * A dishonest participant generates fake PV using fake histogram
+ * @para: plain_track_list: 1, 0 vector encrypted from Server
+ * @para:  enc_list: E1, E0 vector encrypted from Server
+ */
 
 void Participant::multiply_enc_fake_map(int *plain_track_list, gamal_ciphertext_t *enc_list)
 {
