@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <iterator> // for iterators
 #include <boost/math/distributions/laplace.hpp>
+#include <boost/math/distributions/hypergeometric.hpp>
 #include <boost/array.hpp>
 #include <cstdlib> 
 

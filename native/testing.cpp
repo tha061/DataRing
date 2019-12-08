@@ -35,18 +35,48 @@ int data_ring();
 // 	return 0;
 // }
 
-// int dataring();
+int main()
+{
+	srand(time(NULL));
+	float epsilon = 0.1;
+	float sensitivity = 1.0;
+	float laplace_quantitle = 0.1;
+	float scale = sensitivity / epsilon;
+	float loc = 0;
 
-// 	float probMax = 0.9999999;
-// 	float max_100 = quantile(lp_dist, probMax);
-// 	float min_100 = quantile(lp_dist, 1 - probMax);
-// 	cout << "range_max: " << max_100 << endl;
-// 	cout << "range_min: " << min_100 << endl;
+	hypergeometric_distribution<> hyper_dist(1000, 5000, 500000);
+// complement(norm, 0.05)
 
-// 	float n = min_100 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max_100 - min_100)));
-// 	cout << n << endl;
-// 	return 0;
-// }
+	float max_noise = quantile(complement(hyper_dist, 0.9));
+
+	cout << "max_noise: " << max_noise << endl;
+	// cout << "min_noise: " << min_noise << endl;
+
+
+	// laplace_distribution<> lp_dist(loc, scale);
+	// cout << "loc " << lp_dist.location() << endl;
+	// cout << "scale " << lp_dist.scale() << endl;
+
+	// // Distributional properties
+	// float probability = 0.001 / 2;
+
+	// float max_noise = quantile(lp_dist, 1 - probability);
+
+	// float min_noise = quantile(lp_dist, probability);
+
+	// cout << "max_noise: " << max_noise << endl;
+	// cout << "min_noise: " << min_noise << endl;
+
+	// float prob100 = 0.9999999;
+	// float max_100 = quantile(lp_dist, prob100);
+	// float min_100 = quantile(lp_dist, 1 - prob100);
+	// cout << "range_max: " << max_100 << endl;
+	// cout << "range_min: " << min_100 << endl;
+
+	// int n= -9+ int((2* 9+ 1)* 1.* rand()/ (RAND_MAX+ 1.));
+	// cout << n << endl;
+	return 0;
+}
 
 void trackTaskPerformance(TRACK_MAP &time_track_map, string task_name, high_resolution_clock::time_point t1, high_resolution_clock::time_point t2)
 {
@@ -134,7 +164,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_MAP time_track_map, bool v
 	}
 }
 
-int main(int argc, char **argv)
+int main5(int argc, char **argv)
 {
 	if (argc > 1 && strcmp(argv[1], "-1") == 0)
 	{
@@ -437,96 +467,3 @@ int getRandomInRange(int min, int max)
 	return min + (rand() % (max - min + 1));
 }
 
-int main1()
-{
-	std::cout << OPENSSL_VERSION_TEXT << std::endl;
-
-	//EC_GROUP *init_group = NULL;
-
-	//====== SETUP ========
-	// pre_encryption(100);
-
-	// partialViewCollect_histogram(1000000, 5);
-
-	// partialViewCollect_histogram_map(1000,2);
-
-	// ======= Plain EC-ElGamal =====
-
-	// test1();
-	// std::cout << "Plain EC-ElGamal 32-bit integers" << std::endl;
-	//bench_elgamal(10, 16);
-	//std::cout << "Plain EC-ElGamal 32-bit integers" << std::endl;
-	//bench_elgamal_add(10, 16);
-	// std::cout << "Plain EC-ElGamal 32-bit integers" << std::endl;
-	//bench_elgamal_mult(10, 16, 0);
-	// std::cout<<"Test mult opt: "<<std::endl;
-	test_mult_opt(10, 0);
-
-	// std::cout<<"Test query computation: "<<std::endl;
-	// test_COUNT_query_computation(1000000);
-	//test_SUM_query_computation(10);
-
-	//==== Collective Key Gen for EC-ElGamal=====
-	// std::cout<< "EC ElGamal test collective key gen and threshold decryption"<<std::endl;
-	// test_coll_key_gen(500);
-	// test_threshold_decrypt(100);
-	//test_coll_decrypt();
-	//std::cout<< "EC ElGamal test key switching"<<std::endl;
-	//test_key_switch(1000);
-
-	//printf("08%d", convert_to_bin(13));
-	//convert_to_bin(13);
-	//std::cout<< convert_to_bin(16)<<std::endl;
-
-	//std::cout<<"Test binary convert"<<std::endl;
-	//test_binary_inter(15000);
-
-	//test_NAF_decode(19);
-
-	return 0;
-}
-
-#if 0
-//#include <iostream>
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <errno.h>
-using namespace std;
-
-int main()
-{
-   struct rlimit sl;
-   int returnVal = getrlimit(RLIMIT_STACK, &sl);
-   if (returnVal == -1)
-   {
-      cout << "Error. errno: " << errno << endl;
-   }
-   else if (returnVal == 0)
-   {
-      cout << "stackLimit soft - max : " << sl.rlim_cur << " - " << sl.rlim_max << endl;
-   }
-}
-
-//answer: stackLimit soft - max : 8388608 - 18446744073709551615
-
-#endif
-
-// ===== CRT EC-ElGamal ====
-// test2();
-//std::cout << "CRT optimized EC-ElGamal 32-bit integers" << std::endl;
-// bench_crtelgamal(5000000, 16, 32);
-
-//std::cout << "CRT optimized EC-ElGamal 64-bit integers" << std::endl;
-//  bench_crtelgamal(1000, 17, 64);
-
-//std::cout << "CRT optimized EC-ElGamal Addition 64 bits" << std::endl;
-//bench_crtelgamal_add(100, 16, 64);
-
-//std::cout << "CRT optimized EC-ElGamal Addition 32 bits" << std::endl;
-//bench_crtelgamal_add(1000, 16, 32); //only work for integer very smaller than exp2(32)
-
-//std::cout << "CRT optimized EC-ElGamal multi, 32-bit integer" << std::endl;
-//bench_crtelgamal_mult(1000, 16, 32);
-
-//std::cout << "CRT optimized EC-ElGamal multi, 64-bit integer" << std::endl;
-//bench_crtelgamal_mult(1, 16, 64, 4);
