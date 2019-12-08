@@ -27,16 +27,59 @@ void testWithoutDecrypt(hash_map plain_domain_map);
 void addDummy(hash_map &hashMap);
 void printCiphertext(gamal_ciphertext_t ciphertext);
 int data_ring();
+double randZeroToOne();
+double exp_sample();
+double laplace_noise();
 
-// int main(int argc, char **argv)
-// {
-// 	cout << argv[1] << endl;
-// 	cout << argv[2] << endl;
-// 	return 0;
-// }
+/**
+ * Laplace noise generation 
+ * https://www.johndcook.com/blog/2018/03/13/generating-laplace-random-variables/
+ */
+
+//This function generate a double point the interval [0,1):
+// More details: http://c-faq.com/lib/rand48.html
+double randZeroToOne()
+{
+    return rand() / (RAND_MAX + 1.);
+}
+
+double exp_sample(double mean)
+{
+	double rand_number = randZeroToOne();
+	return -mean*log(1 - rand_number);
+}
+
+double laplace_noise(double sensitivity, double epsilon)
+{
+	double e1, e2;
+	double scale = sensitivity/epsilon;
+	e1 = exp_sample(scale);
+	e2 = exp_sample(scale);
+	return e1 - e2;
+
+	// To UPDATE: participant generate noises for COUNT query as an integer number,
+	// take only noise values in range of [min, max]
+}
+
+int main1(int argc, char **argv)
+{
+	srand(time(NULL));
+	double mean = 0;
+	double sensi = 1;
+	double epsilon = 0.1;
+	for (int i = 0; i<100; i++)
+	{
+		double noise = laplace_noise(sensi, epsilon);
+		cout<< "i = " <<i<< "; noise = "<< noise << endl;
+	}
+
+	return 0;
+}
+/////////////////////////////////////////
+////////////////////////////////////////////
 
 // int dataring();
-
+// {
 // 	float probMax = 0.9999999;
 // 	float max_100 = quantile(lp_dist, probMax);
 // 	float min_100 = quantile(lp_dist, 1 - probMax);
@@ -56,7 +99,7 @@ void trackTaskPerformance(TRACK_MAP &time_track_map, string task_name, high_reso
 
 int computeTimeEvaluation()
 {
-	std::ifstream data("./data/report_honestParty_1M.csv");
+	std::ifstream data("./data/report_maliciousParty_500K_100K_noDebug.csv");
 	if (!data.is_open())
 	{
 		std::exit(EXIT_FAILURE);
@@ -108,7 +151,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_MAP time_track_map, bool v
 		fstream fout;
 		if (strcmp(argv[3], "1") == 0)
 		{
-			fout.open("./data/report_honestParty_500K.csv", ios::out | ios::trunc);
+			fout.open("./data/report_maliciousParty_500K_100K_noDebug.csv", ios::out | ios::trunc);
 			fout << "Iteration, Verification Status";
 			for (auto itr = time_track_map.begin(); itr != time_track_map.end(); itr++)
 			{
@@ -119,7 +162,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_MAP time_track_map, bool v
 		}
 		else
 		{
-			fout.open("./data/report_honestParty_500K.csv", ios::out | ios::app);
+			fout.open("./data/report_maliciousParty_500K_100K_noDebug.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file
@@ -166,8 +209,7 @@ int main(int argc, char **argv)
 
 	high_resolution_clock::time_point t1, t2;
 
-	// srand(time(NULL));
-	srand(5);
+	srand(time(NULL));
 	// initialize key & table
 	// gamal_key_t key;
 	bsgs_table_t table;
@@ -229,17 +271,20 @@ int main(int argc, char **argv)
 
 	// PART IS HONEST
 
-	t1 = high_resolution_clock::now();
-	part_A.addDummy(2);
-	part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, true);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_map, "Gen PV (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// part_A.addDummy(2);
+	// part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, true);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_map, "Gen PV (ms)", t1, t2);
 
 	// PARTY IS DISHONEST
 
 	// part_A.addDummyFake_1(300000, 2);
-	// part_A.addDummyFake_2(100000, 2);
-	// part_A.multiply_enc_fake_map(servers.s_plain_track_list, servers.s_myPIR_enc);
+	t1 = high_resolution_clock::now();
+	part_A.addDummyFake_2(100000, 2);
+	part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, false);
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_map, "Gen PV (ms)", t1, t2);
 
 	// t1 = high_resolution_clock::now();
 	// part_A.selfIntializePV(4000, 2);
@@ -271,7 +316,7 @@ int main(int argc, char **argv)
 
 	t1 = high_resolution_clock::now();
 	gamal_cipher_new(sum_cipher);
-	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, true);
+	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, false);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_map, "Compute answer L (ms)", t1, t2);
 
@@ -288,49 +333,50 @@ int main(int argc, char **argv)
 
 	t1 = high_resolution_clock::now();
 	gamal_cipher_new(sum_cipher);
-	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, true);
+	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, false);
 	t2 = high_resolution_clock::now();
 	timeEvaluate("proceedTestFunction_V", t1, t2);
 	trackTaskPerformance(time_track_map, "Compute ans V (ms)", t1, t2);
 
-	threshold = 5000;
+	threshold = 5000; //actual PV size
 	test_status = servers.verificationTestResult("Test function - Count of V known data:", sum_cipher, table, server_id, threshold);
 	time_track_map.insert({"Test function - V", to_string(test_status)});
 
-	//===== TEST FUNCTION 3 targeting V - r0 records in PV ====//
+	// //===== TEST FUNCTION 3 targeting V - r0 records in PV ====//
 
-	t1 = high_resolution_clock::now();
-	server1.generateTestHashMap_3(pre_enc_stack, part_A.enc_domain_map);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_map, "GenerateTestHashMap_3", t1, t2);
-	time_track_map.insert({"Test function - L", to_string(test_status)});
+	// t1 = high_resolution_clock::now();
+	// server1.generateTestHashMap_3(pre_enc_stack, part_A.enc_domain_map);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_map, "GenerateTestHashMap_3", t1, t2);
+	// time_track_map.insert({"Test function - L", to_string(test_status)});
 
-	// ========================= PARTICIPANT ==========================/
-	gamal_cipher_new(sum_cipher);
-	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, true);
+	
+	// gamal_cipher_new(sum_cipher);
+	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, false);
 
-	// ========================= SERVER ==========================/
-	threshold = 5000 - server1.verified_set.size();
-	test_status = servers.verificationTestResult("Test function - Count of V - r0 data:", sum_cipher, table, server_id, threshold);
-	time_track_map.insert({"Test function - V - r0", to_string(test_status)});
+	
+	// threshold = 10000 - server1.verified_set.size();
+	// test_status = servers.verificationTestResult("Test function - Count of V - r0 data:", sum_cipher, table, server_id, threshold);
+	// time_track_map.insert({"Test function - V - r0", to_string(test_status)});
+
 
 	// ====== NORMAL QUERY ======= //
 
 	// Servers will not verify the answer,
 	// but re-encrypt the encrypted answer to public key of querying party (participant B)
 
-	// t1 = high_resolution_clock::now();
-	// server1.generateTestHashMap_Attr(pre_enc_stack, part_A.enc_domain_map);
-	// t2 = high_resolution_clock::now();
-	// timeEvaluate("generateTestHashMap_Attr", t1, t2);
-	// trackTaskPerformance(time_track_map, "Gen normal Query (ms)", t1, t2);
+	t1 = high_resolution_clock::now();
+	server1.generateTestHashMap_Attr(pre_enc_stack, part_A.enc_domain_map);
+	t2 = high_resolution_clock::now();
+	timeEvaluate("generateTestHashMap_Attr", t1, t2);
+	trackTaskPerformance(time_track_map, "Gen normal Query (ms)", t1, t2);
 
-	// t1 = high_resolution_clock::now();
-	// gamal_cipher_new(sum_cipher);
-	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, true);
-	// t2 = high_resolution_clock::now();
-	// // timeEvaluate("proceedTestFunction_Attr", t1, t2);
-	// trackTaskPerformance(time_track_map, "Compute answer Query (ms)", t1, t2);
+	t1 = high_resolution_clock::now();
+	gamal_cipher_new(sum_cipher);
+	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, false);
+	t2 = high_resolution_clock::now();
+	// timeEvaluate("proceedTestFunction_Attr", t1, t2);
+	trackTaskPerformance(time_track_map, "Compute answer Query (ms)", t1, t2);
 
 	// //Need re-encryption here
 
@@ -437,9 +483,14 @@ int getRandomInRange(int min, int max)
 	return min + (rand() % (max - min + 1));
 }
 
+
+
 int main1()
 {
 	std::cout << OPENSSL_VERSION_TEXT << std::endl;
+	srand(time(NULL));
+	std::cout << "Test key switching new approach: " << std::endl;
+	test_key_switch_new(30);
 
 	//EC_GROUP *init_group = NULL;
 
@@ -460,7 +511,7 @@ int main1()
 	// std::cout << "Plain EC-ElGamal 32-bit integers" << std::endl;
 	//bench_elgamal_mult(10, 16, 0);
 	// std::cout<<"Test mult opt: "<<std::endl;
-	test_mult_opt(10, 0);
+	// test_mult_opt(10, 0);
 
 	// std::cout<<"Test query computation: "<<std::endl;
 	// test_COUNT_query_computation(1000000);
@@ -486,6 +537,11 @@ int main1()
 	return 0;
 }
 
+
+
+//////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+
 #if 0
 //#include <iostream>
 #include <sys/time.h>
@@ -509,24 +565,26 @@ int main()
 
 //answer: stackLimit soft - max : 8388608 - 18446744073709551615
 
+
+
+===== CRT EC-ElGamal ====
+test2();
+std::cout << "CRT optimized EC-ElGamal 32-bit integers" << std::endl;
+bench_crtelgamal(5000000, 16, 32);
+
+std::cout << "CRT optimized EC-ElGamal 64-bit integers" << std::endl;
+ bench_crtelgamal(1000, 17, 64);
+
+std::cout << "CRT optimized EC-ElGamal Addition 64 bits" << std::endl;
+bench_crtelgamal_add(100, 16, 64);
+
+std::cout << "CRT optimized EC-ElGamal Addition 32 bits" << std::endl;
+bench_crtelgamal_add(1000, 16, 32); //only work for integer very smaller than exp2(32)
+
+std::cout << "CRT optimized EC-ElGamal multi, 32-bit integer" << std::endl;
+bench_crtelgamal_mult(1000, 16, 32);
+
+std::cout << "CRT optimized EC-ElGamal multi, 64-bit integer" << std::endl;
+bench_crtelgamal_mult(1, 16, 64, 4);
+
 #endif
-
-// ===== CRT EC-ElGamal ====
-// test2();
-//std::cout << "CRT optimized EC-ElGamal 32-bit integers" << std::endl;
-// bench_crtelgamal(5000000, 16, 32);
-
-//std::cout << "CRT optimized EC-ElGamal 64-bit integers" << std::endl;
-//  bench_crtelgamal(1000, 17, 64);
-
-//std::cout << "CRT optimized EC-ElGamal Addition 64 bits" << std::endl;
-//bench_crtelgamal_add(100, 16, 64);
-
-//std::cout << "CRT optimized EC-ElGamal Addition 32 bits" << std::endl;
-//bench_crtelgamal_add(1000, 16, 32); //only work for integer very smaller than exp2(32)
-
-//std::cout << "CRT optimized EC-ElGamal multi, 32-bit integer" << std::endl;
-//bench_crtelgamal_mult(1000, 16, 32);
-
-//std::cout << "CRT optimized EC-ElGamal multi, 64-bit integer" << std::endl;
-//bench_crtelgamal_mult(1, 16, 64, 4);

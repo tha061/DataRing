@@ -202,6 +202,12 @@ int gamal_collective_key_gen(gamal_key_t coll_keys, gamal_key_t keys1, gamal_key
  */
 int gamal_key_switching(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_key_t keysNew);
 
+//added by Tham 7 Dec 2019 for improving re-encryption
+int gama_key_switch_lead(gamal_ciphertext_t cipher_update, gamal_ciphertext_t cipher, gamal_key_t keys_lead, gamal_key_t keysNew);
+int gama_key_switch_follow(gamal_ciphertext_t cipher_update, gamal_ciphertext_t cipher, gamal_key_t keys_follow, gamal_key_t keysNew);
+
+
+
 /**
  * Added by Tham
  * Collective decrypts an EC-ElGamal ciphertext by all parties

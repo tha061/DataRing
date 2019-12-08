@@ -364,7 +364,75 @@ void test_key_switch(int num_entries)
 		gamal_decrypt(&after, keysNew, new_cipher, table);
 		//std::cout<<"test OK"<<std::endl;
 
-		//std::cout<<"after: "<<after<<" = plain ="<<plain<<std::endl;
+		std::cout<<"after: "<<after<<" = plain ="<<plain<<std::endl;
+
+		if (after != plain)
+			std::cout << "ERROR" << std::endl;
+		//else std::cout << "OK" << std::endl;
+	}
+
+	std::cout << "Avg Re-encryption time: " << avg_re_encrypt / (num_entries * 1000000.0) << "ms" << std::endl;
+}
+
+void test_key_switch_new(int num_entries)
+{
+	gamal_key_t coll_keys;
+	gamal_ciphertext_t cipher, cipher_update;
+	dig_t plain, after;
+	bsgs_table_t table;
+	int num_server = 3;
+
+	double avg_re_encrypt = 0;
+
+	//gamal_key_t coll_keys;
+	gamal_key_t keys1, keys2, keys3, keysNew; //, key3;//, key3;
+
+	gamal_key_t keys23[num_server - 1];
+
+	gamal_init(CURVE_256_SEC);
+	gamal_generate_keys(keys1);		//generate key pairs for S1
+	gamal_generate_keys(keys23[0]); //generate key pairs for S2
+	gamal_generate_keys(keys23[1]); //generate key pairs for S3
+
+	gamal_generate_keys(keysNew);
+	//gamal_generate_keys(keys3);
+
+	gamal_collective_key_gen(coll_keys, keys1, keys23[0], keys23[1]); //collective key gen
+	gamal_init_bsgs_table(table, (dig_t)1L << 16);
+
+	for (int iter = 1; iter <= num_entries; iter++)
+	{
+		std::cout<<"Iteration: "<< iter << std::endl;
+		plain = ((dig_t)rand()) * iter % (((dig_t)1L) << 32); //10000; //((dig_t) rand()) * iter % (((dig_t)1L) << 32);
+		//plain = 1000;
+
+		gamal_encrypt(cipher, coll_keys, plain);
+
+		
+
+		high_resolution_clock::time_point t1 = high_resolution_clock::now();
+		//gamal_key_switching(cipher_update, cipher, keys1, keys2, keys3, keysNew);
+
+		gama_key_switch_lead(cipher_update, cipher, keys1, keysNew);
+
+		for(int i = 0; i<2; i++)
+		{
+			gama_key_switch_follow(cipher_update, cipher, keys23[i] ,keysNew);
+
+		}
+
+		//std::cout<<"test OK"<<std::endl;
+		high_resolution_clock::time_point t2 = high_resolution_clock::now();
+		auto re_encrypt_time = duration_cast<nanoseconds>(t2 - t1).count();
+		avg_re_encrypt += re_encrypt_time;
+		//std::cout<<"test OK"<<std::endl;
+
+		//std::cout<<"cipher = "<<cipher<<" new_cipher = "<<new_cipher<<std::endl;
+
+		gamal_decrypt(&after, keysNew, cipher_update, table);
+		//std::cout<<"test OK"<<std::endl;
+
+		std::cout<<"after: "<<after<<" = plain ="<<plain<<std::endl;
 
 		if (after != plain)
 			std::cout << "ERROR" << std::endl;
