@@ -1,4 +1,5 @@
 #include "Participant.h"
+#include "../public_func.h"
 
 static void _printEncData(int index, gamal_ciphertext_t *enc_list)
 {
@@ -39,7 +40,6 @@ static void _printEncData(int index, gamal_ciphertext_t *enc_list)
 static int _getRandomInRange(int min, int max)
 {
     return min + (rand() % (max - min + 1));
-
 }
 
 // const string Participant::DATA_DIR = "./data/unique_domains.csv";
@@ -463,7 +463,7 @@ void Participant::testWithoutDecrypt()
     cout << "Total count of chosen plaintext 1 from server: " << count << endl;
 }
 
-void Participant::proceedTestFunction(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth)
+void Participant::proceedTestFunction(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key, double prob)
 {
     hash_pair_map tmp_hashMap = useTruth ? hashMap : fakeHashMap;
 
@@ -505,5 +505,41 @@ void Participant::proceedTestFunction(ENC_DOMAIN_MAP &enc_test_map, gamal_cipher
     }
     // cout << "Counter " << counter << endl;
 
+    float epsilon = 0.1;
+    float sensitivity = 1.0;
+
+    double maxNoise = getNoiseRangeFromLaplace(sensitivity, epsilon, prob);
+    double minNoise = -maxNoise;
+    cout << "Min noise: " << minNoise << endl;
+    cout << "Max noise: " << maxNoise << endl;
+
+    int randomNoise = laplace_noise(sensitivity, epsilon);
+    // cout << "Random noise: " << randomNoise << endl;
+
+    if (randomNoise < minNoise)
+    {
+        randomNoise = (int)(minNoise);
+    }
+    else if (randomNoise > maxNoise)
+    {
+        randomNoise = (int)(maxNoise);
+    }
+
+    if(randomNoise < 0)
+    {
+        randomNoise = -randomNoise;
+    }
+
+    cout << "Random noise: " << randomNoise << endl;
+
+    gamal_ciphertext_t noiseEnc;
+    gamal_cipher_new(noiseEnc);
+    gamal_encrypt(noiseEnc, coll_key, randomNoise);
+
+    gamal_cipher_new(tmp);
+    tmp->C1 = sum_cipher->C1;
+    tmp->C2 = sum_cipher->C2;
+    gamal_add(sum_cipher, tmp, noiseEnc);
+    
     tmp_hashMap.clear();
 }

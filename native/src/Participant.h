@@ -3,6 +3,7 @@
 
 #include "../include/public_header.h"
 #include "ENC_Stack.h"
+#include "process_noise.h"
 
 class Participant
 {
@@ -32,8 +33,7 @@ public:
     void print_hash_map();
     void multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *myPIR_enc, bool useTruth);
     void testWithoutDecrypt();
-    void proceedTestFunction(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth);
-
+    void proceedTestFunction(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key, double prob);
 };
 
 #endif

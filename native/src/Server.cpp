@@ -174,7 +174,6 @@ void Server::generateTestHashMap_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP e
 {
     enc_test_map.clear();
 
-
     map<int, string> columns_map;
     _importQuery(columns_map);
     const int COLUMN_SIZE = 10;
@@ -219,10 +218,47 @@ void Server::generateTestHashMap_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP e
         }
         enc_test_map.insert({domain_pair, enc_ciphertext[0]});
     }
+
+    
     // cout << "Total match row in attribute test func: " << counter << endl;
 }
 
 void Server::addVerifiedDomain(id_domain_pair verified_domain_pair)
 {
     verified_set.insert(verified_domain_pair);
+}
+
+void Server::generateTestFunction(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, int type)
+{
+    switch (type)
+    {
+        case 1:
+        {
+            Server::generateTestHashMap_1(pre_enc_stack, enc_domain_map);
+            break;
+        }
+
+        case 2:
+        {
+            Server::generateTestHashMap_2(pre_enc_stack, enc_domain_map);
+            break;
+        }
+
+        case 3:
+        {
+            Server::generateTestHashMap_3(pre_enc_stack, enc_domain_map);
+            break;
+        }
+
+        case 4:
+        {
+            Server::generateTestHashMap_Attr(pre_enc_stack, enc_domain_map);
+            break;
+        }
+        default:
+        {
+            cout << "Please enter type of test function" << endl;
+            break;
+        }
+    }
 }

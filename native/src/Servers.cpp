@@ -1,4 +1,5 @@
 #include "Servers.h"
+#include "process_noise.h"
 
 Servers::Servers(int server_size, int data_size, string known_domain_dir)
 {
@@ -104,11 +105,12 @@ void Servers::fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table)
     cout << "Total domain encrypted as 1: " << count << endl;
 }
 
-bool Servers::verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack)
+bool Servers::verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack, double prob)
 {
     Server server = server_vect[serverId]; // shallow copy
     const int KNOWN_VECT_SIZE = server.known_vector.size();
-    const int LEAST_DOMAIN = 6;
+    int v = data_size / 100;
+    const int LEAST_DOMAIN = getNoiseFromHyper(data_size, v, KNOWN_VECT_SIZE, prob);
 
     gamal_ciphertext_t sum, tmp, encrypt_E0;
     gamal_cipher_new(sum);
@@ -206,16 +208,25 @@ bool Servers::verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, 
     }
 }
 
-bool Servers::verificationTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold)
+bool Servers::verificationTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold, double prob)
 {
-	dig_t decrypt_test_f = Servers::_fusionDecrypt(sum_cipher, table, serverId);
-	cout << testName << " " << decrypt_test_f << endl;
-    if(decrypt_test_f < threshold)
+    dig_t decrypt_test_f = Servers::_fusionDecrypt(sum_cipher, table, serverId);
+    cout << testName << " " << decrypt_test_f << endl;
+
+    float epsilon = 0.1;
+    float sensitivity = 1.0;
+
+    int maxNoise = (int)(getNoiseRangeFromLaplace(sensitivity, epsilon, prob));
+    // cout << "Max noise: " << maxNoise << endl;
+
+    if (decrypt_test_f >= (threshold - maxNoise) && decrypt_test_f <= (threshold + maxNoise))
     {
-        // cout << "Test function fail" << endl;
-        return false;
-    }else{
-        // cout << "Test function pass" << endl;
+        cout << "Test function fail" << endl;
         return true;
+    }
+    else
+    {
+        cout << "Test function pass" << endl;
+        return false;
     }
 }

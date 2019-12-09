@@ -32,6 +32,8 @@ public:
     // test func() V - r0 domains
     void generateTestHashMap_3(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map); // test the existence of V domains
 
+    void generateTestFunction(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, int type);
+
     void addVerifiedDomain(id_domain_pair verified_domain_pair);
 };
 

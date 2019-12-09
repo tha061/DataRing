@@ -239,6 +239,33 @@ ecelgamal.c.s:
 	$(MAKE) -f CMakeFiles/ecelgamal-lib.dir/build.make CMakeFiles/ecelgamal-lib.dir/ecelgamal.c.s
 .PHONY : ecelgamal.c.s
 
+public_func.o: public_func.cpp.o
+
+.PHONY : public_func.o
+
+# target to build an object file
+public_func.cpp.o:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/public_func.cpp.o
+.PHONY : public_func.cpp.o
+
+public_func.i: public_func.cpp.i
+
+.PHONY : public_func.i
+
+# target to preprocess a source file
+public_func.cpp.i:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/public_func.cpp.i
+.PHONY : public_func.cpp.i
+
+public_func.s: public_func.cpp.s
+
+.PHONY : public_func.s
+
+# target to generate assembly for a file
+public_func.cpp.s:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/public_func.cpp.s
+.PHONY : public_func.cpp.s
+
 src/ENC_Stack.o: src/ENC_Stack.cpp.o
 
 .PHONY : src/ENC_Stack.o
@@ -374,6 +401,60 @@ src/generate_enc_vectors.c.s:
 	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/generate_enc_vectors.c.s
 .PHONY : src/generate_enc_vectors.c.s
 
+src/process_noise.o: src/process_noise.cpp.o
+
+.PHONY : src/process_noise.o
+
+# target to build an object file
+src/process_noise.cpp.o:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/process_noise.cpp.o
+.PHONY : src/process_noise.cpp.o
+
+src/process_noise.i: src/process_noise.cpp.i
+
+.PHONY : src/process_noise.i
+
+# target to preprocess a source file
+src/process_noise.cpp.i:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/process_noise.cpp.i
+.PHONY : src/process_noise.cpp.i
+
+src/process_noise.s: src/process_noise.cpp.s
+
+.PHONY : src/process_noise.s
+
+# target to generate assembly for a file
+src/process_noise.cpp.s:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/process_noise.cpp.s
+.PHONY : src/process_noise.cpp.s
+
+src/time_evaluation.o: src/time_evaluation.cpp.o
+
+.PHONY : src/time_evaluation.o
+
+# target to build an object file
+src/time_evaluation.cpp.o:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/time_evaluation.cpp.o
+.PHONY : src/time_evaluation.cpp.o
+
+src/time_evaluation.i: src/time_evaluation.cpp.i
+
+.PHONY : src/time_evaluation.i
+
+# target to preprocess a source file
+src/time_evaluation.cpp.i:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/time_evaluation.cpp.i
+.PHONY : src/time_evaluation.cpp.i
+
+src/time_evaluation.s: src/time_evaluation.cpp.s
+
+.PHONY : src/time_evaluation.s
+
+# target to generate assembly for a file
+src/time_evaluation.cpp.s:
+	$(MAKE) -f CMakeFiles/ecelgamal.dir/build.make CMakeFiles/ecelgamal.dir/src/time_evaluation.cpp.s
+.PHONY : src/time_evaluation.cpp.s
+
 testing.o: testing.cpp.o
 
 .PHONY : testing.o
@@ -421,6 +502,9 @@ help:
 	@echo "... ecelgamal.o"
 	@echo "... ecelgamal.i"
 	@echo "... ecelgamal.s"
+	@echo "... public_func.o"
+	@echo "... public_func.i"
+	@echo "... public_func.s"
 	@echo "... src/ENC_Stack.o"
 	@echo "... src/ENC_Stack.i"
 	@echo "... src/ENC_Stack.s"
@@ -436,6 +520,12 @@ help:
 	@echo "... src/generate_enc_vectors.o"
 	@echo "... src/generate_enc_vectors.i"
 	@echo "... src/generate_enc_vectors.s"
+	@echo "... src/process_noise.o"
+	@echo "... src/process_noise.i"
+	@echo "... src/process_noise.s"
+	@echo "... src/time_evaluation.o"
+	@echo "... src/time_evaluation.i"
+	@echo "... src/time_evaluation.s"
 	@echo "... testing.o"
 	@echo "... testing.i"
 	@echo "... testing.s"

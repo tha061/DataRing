@@ -16,6 +16,7 @@
 #include <iterator> // for iterators
 #include <boost/math/distributions/laplace.hpp>
 #include <boost/math/distributions/hypergeometric.hpp>
+#include <boost/math/distributions/chi_squared.hpp>
 #include <boost/array.hpp>
 #include <cstdlib> 
 
@@ -78,5 +79,7 @@ typedef vector<id_domain_pair> id_domain_vector;
 typedef set<id_domain_pair, comp> id_domain_set;
 
 typedef map<id_domain_pair, gamal_ciphertext_ptr, comp> CIPHER_DOMAIN_MAP;
+
+typedef map<string, string> TRACK_MAP;
 
 #endif

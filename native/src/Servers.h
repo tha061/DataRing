@@ -2,6 +2,7 @@
 #define SERVERS
 
 #include "../include/public_header.h"
+#include "process_noise.h"
 #include "Server.h"
 
 class Servers
@@ -20,8 +21,8 @@ public:
     dig_t _fusionDecrypt(gamal_ciphertext_t ciphertext, bsgs_table_t table, int serverId);
     void fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table);
     void createServersEncrypVector(ENC_Stack &pre_enc_stack);
-    bool verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack);
-    bool verificationTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold);
+    bool verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack, double prob);
+    bool verificationTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold, double prob);
 };
 
 #endif
