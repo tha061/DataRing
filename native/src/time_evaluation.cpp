@@ -11,10 +11,10 @@ double timeEvaluate(string task_name, high_resolution_clock::time_point t1, high
 	return time_diff / 1000000.0;
 }
 
-void trackTaskPerformance(TRACK_MAP &time_track_map, string task_name, high_resolution_clock::time_point t1, high_resolution_clock::time_point t2)
+void trackTaskPerformance(TRACK_LIST &time_track_list, string task_name, high_resolution_clock::time_point t1, high_resolution_clock::time_point t2)
 {
 	double task_time_diff = timeEvaluate(task_name, t1, t2);
-	time_track_map.insert({task_name, to_string(task_time_diff)});
+	time_track_list.push_back(make_pair(task_name, to_string(task_time_diff)));
 }
 
 int computeTimeEvaluation()
@@ -63,7 +63,7 @@ int computeTimeEvaluation()
 	return -1;
 }
 
-void storeTimeEvaluation(int argc, char **argv, TRACK_MAP &time_track_map, bool verify_status)
+void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, bool verify_status)
 {
 
 	if (argc > 1)
@@ -73,7 +73,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_MAP &time_track_map, bool 
 		{
 			fout.open("./data/report_maliciousParty_500K_100K_noDebug.csv", ios::out | ios::trunc);
 			fout << "Iteration, Verification Status";
-			for (auto itr = time_track_map.begin(); itr != time_track_map.end(); itr++)
+			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
 				string column = itr->first;
 				fout << ", " << column;
@@ -87,7 +87,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_MAP &time_track_map, bool 
 
 		// Insert the data to file
 		fout << argv[4] << ", " << verify_status;
-		for (auto itr = time_track_map.begin(); itr != time_track_map.end(); itr++)
+		for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 		{
 			string time_diff = itr->second;
 			fout << ", " << time_diff;

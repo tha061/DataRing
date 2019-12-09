@@ -9,6 +9,7 @@
 #include <sstream>
 #include <map>
 #include <set>
+#include <list>
 #include <vector>
 #include <iterator>
 #include <utility>
@@ -78,6 +79,6 @@ typedef set<id_domain_pair, comp> id_domain_set;
 
 typedef map<id_domain_pair, gamal_ciphertext_ptr, comp> CIPHER_DOMAIN_MAP;
 
-typedef map<string, string> TRACK_MAP;
+typedef list<pair<string, string>> TRACK_LIST;
 
 #endif
