@@ -2,6 +2,7 @@
 #define SERVER
 
 #include "../include/public_header.h"
+#include "./process_noise.h"
 
 class Server
 {
@@ -12,6 +13,7 @@ public:
     id_domain_set known_vector;
     ENC_DOMAIN_MAP enc_test_map;
     id_domain_set verified_set;
+    vector<double> conf_range;
 
     int *plain_track_list;
     int size_dataset;
@@ -20,6 +22,16 @@ public:
     Server(int size, string known_domain_dir);
     void createRandomEncrypVector(ENC_Stack &pre_enc_stack);
     void importFile(string file_url);
+
+    //RENAME AND UPDATE FUNCTION
+    /**
+     * This function is to generate test function, there are many options
+     * if indicate 1: test for L known rows
+     * indicate 2: test for V rows in PV
+     * indicate 3: test for (V - r0)
+     * indicate 4: test for arbitrary attributes
+     */ 
+    
     // test func() L domains
     void generateTestHashMap_1(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map); // test the existence of L known domains
     

@@ -34,8 +34,6 @@ extern "C"
 }
 
 #include "../src/ENC_Stack.h"
-#include "../process_data.cpp"
-#include "../process_partial_view.cpp"
 
 using namespace std;
 

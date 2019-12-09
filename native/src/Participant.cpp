@@ -56,7 +56,7 @@ Participant::Participant(string data_dir)
 }
 
 // Participant Generates original Histogram
-void Participant::processData(int datasize_row)
+void Participant::create_TrueHistogram(int datasize_row)
 {
     std::ifstream data(DATA_DIR);
     if (!data.is_open())
@@ -155,7 +155,7 @@ string getDummyDomain()
 }
 
 // Participant adds dummy bins to the original histogram -> true histogram
-void Participant::addDummy(int factorSize)
+void Participant::addDummy_TrueHistogram(int factorSize)
 {
     int domain_size = hashMap.size();
     // cout << "Size of original histogram: " << domain_size << endl;
@@ -254,7 +254,7 @@ void Participant::addDummyFake_2(int keepDomainS, int factorSize)
     // }
 
     // fakeHashMap = hashMap;
-    Participant::addDummy(factorSize);
+    Participant::addDummy_TrueHistogram(factorSize);
     int replaceDomainS = size_dataset - keepDomainS;
     int pv_size = factorSize * size_dataset;
 
@@ -304,7 +304,7 @@ void Participant::addDummyFake_2(int keepDomainS, int factorSize)
 
 void Participant::selfIntializePV(int keepDomainS, int factorSize)
 {
-    Participant::addDummy(factorSize);
+    Participant::addDummy_TrueHistogram(factorSize);
     int replaceDomainS = (size_dataset / 100) - keepDomainS;
     int pv_size = factorSize * size_dataset;
 
@@ -404,7 +404,7 @@ void _printCiphertext(gamal_ciphertext_ptr ciphertext)
 
 // plain_track_list: 1, 0 vector encrypted from Server
 // enc_list: E1, E0 vector encrypted from Server
-void Participant::multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *enc_list, bool useTruth)
+void Participant::generatePV(int *plain_track_list, gamal_ciphertext_t *enc_list, bool useTruth)
 {
     hash_pair_map tmp_hashMap = useTruth ? hashMap : fakeHashMap;
     int counter_row = 0;
@@ -463,7 +463,7 @@ void Participant::testWithoutDecrypt()
     cout << "Total count of chosen plaintext 1 from server: " << count << endl;
 }
 
-void Participant::proceedTestFunction(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key, double prob)
+void Participant::computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key, double prob)
 {
     hash_pair_map tmp_hashMap = useTruth ? hashMap : fakeHashMap;
 

@@ -25,7 +25,6 @@ int main(int argc, char **argv)
 			UNIQUE_DOMAIN_DIR = argv[1];
 			KNOWN_DOMAIN_DIR = argv[2];
 			probability = stod(argv[3]);
-			cout << probability << endl;
 		}
 		else
 		{
@@ -62,7 +61,7 @@ int main(int argc, char **argv)
 	int datasize_row = 500000;
 
 	t1 = high_resolution_clock::now();
-	part_A.processData(datasize_row);
+	part_A.create_TrueHistogram(datasize_row);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_map, "Create Hist (ms)", t1, t2);
 
@@ -94,6 +93,7 @@ int main(int argc, char **argv)
 	trackTaskPerformance(time_track_map, "Precompute Enc1 (ms)", t1, t2);
 	cout << endl;
 
+
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 	//          PV SUBMISSION AND VERIFICATION PHASE                            //
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -107,17 +107,18 @@ int main(int argc, char **argv)
 	// PART IS HONEST
 
 	// t1 = high_resolution_clock::now();
-	part_A.addDummy(2);
-	part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, true);
+	part_A.addDummy_TrueHistogram(2);
+	part_A.generatePV(servers.s_plain_track_list, servers.s_myPIR_enc, true);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_map, "Gen PV (ms)", t1, t2);
 
 	// PARTY IS DISHONEST
 
+	// t1 = high_resolution_clock::now();
 	// part_A.addDummyFake_1(300000, 2);
 	// t1 = high_resolution_clock::now();
 	// part_A.addDummyFake_2(100000, 2);
-	// part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, false);
+	// part_A.generatePV(servers.s_plain_track_list, servers.s_myPIR_enc, false);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_map, "Gen PV (ms)", t1, t2);
 
@@ -131,7 +132,7 @@ int main(int argc, char **argv)
 	// SERVER VERIFIES SUBMITTED PV
 	int server_id = 0; // Server 1
 	t1 = high_resolution_clock::now();
-	bool verify_status = servers.verificationPV(part_A.enc_domain_map, table, server_id, pre_enc_stack, 0.9);
+	bool verify_status = servers.verificationPV(part_A.enc_domain_map, table, server_id, pre_enc_stack, probability);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_map, "Verify PV (ms)", t1, t2);
 
@@ -151,7 +152,7 @@ int main(int argc, char **argv)
 
 	// t1 = high_resolution_clock::now();
 	// gamal_cipher_new(sum_cipher);
-	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, false, servers.coll_key, probability);
+	// part_A.computeAnswer(server1.enc_test_map, sum_cipher, false, servers.coll_key, probability);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_map, "Compute answer L (ms)", t1, t2);
 
@@ -159,23 +160,23 @@ int main(int argc, char **argv)
 	// test_status = servers.verificationTestResult("Test function - Count of L known data:", sum_cipher, table, server_id, threshold, probability);
 	// time_track_map.insert({"Test function - L", to_string(test_status)});
 
-	//====== TEST FUNCTION 2 targeting V records in V ======//
-	t1 = high_resolution_clock::now();
-	server1.generateTestFunction(pre_enc_stack, part_A.enc_domain_map, 2);
-	t2 = high_resolution_clock::now();
-	// timeEvaluate("generateTestHashMap_V", t1, t2);
-	trackTaskPerformance(time_track_map, "Gen Test V rows (ms)", t1, t2);
+	// //====== TEST FUNCTION 2 targeting V records in V ======//
+	// t1 = high_resolution_clock::now();
+	// server1.generateTestFunction(pre_enc_stack, part_A.enc_domain_map, 2);
+	// t2 = high_resolution_clock::now();
+	// // timeEvaluate("generateTestHashMap_V", t1, t2);
+	// trackTaskPerformance(time_track_map, "Gen Test V rows (ms)", t1, t2);
 
-	t1 = high_resolution_clock::now();
-	gamal_cipher_new(sum_cipher);
-	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, false, servers.coll_key, probability);
-	t2 = high_resolution_clock::now();
-	timeEvaluate("proceedTestFunction_V", t1, t2);
-	trackTaskPerformance(time_track_map, "Compute ans V (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// gamal_cipher_new(sum_cipher);
+	// part_A.computeAnswer(server1.enc_test_map, sum_cipher, false, servers.coll_key, probability);
+	// t2 = high_resolution_clock::now();
+	// timeEvaluate("proceedTestFunction_V", t1, t2);
+	// trackTaskPerformance(time_track_map, "Compute ans V (ms)", t1, t2);
 
-	threshold = servers.data_size; //actual PV size
-	test_status = servers.verificationTestResult("Test function - Count of V known data:", sum_cipher, table, server_id, threshold, probability);
-	time_track_map.insert({"Test function - V", to_string(test_status)});
+	// threshold = servers.data_size; //actual PV size
+	// test_status = servers.verificationTestResult("Test function - Count of V known data:", sum_cipher, table, server_id, threshold, probability);
+	// time_track_map.insert({"Test function - V", to_string(test_status)});
 
 	// //===== TEST FUNCTION 3 targeting V - r0 records in PV ====//
 
@@ -186,7 +187,7 @@ int main(int argc, char **argv)
 	// time_track_map.insert({"Test function - L", to_string(test_status)});
 
 	// gamal_cipher_new(sum_cipher);
-	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, false, servers.coll_key, probability);
+	// part_A.computeAnswer(server1.enc_test_map, sum_cipher, false, servers.coll_key, probability);
 
 	// threshold = servers.data_size - server1.verified_set.size();
 	// test_status = servers.verificationTestResult("Test function - Count of V - r0 data:", sum_cipher, table, server_id, threshold, probability);
@@ -197,24 +198,24 @@ int main(int argc, char **argv)
 	// Servers will not verify the answer,
 	// but re-encrypt the encrypted answer to public key of querying party (participant B)
 
-	// t1 = high_resolution_clock::now();
-	// server1.generateTestHashMap_Attr(pre_enc_stack, part_A.enc_domain_map);
-	// t2 = high_resolution_clock::now();
-	// timeEvaluate("generateTestHashMap_Attr", t1, t2);
-	// trackTaskPerformance(time_track_map, "Gen normal Query (ms)", t1, t2);
+	t1 = high_resolution_clock::now();
+	server1.generateTestFunction(pre_enc_stack, part_A.enc_domain_map, 4);
+	t2 = high_resolution_clock::now();
+	timeEvaluate("generateTestHashMap_Attr", t1, t2);
+	trackTaskPerformance(time_track_map, "Gen normal Query (ms)", t1, t2);
 
-	// t1 = high_resolution_clock::now();
-	// gamal_cipher_new(sum_cipher);
-	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, false, servers.coll_key, probability);
-	// t2 = high_resolution_clock::now();
-	// // timeEvaluate("proceedTestFunction_Attr", t1, t2);
-	// trackTaskPerformance(time_track_map, "Compute answer Query (ms)", t1, t2);
+	t1 = high_resolution_clock::now();
+	gamal_cipher_new(sum_cipher);
+	part_A.computeAnswer(server1.enc_test_map, sum_cipher, false, servers.coll_key, probability);
+	t2 = high_resolution_clock::now();
+	// timeEvaluate("proceedTestFunction_Attr", t1, t2);
+	trackTaskPerformance(time_track_map, "Compute answer Query (ms)", t1, t2);
 
-	// //Need re-encryption here
+	int conf_min = (int)(server1.conf_range[0]);
+	int conf_max = (int)(server1.conf_range[1]);
 
-	// threshold = 1;
-	// test_status = servers.verificationTestResult("Test function - QUERY:", sum_cipher, table, server_id, threshold, probability);
-	// time_track_map.insert({"Test function - Query", to_string(test_status)});
+	servers.verificationTestResult_Estimate("Test function - QUERY:", sum_cipher, table, server_id, conf_min, conf_max);
+
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 	//                          FINISHED SHARING                               //

@@ -33,17 +33,17 @@ int laplace_noise(double sensitivity, double epsilon)
 
 double getNoiseRangeFromLaplace(float sensitivity, float epsilon, float prob)
 {
-	// float epsilon = 0.1;
-	// float sensitivity = 1.0;
-	float scale = sensitivity / epsilon;
-	float loc = 0;
+    // float epsilon = 0.1;
+    // float sensitivity = 1.0;
+    float scale = sensitivity / epsilon;
+    float loc = 0;
 
     laplace_distribution<> lp_dist(loc, scale);
     // cout << "loc " << lp_dist.location() << endl;
     // cout << "scale " << lp_dist.scale() << endl;
 
     // Distributional properties
-    float probability = (1-prob) / 2;
+    float probability = (1 - prob) / 2;
 
     float max_noise = quantile(lp_dist, 1 - probability);
 
@@ -55,12 +55,13 @@ double getNoiseRangeFromLaplace(float sensitivity, float epsilon, float prob)
     return max_noise;
 }
 
-double estimate_conf_interval(double alpha, int PV_answer, int datasize, int PVsize)
+vector<double> estimate_conf_interval(double alpha, int PV_answer, int datasize, int PVsize)
 {
-    chi_squared_distribution<> chi_squared_distribution_min(PV_answer*2);
-    chi_squared_distribution<> chi_squared_distribution_max(PV_answer*2 + 2);
-    float min_answer = (datasize/(2*PVsize))*quantile(chi_squared_distribution_min, alpha/2);
-    float max_answer = (datasize/(2*PVsize))*quantile(chi_squared_distribution_max, 1-alpha/2);
-    cout<< "min answer= " <<min_answer<< "; max answer = "<<max_answer <<endl;
-    return min_answer, max_answer;
+    chi_squared_distribution<> chi_squared_distribution_min(PV_answer * 2);
+    chi_squared_distribution<> chi_squared_distribution_max(PV_answer * 2 + 2);
+    float min_answer = (datasize / (2 * PVsize)) * quantile(chi_squared_distribution_min, alpha / 2);
+    float max_answer = (datasize / (2 * PVsize)) * quantile(chi_squared_distribution_max, 1 - alpha / 2);
+    cout << "min answer= " << min_answer << "; max answer = " << max_answer << endl;
+    vector<double> answers = {min_answer, max_answer};
+    return answers;
 }

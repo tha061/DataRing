@@ -50,7 +50,7 @@ void Servers::generateCollKey()
         p_key_list[i] = server_vect[i].key->Y;
     }
 
-    gamal_collective_key_gen_fixed(coll_key, p_key_list, server_size);
+    gamal_collective_publickey_gen(coll_key, p_key_list, server_size);
 }
 
 dig_t Servers ::_fusionDecrypt(gamal_ciphertext_t ciphertext, bsgs_table_t table, int serverId)
@@ -145,7 +145,7 @@ bool Servers::verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, 
             }
 
             gamal_ciphertext_t tmp_decrypt;
-            gamal_add(tmp_decrypt, itr->second, encrypt_E0);
+            gamal_add(tmp_decrypt, itr->second, encrypt_E0); // to fix the decryption function
             dig_t domain_decrypt = Servers::_fusionDecrypt(tmp_decrypt, table, serverId);
             if (domain_decrypt > 0)
             {
@@ -220,6 +220,24 @@ bool Servers::verificationTestResult(string testName, gamal_ciphertext_t sum_cip
     // cout << "Max noise: " << maxNoise << endl;
 
     if (decrypt_test_f >= (threshold - maxNoise) && decrypt_test_f <= (threshold + maxNoise))
+    {
+        cout << "Test function fail" << endl;
+        return true;
+    }
+    else
+    {
+        cout << "Test function pass" << endl;
+        return false;
+    }
+}
+
+bool Servers::verificationTestResult_Estimate(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int min_conf, int max_conf)
+{
+    dig_t decrypt_test_f = Servers::_fusionDecrypt(sum_cipher, table, serverId);
+    cout << testName << " " << decrypt_test_f << endl;
+    cout << "min_conf " << min_conf << ", " << "max_conf " << max_conf << endl;
+
+    if (decrypt_test_f >= min_conf && decrypt_test_f <= max_conf)
     {
         cout << "Test function fail" << endl;
         return true;

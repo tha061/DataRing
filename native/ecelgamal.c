@@ -411,7 +411,7 @@ int gamal_generate_keys(gamal_key_t keys)
 }
 
 // added by Nam: generate collective key with only public keys input
-int gamal_collective_key_gen_fixed(gamal_key_t coll_keys, EC_POINT **p_key_list, int size_key_list)
+int gamal_collective_publickey_gen(gamal_key_t coll_keys, EC_POINT **p_key_list, int size_key_list)
 {
     gamal_init(CURVE_256_SEC);
 

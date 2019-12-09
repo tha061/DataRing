@@ -219,8 +219,10 @@ void Server::generateTestHashMap_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP e
         enc_test_map.insert({domain_pair, enc_ciphertext[0]});
     }
 
-    
-    // cout << "Total match row in attribute test func: " << counter << endl;
+    cout << "Total match row in attribute test func: " << counter << endl;
+    float alpha = 0.05;
+    conf_range = estimate_conf_interval(alpha, counter, size_dataset, size_dataset/100);
+
 }
 
 void Server::addVerifiedDomain(id_domain_pair verified_domain_pair)
