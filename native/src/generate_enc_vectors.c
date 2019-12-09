@@ -122,7 +122,7 @@ int *pir_gen(int *myPIR_arr, int arr[], int freq[], int datasize, int pv_ratio)
     }
 
     // printf("\n/======================= Server random pick up plaintext 1 or 0 from shuffle vector =====================/\n");
-    printf("pv size = %d\n", pv_size);
-    printf("number of '1' for PV collect = %d\n", count_1);
+    // printf("pv size = %d\n", pv_size);
+    // printf("number of '1' for PV collect = %d\n", count_1);
     // printf("\n/============================================/\n");
 }

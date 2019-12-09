@@ -165,7 +165,7 @@ void _importQuery(map<int, string> &cols_map)
         getline(iss, value, ',');
         iss >> col_id;
 
-        cout << col_id << " " << value << endl;
+        // cout << col_id << " " << value << endl;
         cols_map.insert({col_id, value});
     }
 }

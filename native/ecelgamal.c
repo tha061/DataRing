@@ -410,7 +410,7 @@ int gamal_generate_keys(gamal_key_t keys)
     return 0;
 }
 
-// generate collective key with only public keys input
+// added by Nam: generate collective key with only public keys input
 int gamal_collective_key_gen_fixed(gamal_key_t coll_keys, EC_POINT **p_key_list, int size_key_list)
 {
     gamal_init(CURVE_256_SEC);
@@ -510,7 +510,12 @@ int gamal_encrypt(gamal_ciphertext_t ciphertext, gamal_key_t key, dig_t plaintex
     return 0;
 }
 
-//added by Tham for re-encrypt a ciphertext by a new public key, switching from collective public key of 3 servers
+/**
+ * added by Tham for re-encrypt a ciphertext by a new public key, 
+ * switching from collective public key of 3 servers
+ * Need to improve, adapt to many servers
+ */
+
 int gamal_key_switching(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_key_t keysNew)
 {
     // (C1, C2) = (r*B, x + r*(K1 + K2)) => (C1, C2) = (v*B, x + v*Knew)
@@ -592,6 +597,85 @@ int gamal_key_switching(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher
     return 0;
 }
 
+/** added by Tham 7 Dec 2019
+ * This piece of code for re-encryption (key switching) from PK_Ss to PK_B
+ * idea: one server will take lead the key switching
+ * other servers will partially switching collective public key to target's public key
+ * 
+ */ 
+
+int gama_key_switch_lead(gamal_ciphertext_t cipher_update, gamal_ciphertext_t cipher, gamal_key_t keys_lead, gamal_key_t keysNew)
+{
+    
+    BIGNUM *ord, *rand1;
+    BN_CTX *ctx = BN_CTX_new();
+    EC_POINT *M1, *temp1; 
+    gamal_ciphertext_t temp;
+
+    ord = BN_new();
+    rand1 = BN_new();
+    cipher_update->C1 = EC_POINT_new(init_group); 
+    cipher_update->C2 = EC_POINT_new(init_group);
+    temp->C1 = EC_POINT_new(init_group);
+
+
+    temp->C1 = multiply_generator(rand1, init_group);
+    EC_POINT_add(init_group, cipher_update->C1, cipher_update->C1, temp->C1, ctx); //v_1*B
+    
+    M1 = multiply_constant(cipher->C1, keys_lead->secret, init_group); //rB*k_1
+    
+    EC_POINT_invert(init_group, M1, ctx); // -rB*k_1
+   
+    EC_POINT_add(init_group, cipher_update->C2, cipher->C2, M1, ctx); //C2 - rB*k_1
+    
+    temp1 = multiply_constant(keysNew->Y, rand1, init_group); //v_1 * Knew
+   
+    EC_POINT_add(init_group, cipher_update->C2, cipher_update->C2, temp1, ctx); //c2 - rB*k_1 + v_1 * K_new
+    
+
+    BN_clear_free(rand1);
+    BN_free(ord);
+    BN_CTX_free(ctx);
+    EC_POINT_clear_free(M1);
+    
+    EC_POINT_clear_free(temp1);
+    
+    return 0;
+}
+//added by Tham 7 Dec 2019
+int gama_key_switch_follow(gamal_ciphertext_t cipher_update, gamal_ciphertext_t cipher, gamal_key_t keys_follow, gamal_key_t keysNew)
+{
+    BIGNUM *ord,  *rand2;
+    BN_CTX *ctx = BN_CTX_new();
+    EC_POINT *M2, *temp2; 
+    gamal_ciphertext_t temp;
+
+    ord = BN_new();
+   
+    rand2 = BN_new();
+    temp->C1 = EC_POINT_new(init_group);
+
+    temp->C1 = multiply_generator(rand2, init_group);
+    EC_POINT_add(init_group, cipher_update->C1, cipher_update->C1, temp->C1, ctx); //v_1*B + v_2*B
+    
+    M2 = multiply_constant(cipher->C1, keys_follow->secret, init_group); //rB*k_2
+    
+    EC_POINT_invert(init_group, M2, ctx); // -rB*k_2
+   
+    EC_POINT_add(init_group, cipher_update->C2, cipher_update->C2, M2, ctx); //C2 - rB*k_1 + v_1*B - rB*k_2
+   
+    temp2 = multiply_constant(keysNew->Y, rand2, init_group);             //v_2 * Knew
+    EC_POINT_add(init_group, cipher_update->C2, cipher_update->C2, temp2, ctx); //C2 - rB*k_1 + v_1*Knew - rB*k_2 + v_2*Knew = x + (v_1 + v_2)*Knew
+       
+    BN_clear_free(rand2);
+    BN_free(ord);
+    BN_CTX_free(ctx);
+    EC_POINT_clear_free(M2);
+    EC_POINT_clear_free(temp2);
+    return 0;
+}
+
+
 // if table == NULL use bruteforce
 int gamal_decrypt(dig_t *res, gamal_key_t key, gamal_ciphertext_t ciphertext, bsgs_table_t table)
 {
@@ -620,7 +704,7 @@ int gamal_decrypt(dig_t *res, gamal_key_t key, gamal_ciphertext_t ciphertext, bs
     return 0;
 }
 
-/*------------------------------- added by Tham for Threshold Decryption by multiple servers ---------------------------------------*/
+/*----added by Tham for Threshold Decryption by multiple servers ---------------------------------------*/
 int gamal_coll_decrypt(dig_t *res, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_ciphertext_t ciphertext, bsgs_table_t table)
 {
     EC_POINT *M1, *M2, *M3;

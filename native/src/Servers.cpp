@@ -108,7 +108,7 @@ bool Servers::verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, 
 {
     Server server = server_vect[serverId]; // shallow copy
     const int KNOWN_VECT_SIZE = server.known_vector.size();
-    const int LEAST_DOMAIN = 4;
+    const int LEAST_DOMAIN = 6;
 
     gamal_ciphertext_t sum, tmp, encrypt_E0;
     gamal_cipher_new(sum);
@@ -147,7 +147,7 @@ bool Servers::verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, 
             dig_t domain_decrypt = Servers::_fusionDecrypt(tmp_decrypt, table, serverId);
             if (domain_decrypt > 0)
             {
-                cout << "Domain decrypt: " << domain_decrypt << endl;
+                // cout << "Domain decrypt: " << domain_decrypt << endl;
                 server_vect[serverId].addVerifiedDomain(domain_pair);
             }
 
@@ -169,39 +169,39 @@ bool Servers::verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, 
         count++;
     }
 
-    dig_t total_v = Servers::_fusionDecrypt(total_v_decrypt, table, serverId);
-    cout << "V - Total number of domain encrypted as 1: " << total_v << endl;
-    if (total_v == (data_size * 0.01))
-    {
-        cout << "Pass V size verification" << endl;
-    }
-    else
-    {
-        cout << "Fail V size verification" << endl;
-    }
+    // dig_t total_v = Servers::_fusionDecrypt(total_v_decrypt, table, serverId);
+    // cout << "V - Total number of domain encrypted as 1: " << total_v << endl;
+    // if (total_v == (data_size * 0.01))
+    // {
+    //     cout << "Pass V size verification" << endl;
+    // }
+    // else
+    // {
+    //     cout << "Fail V size verification" << endl;
+    // }
 
-    cout << "L - TOtal number of known domain ecrypted from partial view: " << counter << endl;
-    if (counter == server.known_vector.size())
-    {
-        cout << "Pass L size verification" << endl;
-    }
-    else
-    {
-        cout << "Fail L size verification" << endl;
-    }
+    // cout << "L - TOtal number of known domain ecrypted from partial view: " << counter << endl;
+    // if (counter == server.known_vector.size())
+    // {
+    //     cout << "Pass L size verification" << endl;
+    // }
+    // else
+    // {
+    //     cout << "Fail L size verification" << endl;
+    // }
 
     dig_t sum_res = Servers::_fusionDecrypt(sum, table, serverId);
 
     if (sum_res >= LEAST_DOMAIN)
     {
-        cout << "Total domain found in PV: " << sum_res << endl;
-        cout << "Pass the verification" << endl;
+        // cout << "Total domain found in PV: " << sum_res << endl;
+        // cout << "Pass the verification" << endl;
         return true;
     }
     else
     {
-        cout << "Total domain found in PV: " << sum_res << endl;
-        cout << "Fail the verification" << endl;
+        // cout << "Total domain found in PV: " << sum_res << endl;
+        // cout << "Fail the verification" << endl;
         return false;
     }
 }
@@ -212,10 +212,10 @@ bool Servers::verificationTestResult(string testName, gamal_ciphertext_t sum_cip
 	cout << testName << " " << decrypt_test_f << endl;
     if(decrypt_test_f < threshold)
     {
-        cout << "Test function fail" << endl;
+        // cout << "Test function fail" << endl;
         return false;
     }else{
-        cout << "Test function pass" << endl;
+        // cout << "Test function pass" << endl;
         return true;
     }
 }

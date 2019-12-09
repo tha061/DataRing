@@ -27,13 +27,27 @@ void testWithoutDecrypt(hash_map plain_domain_map);
 void addDummy(hash_map &hashMap);
 void printCiphertext(gamal_ciphertext_t ciphertext);
 int data_ring();
+double randZeroToOne();
+double exp_sample();
+double laplace_noise();
 
-// int main(int argc, char **argv)
-// {
-// 	cout << argv[1] << endl;
-// 	cout << argv[2] << endl;
-// 	return 0;
-// }
+/**
+ * Laplace noise generation 
+ * https://www.johndcook.com/blog/2018/03/13/generating-laplace-random-variables/
+ */
+
+//This function generate a double point the interval [0,1):
+// More details: http://c-faq.com/lib/rand48.html
+double randZeroToOne()
+{
+	return rand() / (RAND_MAX + 1.);
+}
+
+double exp_sample(double mean)
+{
+	double rand_number = randZeroToOne();
+	return -mean * log(1 - rand_number);
+}
 
 int main()
 {
@@ -45,38 +59,75 @@ int main()
 	float loc = 0;
 
 	hypergeometric_distribution<> hyper_dist(1000, 5000, 500000);
-// complement(norm, 0.05)
+	// cout << complement(hyper_dist, 0.9) << endl;
+}
 
-	float max_noise = quantile(complement(hyper_dist, 0.9));
+double laplace_noise(double sensitivity, double epsilon)
+{
+	double e1, e2;
+	double scale = sensitivity / epsilon;
+	e1 = exp_sample(scale);
+	e2 = exp_sample(scale);
+	return e1 - e2;
 
-	cout << "max_noise: " << max_noise << endl;
-	// cout << "min_noise: " << min_noise << endl;
+	// To UPDATE: participant generate noises for COUNT query as an integer number,
+	// take only noise values in range of [min, max]
+}
 
+int main1(int argc, char **argv)
+{
+	srand(time(NULL));
+	double mean = 0;
+	double sensi = 1;
+	double epsilon = 0.1;
+	for (int i = 0; i < 100; i++)
+	{
+		double noise = laplace_noise(sensi, epsilon);
+		cout << "i = " << i << "; noise = " << noise << endl;
+	}
 
-	// laplace_distribution<> lp_dist(loc, scale);
-	// cout << "loc " << lp_dist.location() << endl;
-	// cout << "scale " << lp_dist.scale() << endl;
-
-	// // Distributional properties
-	// float probability = 0.001 / 2;
-
-	// float max_noise = quantile(lp_dist, 1 - probability);
-
-	// float min_noise = quantile(lp_dist, probability);
-
-	// cout << "max_noise: " << max_noise << endl;
-	// cout << "min_noise: " << min_noise << endl;
-
-	// float prob100 = 0.9999999;
-	// float max_100 = quantile(lp_dist, prob100);
-	// float min_100 = quantile(lp_dist, 1 - prob100);
-	// cout << "range_max: " << max_100 << endl;
-	// cout << "range_min: " << min_100 << endl;
-
-	// int n= -9+ int((2* 9+ 1)* 1.* rand()/ (RAND_MAX+ 1.));
-	// cout << n << endl;
 	return 0;
 }
+/////////////////////////////////////////
+////////////////////////////////////////////
+
+// int dataring();
+// {
+// 	float probMax = 0.9999999;
+// 	float max_100 = quantile(lp_dist, probMax);
+// 	float min_100 = quantile(lp_dist, 1 - probMax);
+// 	cout << "range_max: " << max_100 << endl;
+// 	cout << "range_min: " << min_100 << endl;
+
+// float max_noise = quantile(complement(hyper_dist, 0.9));
+
+// cout << "max_noise: " << max_noise << endl;
+// cout << "min_noise: " << min_noise << endl;
+
+// laplace_distribution<> lp_dist(loc, scale);
+// cout << "loc " << lp_dist.location() << endl;
+// cout << "scale " << lp_dist.scale() << endl;
+
+// // Distributional properties
+// float probability = 0.001 / 2;
+
+// float max_noise = quantile(lp_dist, 1 - probability);
+
+// float min_noise = quantile(lp_dist, probability);
+
+// cout << "max_noise: " << max_noise << endl;
+// cout << "min_noise: " << min_noise << endl;
+
+// float prob100 = 0.9999999;
+// float max_100 = quantile(lp_dist, prob100);
+// float min_100 = quantile(lp_dist, 1 - prob100);
+// cout << "range_max: " << max_100 << endl;
+// cout << "range_min: " << min_100 << endl;
+
+// int n= -9+ int((2* 9+ 1)* 1.* rand()/ (RAND_MAX+ 1.));
+// cout << n << endl;
+// return 0;
+// }
 
 void trackTaskPerformance(TRACK_MAP &time_track_map, string task_name, high_resolution_clock::time_point t1, high_resolution_clock::time_point t2)
 {
@@ -86,7 +137,7 @@ void trackTaskPerformance(TRACK_MAP &time_track_map, string task_name, high_reso
 
 int computeTimeEvaluation()
 {
-	std::ifstream data("./data/report_honestParty_1M.csv");
+	std::ifstream data("./data/report_maliciousParty_500K_100K_noDebug.csv");
 	if (!data.is_open())
 	{
 		std::exit(EXIT_FAILURE);
@@ -138,7 +189,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_MAP time_track_map, bool v
 		fstream fout;
 		if (strcmp(argv[3], "1") == 0)
 		{
-			fout.open("./data/report_honestParty_500K.csv", ios::out | ios::trunc);
+			fout.open("./data/report_maliciousParty_500K_100K_noDebug.csv", ios::out | ios::trunc);
 			fout << "Iteration, Verification Status";
 			for (auto itr = time_track_map.begin(); itr != time_track_map.end(); itr++)
 			{
@@ -149,7 +200,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_MAP time_track_map, bool v
 		}
 		else
 		{
-			fout.open("./data/report_honestParty_500K.csv", ios::out | ios::app);
+			fout.open("./data/report_maliciousParty_500K_100K_noDebug.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file
@@ -196,8 +247,7 @@ int main5(int argc, char **argv)
 
 	high_resolution_clock::time_point t1, t2;
 
-	// srand(time(NULL));
-	srand(5);
+	srand(time(NULL));
 	// initialize key & table
 	// gamal_key_t key;
 	bsgs_table_t table;
@@ -259,17 +309,20 @@ int main5(int argc, char **argv)
 
 	// PART IS HONEST
 
-	t1 = high_resolution_clock::now();
-	part_A.addDummy(2);
-	part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, true);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_map, "Gen PV (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// part_A.addDummy(2);
+	// part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, true);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_map, "Gen PV (ms)", t1, t2);
 
 	// PARTY IS DISHONEST
 
 	// part_A.addDummyFake_1(300000, 2);
-	// part_A.addDummyFake_2(100000, 2);
-	// part_A.multiply_enc_fake_map(servers.s_plain_track_list, servers.s_myPIR_enc);
+	t1 = high_resolution_clock::now();
+	part_A.addDummyFake_2(100000, 2);
+	part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, false);
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_map, "Gen PV (ms)", t1, t2);
 
 	// t1 = high_resolution_clock::now();
 	// part_A.selfIntializePV(4000, 2);
@@ -301,7 +354,7 @@ int main5(int argc, char **argv)
 
 	t1 = high_resolution_clock::now();
 	gamal_cipher_new(sum_cipher);
-	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, true);
+	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, false);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_map, "Compute answer L (ms)", t1, t2);
 
@@ -318,49 +371,47 @@ int main5(int argc, char **argv)
 
 	t1 = high_resolution_clock::now();
 	gamal_cipher_new(sum_cipher);
-	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, true);
+	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, false);
 	t2 = high_resolution_clock::now();
 	timeEvaluate("proceedTestFunction_V", t1, t2);
 	trackTaskPerformance(time_track_map, "Compute ans V (ms)", t1, t2);
 
-	threshold = 5000;
+	threshold = 5000; //actual PV size
 	test_status = servers.verificationTestResult("Test function - Count of V known data:", sum_cipher, table, server_id, threshold);
 	time_track_map.insert({"Test function - V", to_string(test_status)});
 
-	//===== TEST FUNCTION 3 targeting V - r0 records in PV ====//
+	// //===== TEST FUNCTION 3 targeting V - r0 records in PV ====//
 
-	t1 = high_resolution_clock::now();
-	server1.generateTestHashMap_3(pre_enc_stack, part_A.enc_domain_map);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_map, "GenerateTestHashMap_3", t1, t2);
-	time_track_map.insert({"Test function - L", to_string(test_status)});
+	// t1 = high_resolution_clock::now();
+	// server1.generateTestHashMap_3(pre_enc_stack, part_A.enc_domain_map);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_map, "GenerateTestHashMap_3", t1, t2);
+	// time_track_map.insert({"Test function - L", to_string(test_status)});
 
-	// ========================= PARTICIPANT ==========================/
-	gamal_cipher_new(sum_cipher);
-	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, true);
+	// gamal_cipher_new(sum_cipher);
+	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, false);
 
-	// ========================= SERVER ==========================/
-	threshold = 5000 - server1.verified_set.size();
-	test_status = servers.verificationTestResult("Test function - Count of V - r0 data:", sum_cipher, table, server_id, threshold);
-	time_track_map.insert({"Test function - V - r0", to_string(test_status)});
+	// threshold = 10000 - server1.verified_set.size();
+	// test_status = servers.verificationTestResult("Test function - Count of V - r0 data:", sum_cipher, table, server_id, threshold);
+	// time_track_map.insert({"Test function - V - r0", to_string(test_status)});
 
 	// ====== NORMAL QUERY ======= //
 
 	// Servers will not verify the answer,
 	// but re-encrypt the encrypted answer to public key of querying party (participant B)
 
-	// t1 = high_resolution_clock::now();
-	// server1.generateTestHashMap_Attr(pre_enc_stack, part_A.enc_domain_map);
-	// t2 = high_resolution_clock::now();
-	// timeEvaluate("generateTestHashMap_Attr", t1, t2);
-	// trackTaskPerformance(time_track_map, "Gen normal Query (ms)", t1, t2);
+	t1 = high_resolution_clock::now();
+	server1.generateTestHashMap_Attr(pre_enc_stack, part_A.enc_domain_map);
+	t2 = high_resolution_clock::now();
+	timeEvaluate("generateTestHashMap_Attr", t1, t2);
+	trackTaskPerformance(time_track_map, "Gen normal Query (ms)", t1, t2);
 
-	// t1 = high_resolution_clock::now();
-	// gamal_cipher_new(sum_cipher);
-	// part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, true);
-	// t2 = high_resolution_clock::now();
-	// // timeEvaluate("proceedTestFunction_Attr", t1, t2);
-	// trackTaskPerformance(time_track_map, "Compute answer Query (ms)", t1, t2);
+	t1 = high_resolution_clock::now();
+	gamal_cipher_new(sum_cipher);
+	part_A.proceedTestFunction(server1.enc_test_map, sum_cipher, false);
+	t2 = high_resolution_clock::now();
+	// timeEvaluate("proceedTestFunction_Attr", t1, t2);
+	trackTaskPerformance(time_track_map, "Compute answer Query (ms)", t1, t2);
 
 	// //Need re-encryption here
 
@@ -466,4 +517,3 @@ int getRandomInRange(int min, int max)
 {
 	return min + (rand() % (max - min + 1));
 }
-
