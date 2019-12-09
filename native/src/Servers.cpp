@@ -49,7 +49,7 @@ void Servers::generateCollKey()
         p_key_list[i] = server_vect[i].key->Y;
     }
 
-    gamal_collective_key_gen_fixed(coll_key, p_key_list, server_size);
+    gamal_collective_publickey_gen(coll_key, p_key_list, server_size);
 }
 
 dig_t Servers ::_fusionDecrypt(gamal_ciphertext_t ciphertext, bsgs_table_t table, int serverId)
@@ -108,7 +108,7 @@ bool Servers::verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, 
 {
     Server server = server_vect[serverId]; // shallow copy
     const int KNOWN_VECT_SIZE = server.known_vector.size();
-    const int LEAST_DOMAIN = 6;
+    const int LEAST_DOMAIN = 6; //r0
 
     gamal_ciphertext_t sum, tmp, encrypt_E0;
     gamal_cipher_new(sum);
@@ -143,7 +143,7 @@ bool Servers::verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, 
             }
 
             gamal_ciphertext_t tmp_decrypt;
-            gamal_add(tmp_decrypt, itr->second, encrypt_E0);
+            gamal_add(tmp_decrypt, itr->second, encrypt_E0); // to fix the decryption function
             dig_t domain_decrypt = Servers::_fusionDecrypt(tmp_decrypt, table, serverId);
             if (domain_decrypt > 0)
             {

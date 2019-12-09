@@ -17,6 +17,7 @@ public:
     Participant();
     Participant(string data_dir);
 
+    //RENAME THIS FUNCTION to addDummy_TrueHistogram()
     void addDummy(int factorSize);
     // replace n-keepDomainS with dummy of E(1)
     void addDummyFake_1(int keepDomainS, int factorSize);
@@ -28,10 +29,17 @@ public:
     void selfIntializePV(int fakeEnc1, int factorSize);
 
     void initializePreStack(gamal_key_t coll_key);
+
+    //RENAME THIS FUNCTION to create_TrueHistogram()
     void processData(int datasize_row);
     void print_hash_map();
+
+    ////RENAME THIS FUNCTION to generatePV()
     void multiply_enc_map(int *plain_track_list, gamal_ciphertext_t *myPIR_enc, bool useTruth);
     void testWithoutDecrypt();
+
+    //RENAME THIS FUNCTION to computeAnswer()
+    // adding a function to generate Laplace noise and then add this noise to the computed answer
     void proceedTestFunction(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth);
 
 };

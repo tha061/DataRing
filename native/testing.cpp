@@ -6,6 +6,7 @@
 
 #include "testing2.cpp"
 
+
 typedef map<string, string> TRACK_MAP;
 
 int getRandomInRange(int min, int max);
@@ -61,17 +62,16 @@ double laplace_noise(double sensitivity, double epsilon)
 	// take only noise values in range of [min, max]
 }
 
-int main1(int argc, char **argv)
-{
-	srand(time(NULL));
-	double mean = 0;
-	double sensi = 1;
-	double epsilon = 0.1;
-	for (int i = 0; i<100; i++)
-	{
-		double noise = laplace_noise(sensi, epsilon);
-		cout<< "i = " <<i<< "; noise = "<< noise << endl;
-	}
+
+int main1(int argc, char **argv){
+	// double mean = 0;
+	// double sensi = 1;
+	// double epsilon = 0.1;
+	// for (int i = 0; i<100; i++)
+	// {
+	// 	double noise = laplace_noise(sensi, epsilon);
+	// 	cout<< "i = " <<i<< "; noise = "<< noise << endl;
+	// }
 
 	return 0;
 }
@@ -99,7 +99,7 @@ void trackTaskPerformance(TRACK_MAP &time_track_map, string task_name, high_reso
 
 int computeTimeEvaluation()
 {
-	std::ifstream data("./data/report_maliciousParty_500K_100K_noDebug.csv");
+	std::ifstream data("./data/report_honestParty_1M_noDebug.csv");
 	if (!data.is_open())
 	{
 		std::exit(EXIT_FAILURE);
@@ -151,7 +151,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_MAP time_track_map, bool v
 		fstream fout;
 		if (strcmp(argv[3], "1") == 0)
 		{
-			fout.open("./data/report_maliciousParty_500K_100K_noDebug.csv", ios::out | ios::trunc);
+			fout.open("./data/report_honestParty_1M_noDebug.csv", ios::out | ios::trunc);
 			fout << "Iteration, Verification Status";
 			for (auto itr = time_track_map.begin(); itr != time_track_map.end(); itr++)
 			{
@@ -162,7 +162,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_MAP time_track_map, bool v
 		}
 		else
 		{
-			fout.open("./data/report_maliciousParty_500K_100K_noDebug.csv", ios::out | ios::app);
+			fout.open("./data/report_honestParty_1M_noDebug.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file
@@ -177,7 +177,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_MAP time_track_map, bool v
 	}
 }
 
-int main(int argc, char **argv)
+int main1(int argc, char **argv)
 {
 	if (argc > 1 && strcmp(argv[1], "-1") == 0)
 	{
@@ -224,7 +224,7 @@ int main(int argc, char **argv)
 	// PARTICIPANT CONVERT DATASET TO HISTOGRAM
 	Participant part_A(UNIQUE_DOMAIN_DIR);
 
-	int datasize_row = 500000;
+	int datasize_row = 1000000;
 
 	t1 = high_resolution_clock::now();
 	part_A.processData(datasize_row);
@@ -259,6 +259,7 @@ int main(int argc, char **argv)
 	trackTaskPerformance(time_track_map, "Precompute Enc1 (ms)", t1, t2);
 	cout << endl;
 
+
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 	//          PV SUBMISSION AND VERIFICATION PHASE                            //
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -271,20 +272,20 @@ int main(int argc, char **argv)
 
 	// PART IS HONEST
 
-	// t1 = high_resolution_clock::now();
-	// part_A.addDummy(2);
-	// part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, true);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_map, "Gen PV (ms)", t1, t2);
+	t1 = high_resolution_clock::now();
+	part_A.addDummy(2);
+	part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, true);
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_map, "Gen PV (ms)", t1, t2);
 
 	// PARTY IS DISHONEST
 
+	// t1 = high_resolution_clock::now();
 	// part_A.addDummyFake_1(300000, 2);
-	t1 = high_resolution_clock::now();
-	part_A.addDummyFake_2(100000, 2);
-	part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, false);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_map, "Gen PV (ms)", t1, t2);
+	// part_A.addDummyFake_2(100000, 2);
+	// part_A.multiply_enc_map(servers.s_plain_track_list, servers.s_myPIR_enc, false);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_map, "Gen PV (ms)", t1, t2);
 
 	// t1 = high_resolution_clock::now();
 	// part_A.selfIntializePV(4000, 2);
@@ -338,7 +339,7 @@ int main(int argc, char **argv)
 	timeEvaluate("proceedTestFunction_V", t1, t2);
 	trackTaskPerformance(time_track_map, "Compute ans V (ms)", t1, t2);
 
-	threshold = 5000; //actual PV size
+	threshold = 8000; //actual PV size
 	test_status = servers.verificationTestResult("Test function - Count of V known data:", sum_cipher, table, server_id, threshold);
 	time_track_map.insert({"Test function - V", to_string(test_status)});
 

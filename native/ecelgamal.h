@@ -177,8 +177,9 @@ int gamal_add(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciph
  * Generates an collective EC-ElGamal key pair from number of parties
  * @param coll_keys: the collective keypair
  * @return
+ * UPDATE: rename to: gamal_collective_publickey_gen()
  */
-int gamal_collective_key_gen_fixed(gamal_key_t coll_keys, EC_POINT **p_key_list, int size_key_list);
+int gamal_collective_publickey_gen(gamal_key_t coll_keys, EC_POINT **p_key_list, int size_key_list);
 
 /**
  * Added by Tham
