@@ -20,20 +20,36 @@ public:
     void generateCollKey();
     dig_t _fusionDecrypt(gamal_ciphertext_t ciphertext, bsgs_table_t table, int serverId);
     void fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table);
-    void createServersEncrypVector(ENC_Stack &pre_enc_stack);
+    void createPVsamplingVector(ENC_Stack &pre_enc_stack);
 
     //UPDATE THIS FUNCTION:
     // add a function to determine LEAST DOMAIN = r0 from hypergeometric distribution, using eta value = 0.9
     // as the probability in the quantile function at the moment.
-    bool verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack, double prob);
+    bool verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack, double prob);
 
     // UPDATE THIS FUNCTION
     // adding an indication for choosing the verification for
     // i) exact test (know the threshold) e.g test for L: threshold = number of rows known by the servers
     // ii) estimated answer (for test function (4) - targeting arbitrary attribute)
     // the estimation function is to be implemented later
-    bool verificationTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold, double prob);
-    bool verificationTestResult_Estimate(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int min_conf, int max_conf);
+    bool verifyingTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold, double prob);
+    
+    /** fix this function
+     * This function is to verify if the test answer from the participant is within the
+     * confidence interval +/- noise
+     * para1 answer from participant encrypted
+     * para2 decrypted answer from the function getTestResult_fromPV()
+     * para3 alpha = 0.05 // 95% confidence level
+     * para4 dataset_size = n
+     * para5 PV_size = V
+     * paras maxnoise
+     * the servers decrypt answer from participant
+     * then find conf_interval +- maxnoise
+     * the answer from participant must be in [min_interval - maxnoise; max_interval + maxnoise]
+     */
+    bool verifyingTestResult_Estimate(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int min_conf, int max_conf);
+    
+    
 };
 
 #endif

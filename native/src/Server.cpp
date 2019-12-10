@@ -220,12 +220,13 @@ void Server::generateTestHashMap_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP e
     }
 
     cout << "Total match row in attribute test func: " << counter << endl;
-    float alpha = 0.05;
-    conf_range = estimate_conf_interval(alpha, counter, size_dataset, size_dataset/100);
 
 }
 
-void Server::addVerifiedDomain(id_domain_pair verified_domain_pair)
+
+
+
+void Server::save_knownRow_found_in_PV(id_domain_pair verified_domain_pair)
 {
     verified_set.insert(verified_domain_pair);
 }
@@ -234,25 +235,25 @@ void Server::generateTestFunction(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_d
 {
     switch (type)
     {
-        case 1:
+        case 1: // targeting L known rows
         {
             Server::generateTestHashMap_1(pre_enc_stack, enc_domain_map);
             break;
         }
 
-        case 2:
+        case 2: // targetting V rows in PV
         {
             Server::generateTestHashMap_2(pre_enc_stack, enc_domain_map);
             break;
         }
 
-        case 3:
+        case 3: // targeting V - r0 rows in PV
         {
             Server::generateTestHashMap_3(pre_enc_stack, enc_domain_map);
             break;
         }
 
-        case 4:
+        case 4: // targeting specific attributes
         {
             Server::generateTestHashMap_Attr(pre_enc_stack, enc_domain_map);
             break;
@@ -263,4 +264,78 @@ void Server::generateTestFunction(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_d
             break;
         }
     }
+}
+
+
+void Server::generateNormalQuery(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
+{
+    enc_test_map.clear();
+
+    map<int, string> columns_map;
+    _importQuery(columns_map);
+    const int COLUMN_SIZE = 10;
+    int counter = 0;
+
+    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
+    {
+        bool match = true;
+
+        vector<string> col_arr;
+        id_domain_pair domain_pair = itr->first;
+        string domain = domain_pair.second;
+        char delim = ' ';
+        stringstream ss(domain);
+        string token;
+        while (getline(ss, token, delim))
+        {
+            col_arr.push_back(token);
+        }
+
+        for (map<int, string>::iterator colItr = columns_map.begin(); colItr != columns_map.end(); colItr++)
+        {
+            int col_index = colItr->first;
+            string col_value = colItr->second;
+            string o_col_value = col_arr[col_index];
+
+            if (o_col_value != col_value)
+            {
+                match = false;
+            }
+        }
+
+        gamal_ciphertext_t *enc_ciphertext = new gamal_ciphertext_t[1];
+        if (match)
+        {
+            counter++;
+            pre_enc_stack.pop_E1(enc_ciphertext[0]);
+        }
+        else
+        {
+            pre_enc_stack.pop_E0(enc_ciphertext[0]);
+        }
+        enc_test_map.insert({domain_pair, enc_ciphertext[0]});
+    }
+
+    cout << "Total match domains in query: " << counter << endl;
+
+}
+
+
+vector<double> Server::estimate_conf_interval(double alpha, int PV_answer, int dataset_size, int PV_size)
+{
+    chi_squared_distribution<> chi_squared_distribution_min(PV_answer * 2);
+    chi_squared_distribution<> chi_squared_distribution_max(PV_answer * 2 + 2);
+    float min_answer = (dataset_size / (2 * PV_size)) * quantile(chi_squared_distribution_min, alpha / 2);
+    float max_answer = (dataset_size / (2 * PV_size)) * quantile(chi_squared_distribution_max, 1 - alpha / 2);
+    cout << "min answer= " << min_answer << "; max answer = " << max_answer << endl;
+    vector<double> answers = {min_answer, max_answer};
+    return answers;
+}
+
+float Server::generatePVTestCondition(int dataset, int PV, int known_records, double eta)
+{
+    hypergeometric_distribution<> hyper_dist(known_records, PV, dataset);
+    float result = quantile(complement(hyper_dist, eta)) + 1;
+    cout << "eta value = " << eta << ", r0 = " << result << endl;
+    return result;
 }

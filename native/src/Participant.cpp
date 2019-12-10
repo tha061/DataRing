@@ -187,7 +187,7 @@ void Participant::addDummy_TrueHistogram(int factorSize)
     there is high chance that there is not enough L domains are kept. 
 */
 
-void Participant::addDummyFake_1(int keepDomainS, int factorSize)
+void Participant::addDummy_FakeHist(int keepDomainS, int factorSize)
 {
     int domain_size = hashMap.size();
     cout << "Size of original histogram: " << domain_size << endl;
@@ -238,7 +238,7 @@ void Participant::addDummyFake_1(int keepDomainS, int factorSize)
     TO DO: add randomese feature to this function.
 */
 
-void Participant::addDummyFake_2(int keepDomainS, int factorSize)
+void Participant::addDummy_FakeHist_random(int keepDomainS, int factorSize)
 {
     // int domain_size = hashMap.size();
     // cout << "Size of original histogram: " << domain_size << endl;
@@ -302,7 +302,7 @@ void Participant::addDummyFake_2(int keepDomainS, int factorSize)
    of L records are in PV, the participant passes this test.
 */
 
-void Participant::selfIntializePV(int keepDomainS, int factorSize)
+void Participant::selfCreateFakePV(int keepDomainS, int factorSize)
 {
     Participant::addDummy_TrueHistogram(factorSize);
     int replaceDomainS = (size_dataset / 100) - keepDomainS;
@@ -439,7 +439,7 @@ void Participant::generatePV(int *plain_track_list, gamal_ciphertext_t *enc_list
     tmp_hashMap.clear();
 }
 
-void Participant::testWithoutDecrypt()
+void Participant::test_cleartext()
 {
     fstream fout;
     // Open an existing file
@@ -508,12 +508,12 @@ void Participant::computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t
     float epsilon = 0.1;
     float sensitivity = 1.0;
 
-    double maxNoise = getNoiseRangeFromLaplace(sensitivity, epsilon, prob);
+    double maxNoise = getLaplaceNoiseRange(sensitivity, epsilon, prob);
     double minNoise = -maxNoise;
     cout << "Min noise: " << minNoise << endl;
     cout << "Max noise: " << maxNoise << endl;
 
-    int randomNoise = laplace_noise(sensitivity, epsilon);
+    int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
     // cout << "Random noise: " << randomNoise << endl;
 
     if (randomNoise < minNoise)

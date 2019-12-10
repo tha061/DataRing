@@ -17,7 +17,7 @@ Servers::Servers(int server_size, int data_size, string known_domain_dir)
     Servers::data_size = data_size;
 }
 
-void Servers::createServersEncrypVector(ENC_Stack &pre_enc_stack)
+void Servers::createPVsamplingVector(ENC_Stack &pre_enc_stack)
 {
     int enc_types[] = {1, 0};
     int freq[] = {1, 99};
@@ -105,13 +105,12 @@ void Servers::fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table)
     cout << "Total domain encrypted as 1: " << count << endl;
 }
 
-bool Servers::verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack, double prob)
+bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack, double prob)
 {
     Server server = server_vect[serverId]; // shallow copy
     const int KNOWN_VECT_SIZE = server.known_vector.size();
     int v = data_size / 100;
-    const int LEAST_DOMAIN = getNoiseFromHyper(data_size, v, KNOWN_VECT_SIZE, prob);
-
+    const int LEAST_DOMAIN = server.generatePVTestCondition(data_size, v, KNOWN_VECT_SIZE, prob);
     gamal_ciphertext_t sum, tmp, encrypt_E0;
     gamal_cipher_new(sum);
     gamal_cipher_new(tmp);
@@ -150,7 +149,7 @@ bool Servers::verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, 
             if (domain_decrypt > 0)
             {
                 // cout << "Domain decrypt: " << domain_decrypt << endl;
-                server_vect[serverId].addVerifiedDomain(domain_pair);
+                server_vect[serverId].save_knownRow_found_in_PV(domain_pair);
             }
 
             counter++;
@@ -208,7 +207,7 @@ bool Servers::verificationPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, 
     }
 }
 
-bool Servers::verificationTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold, double prob)
+bool Servers::verifyingTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold, double prob)
 {
     dig_t decrypt_test_f = Servers::_fusionDecrypt(sum_cipher, table, serverId);
     cout << testName << " " << decrypt_test_f << endl;
@@ -216,22 +215,23 @@ bool Servers::verificationTestResult(string testName, gamal_ciphertext_t sum_cip
     float epsilon = 0.1;
     float sensitivity = 1.0;
 
-    int maxNoise = (int)(getNoiseRangeFromLaplace(sensitivity, epsilon, prob));
-    // cout << "Max noise: " << maxNoise << endl;
+    int maxNoise = (int)(getLaplaceNoiseRange(sensitivity, epsilon, prob));
+    //cout << "Max noise: " << maxNoise << endl;
 
     if (decrypt_test_f >= (threshold - maxNoise) && decrypt_test_f <= (threshold + maxNoise))
     {
-        cout << "Test function fail" << endl;
+        cout << "Pass test function" << endl;
         return true;
     }
     else
     {
-        cout << "Test function pass" << endl;
+        cout << "Fail test function" << endl;
         return false;
     }
 }
 
-bool Servers::verificationTestResult_Estimate(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int min_conf, int max_conf)
+
+bool Servers::verifyingTestResult_Estimate(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int min_conf, int max_conf)
 {
     dig_t decrypt_test_f = Servers::_fusionDecrypt(sum_cipher, table, serverId);
     cout << testName << " " << decrypt_test_f << endl;
@@ -239,12 +239,12 @@ bool Servers::verificationTestResult_Estimate(string testName, gamal_ciphertext_
 
     if (decrypt_test_f >= min_conf && decrypt_test_f <= max_conf)
     {
-        cout << "Test function fail" << endl;
+         cout << "Pass test function estimate" << endl;
         return true;
     }
     else
     {
-        cout << "Test function pass" << endl;
+        cout << "Fail test function estimate" << endl;
         return false;
     }
 }

@@ -21,13 +21,13 @@ public:
     //RENAME THIS FUNCTION to addDummy_TrueHistogram()
     void addDummy_TrueHistogram(int factorSize);
     // replace n-keepDomainS with dummy of E(1)
-    void addDummyFake_1(int keepDomainS, int factorSize);
+    void addDummy_FakeHist(int keepDomainS, int factorSize);
 
     // replace n-keepDomainS by E(0) and make n-keepDomainS dummy E(1)
-    void addDummyFake_2(int keepDomainS, int factorSize);
+    void addDummy_FakeHist_random(int keepDomainS, int factorSize);
 
     // make vector by self and make PV View without Servers
-    void selfIntializePV(int fakeEnc1, int factorSize);
+    void selfCreateFakePV(int fakeEnc1, int factorSize);
 
     void initializePreStack(gamal_key_t coll_key);
 
@@ -37,7 +37,7 @@ public:
 
     ////RENAME THIS FUNCTION to generatePV()
     void generatePV(int *plain_track_list, gamal_ciphertext_t *myPIR_enc, bool useTruth);
-    void testWithoutDecrypt();
+    void test_cleartext();
     
     //RENAME THIS FUNCTION to computeAnswer()
     // adding a function to generate Laplace noise and then add this noise to the computed answer

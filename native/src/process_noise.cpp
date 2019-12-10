@@ -1,12 +1,12 @@
 #include "./process_noise.h"
 
-float getNoiseFromHyper(int N, int v, int L, double prob)
-{
-    hypergeometric_distribution<> hyper_dist(L, v, N);
-    float result = quantile(complement(hyper_dist, prob));
-    cout << "Value in prob " << prob << ": " << result << endl;
-    return result;
-}
+// float generatePVTestCondition(int dataset, int PV, int known_records, double eta)
+// {
+//     hypergeometric_distribution<> hyper_dist(known_records, PV, dataset);
+//     float result = quantile(complement(hyper_dist, eta));
+//     cout << "eta value " << eta << ": " << result << endl;
+//     return result;
+// }
 
 double randZeroToOne()
 {
@@ -19,7 +19,7 @@ double exp_sample(double mean)
     return -mean * log(1 - rand_number);
 }
 
-int laplace_noise(double sensitivity, double epsilon)
+int getLaplaceNoise(double sensitivity, double epsilon)
 {
     double e1, e2;
     double scale = sensitivity / epsilon;
@@ -31,7 +31,7 @@ int laplace_noise(double sensitivity, double epsilon)
     // take only noise values in range of [min, max]
 }
 
-double getNoiseRangeFromLaplace(float sensitivity, float epsilon, float prob)
+double getLaplaceNoiseRange(float sensitivity, float epsilon, float prob)
 {
     // float epsilon = 0.1;
     // float sensitivity = 1.0;
@@ -43,11 +43,11 @@ double getNoiseRangeFromLaplace(float sensitivity, float epsilon, float prob)
     // cout << "scale " << lp_dist.scale() << endl;
 
     // Distributional properties
-    float probability = (1 - prob) / 2;
+    float laplace_quantile = (1 - prob);
 
-    float max_noise = quantile(lp_dist, 1 - probability);
+    float max_noise = quantile(lp_dist, 1 - laplace_quantile/2);
 
-    float min_noise = quantile(lp_dist, probability);
+    float min_noise = quantile(lp_dist, laplace_quantile);
 
     // cout << "max_noise: " << max_noise << endl;
     // cout << "min_noise: " << min_noise << endl;
@@ -55,13 +55,13 @@ double getNoiseRangeFromLaplace(float sensitivity, float epsilon, float prob)
     return max_noise;
 }
 
-vector<double> estimate_conf_interval(double alpha, int PV_answer, int datasize, int PVsize)
-{
-    chi_squared_distribution<> chi_squared_distribution_min(PV_answer * 2);
-    chi_squared_distribution<> chi_squared_distribution_max(PV_answer * 2 + 2);
-    float min_answer = (datasize / (2 * PVsize)) * quantile(chi_squared_distribution_min, alpha / 2);
-    float max_answer = (datasize / (2 * PVsize)) * quantile(chi_squared_distribution_max, 1 - alpha / 2);
-    cout << "min answer= " << min_answer << "; max answer = " << max_answer << endl;
-    vector<double> answers = {min_answer, max_answer};
-    return answers;
-}
+// vector<double> estimate_conf_interval(double alpha, int PV_answer, int dataset_size, int PV_size)
+// {
+//     chi_squared_distribution<> chi_squared_distribution_min(PV_answer * 2);
+//     chi_squared_distribution<> chi_squared_distribution_max(PV_answer * 2 + 2);
+//     float min_answer = (dataset_size / (2 * PV_size)) * quantile(chi_squared_distribution_min, alpha / 2);
+//     float max_answer = (dataset_size / (2 * PV_size)) * quantile(chi_squared_distribution_max, 1 - alpha / 2);
+//     cout << "min answer= " << min_answer << "; max answer = " << max_answer << endl;
+//     vector<double> answers = {min_answer, max_answer};
+//     return answers;
+// }
