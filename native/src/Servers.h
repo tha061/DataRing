@@ -33,12 +33,12 @@ public:
     // ii) estimated answer (for test function (4) - targeting arbitrary attribute)
     // the estimation function is to be implemented later
     bool verifyingTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold, double prob);
-    
+
     /** fix this function
      * This function is to verify if the test answer from the participant is within the
      * confidence interval +/- noise
      * para1 answer from participant encrypted
-     * para2 decrypted answer from the function getTestResult_fromPV()
+     * para2 encrypted answer from the function getTestResult_fromPV()
      * para3 alpha = 0.05 // 95% confidence level
      * para4 dataset_size = n
      * para5 PV_size = V
@@ -47,9 +47,11 @@ public:
      * then find conf_interval +- maxnoise
      * the answer from participant must be in [min_interval - maxnoise; max_interval + maxnoise]
      */
-    bool verifyingTestResult_Estimate(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int min_conf, int max_conf);
-    
-    
+    bool verifyingTestResult_Estimate(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, gamal_ciphertext_t enc_PV_answer, double alpha, double prob);
+
+    //this function is to estimate the test results computed over the dataset based on
+    // the result the servers achieved from the encrypted PV
+    vector<double> estimate_conf_interval(double alpha, int PV_answer, int dataset_size, int PV_size);
 };
 
 #endif

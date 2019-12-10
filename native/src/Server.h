@@ -14,18 +14,16 @@ public:
     ENC_DOMAIN_MAP enc_test_map;
     id_domain_set verified_set;
 
+    hash_pair_map plain_domain_map;
+
     int *plain_track_list;
     int size_dataset;
-    vector<double> conf_range; // confident interval of estimate answer
 
     Server();
     Server(int size, string known_domain_dir);
     void createRandomEncrypVector(ENC_Stack &pre_enc_stack);
     void importFile(string file_url);
 
-    //this function is to estimate the test results computed over the dataset based on 
-    // the result the servers achieved from the encrypted PV
-    vector<double> estimate_conf_interval(double alpha, int PV_answer, int dataset_size, int PV_size);
     
     // this function is to determine mininum number of known rows needs to be found in PV
     float generatePVTestCondition(int dataset, int PV, int known_records, double eta);
@@ -62,10 +60,10 @@ public:
      * this function is to get test result from the encrypted PV
      * paras test function is a vector of 1s and 0s in clear
      * paras PV is of size a*n and be encrypted
-     * output from this function is a decrypted result
+     * output from this function is a encrypted result
      * servers use this decrypted result as the input of function estimate_conf_interval()
      */ 
-    // void getTestResult_fromPV(); 
+    void getTestResult_fromPV(ENC_DOMAIN_MAP enc_domain_map, gamal_ciphertext_t enc_PV_answer); 
 };
 
 #endif

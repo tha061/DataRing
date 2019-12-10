@@ -69,7 +69,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, boo
 	if (argc > 1)
 	{
 		fstream fout;
-		if (strcmp(argv[4], "1") == 0)
+		if (strcmp(argv[8], "1") == 0)
 		{
 			fout.open("./data/report_maliciousParty_500K_100K_noDebug.csv", ios::out | ios::trunc);
 			fout << "Iteration, Verification Status";

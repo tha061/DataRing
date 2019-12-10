@@ -110,7 +110,7 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
     Server server = server_vect[serverId]; // shallow copy
     const int KNOWN_VECT_SIZE = server.known_vector.size();
     int v = data_size / 100;
-    const int LEAST_DOMAIN = server.generatePVTestCondition(data_size, v, KNOWN_VECT_SIZE, prob);
+    const int LEAST_DOMAIN = server_vect[serverId].generatePVTestCondition(data_size, v, KNOWN_VECT_SIZE, prob);
     gamal_ciphertext_t sum, tmp, encrypt_E0;
     gamal_cipher_new(sum);
     gamal_cipher_new(tmp);
@@ -230,16 +230,29 @@ bool Servers::verifyingTestResult(string testName, gamal_ciphertext_t sum_cipher
     }
 }
 
-
-bool Servers::verifyingTestResult_Estimate(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int min_conf, int max_conf)
+bool Servers::verifyingTestResult_Estimate(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, gamal_ciphertext_t enc_PV_answer, double alpha, double prob)
 {
+    dig_t PV_answer = Servers::_fusionDecrypt(enc_PV_answer, table, serverId);
+    int int_PV_answer = (int)PV_answer;
+
+    vector<double> conf_range = Servers::estimate_conf_interval(alpha, int_PV_answer, data_size, data_size / 100); // confident interval of estimate answer
+
+    int min_conf = (int)(conf_range[0]);
+    int max_conf = (int)(conf_range[1]);
+
     dig_t decrypt_test_f = Servers::_fusionDecrypt(sum_cipher, table, serverId);
     cout << testName << " " << decrypt_test_f << endl;
-    cout << "min_conf " << min_conf << ", " << "max_conf " << max_conf << endl;
+    cout << "min_conf " << min_conf << ", "
+         << "max_conf " << max_conf << endl;
 
-    if (decrypt_test_f >= min_conf && decrypt_test_f <= max_conf)
+    float epsilon = 0.1;
+    float sensitivity = 1.0;
+
+    double maxNoise = getLaplaceNoiseRange(sensitivity, epsilon, prob);
+
+    if (decrypt_test_f >= min_conf - maxNoise && decrypt_test_f <= max_conf + maxNoise)
     {
-         cout << "Pass test function estimate" << endl;
+        cout << "Pass test function estimate" << endl;
         return true;
     }
     else
@@ -247,4 +260,15 @@ bool Servers::verifyingTestResult_Estimate(string testName, gamal_ciphertext_t s
         cout << "Fail test function estimate" << endl;
         return false;
     }
+}
+
+vector<double> Servers::estimate_conf_interval(double alpha, int PV_answer, int dataset_size, int PV_size)
+{
+    chi_squared_distribution<> chi_squared_distribution_min(PV_answer * 2);
+    chi_squared_distribution<> chi_squared_distribution_max(PV_answer * 2 + 2);
+    float min_answer = (dataset_size / (2 * PV_size)) * quantile(chi_squared_distribution_min, alpha / 2);
+    float max_answer = (dataset_size / (2 * PV_size)) * quantile(chi_squared_distribution_max, 1 - alpha / 2);
+    // cout << "min answer= " << min_answer << "; max answer = " << max_answer << endl;
+    vector<double> answers = {min_answer, max_answer};
+    return answers;
 }

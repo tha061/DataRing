@@ -503,7 +503,7 @@ void Participant::computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t
             counter++;
         }
     }
-    // cout << "Counter " << counter << endl;
+    cout << "Counter " << counter << endl;
 
     float epsilon = 0.1;
     float sensitivity = 1.0;

@@ -178,6 +178,7 @@ void Server::generateTestHashMap_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP e
     _importQuery(columns_map);
     const int COLUMN_SIZE = 10;
     int counter = 0;
+    int plain;
 
     for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
     {
@@ -211,20 +212,19 @@ void Server::generateTestHashMap_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP e
         {
             counter++;
             pre_enc_stack.pop_E1(enc_ciphertext[0]);
+            plain = 1;
         }
         else
         {
             pre_enc_stack.pop_E0(enc_ciphertext[0]);
+            plain = 0;
         }
+        plain_domain_map.insert({domain_pair, plain});
         enc_test_map.insert({domain_pair, enc_ciphertext[0]});
     }
 
     cout << "Total match row in attribute test func: " << counter << endl;
-
 }
-
-
-
 
 void Server::save_knownRow_found_in_PV(id_domain_pair verified_domain_pair)
 {
@@ -235,37 +235,36 @@ void Server::generateTestFunction(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_d
 {
     switch (type)
     {
-        case 1: // targeting L known rows
-        {
-            Server::generateTestHashMap_1(pre_enc_stack, enc_domain_map);
-            break;
-        }
+    case 1: // targeting L known rows
+    {
+        Server::generateTestHashMap_1(pre_enc_stack, enc_domain_map);
+        break;
+    }
 
-        case 2: // targetting V rows in PV
-        {
-            Server::generateTestHashMap_2(pre_enc_stack, enc_domain_map);
-            break;
-        }
+    case 2: // targetting V rows in PV
+    {
+        Server::generateTestHashMap_2(pre_enc_stack, enc_domain_map);
+        break;
+    }
 
-        case 3: // targeting V - r0 rows in PV
-        {
-            Server::generateTestHashMap_3(pre_enc_stack, enc_domain_map);
-            break;
-        }
+    case 3: // targeting V - r0 rows in PV
+    {
+        Server::generateTestHashMap_3(pre_enc_stack, enc_domain_map);
+        break;
+    }
 
-        case 4: // targeting specific attributes
-        {
-            Server::generateTestHashMap_Attr(pre_enc_stack, enc_domain_map);
-            break;
-        }
-        default:
-        {
-            cout << "Please enter type of test function" << endl;
-            break;
-        }
+    case 4: // targeting specific attributes
+    {
+        Server::generateTestHashMap_Attr(pre_enc_stack, enc_domain_map);
+        break;
+    }
+    default:
+    {
+        cout << "Please enter type of test function" << endl;
+        break;
+    }
     }
 }
-
 
 void Server::generateNormalQuery(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
 {
@@ -317,19 +316,6 @@ void Server::generateNormalQuery(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_do
     }
 
     cout << "Total match domains in query: " << counter << endl;
-
-}
-
-
-vector<double> Server::estimate_conf_interval(double alpha, int PV_answer, int dataset_size, int PV_size)
-{
-    chi_squared_distribution<> chi_squared_distribution_min(PV_answer * 2);
-    chi_squared_distribution<> chi_squared_distribution_max(PV_answer * 2 + 2);
-    float min_answer = (dataset_size / (2 * PV_size)) * quantile(chi_squared_distribution_min, alpha / 2);
-    float max_answer = (dataset_size / (2 * PV_size)) * quantile(chi_squared_distribution_max, 1 - alpha / 2);
-    cout << "min answer= " << min_answer << "; max answer = " << max_answer << endl;
-    vector<double> answers = {min_answer, max_answer};
-    return answers;
 }
 
 float Server::generatePVTestCondition(int dataset, int PV, int known_records, double eta)
@@ -338,4 +324,43 @@ float Server::generatePVTestCondition(int dataset, int PV, int known_records, do
     float result = quantile(complement(hyper_dist, eta)) + 1;
     cout << "eta value = " << eta << ", r0 = " << result << endl;
     return result;
+}
+
+void Server::getTestResult_fromPV(ENC_DOMAIN_MAP enc_domain_map, gamal_ciphertext_t enc_PV_answer)
+{
+    int counter = 0;
+
+    gamal_ciphertext_t tmp, mul_tmp;
+    gamal_cipher_new(tmp);
+    gamal_cipher_new(mul_tmp);
+
+    // cout << "Start multiply and add " << endl;
+    int i = 0;
+    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
+    {
+        string key = itr->first.first;
+        string domain = itr->first.second;
+
+        int value = plain_domain_map[{key, domain}];
+        if (value > 0)
+        {
+            gamal_mult_opt(mul_tmp, itr->second, value);
+
+            if (counter == 0)
+            {
+                enc_PV_answer->C1 = mul_tmp->C1;
+                enc_PV_answer->C2 = mul_tmp->C2;
+            }
+            else
+            {
+                tmp->C1 = enc_PV_answer->C1;
+                tmp->C2 = enc_PV_answer->C2;
+                gamal_add(enc_PV_answer, tmp, mul_tmp);
+            }
+
+            counter++;
+        }
+    }
+
+    plain_domain_map.clear();
 }
