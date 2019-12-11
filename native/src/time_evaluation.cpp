@@ -11,6 +11,11 @@ double timeEvaluate(string task_name, high_resolution_clock::time_point t1, high
 	return time_diff / 1000000.0;
 }
 
+void trackTaskStatus(TRACK_LIST &time_track_list, string task_name, bool test_status)
+{
+	time_track_list.push_back(make_pair(task_name, to_string(test_status)));
+}
+
 void trackTaskPerformance(TRACK_LIST &time_track_list, string task_name, high_resolution_clock::time_point t1, high_resolution_clock::time_point t2)
 {
 	double task_time_diff = timeEvaluate(task_name, t1, t2);
@@ -86,7 +91,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, boo
 		}
 
 		// Insert the data to file
-		fout << argv[4] << ", " << verify_status;
+		fout << argv[8] << ", " << verify_status;
 		for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 		{
 			string time_diff = itr->second;

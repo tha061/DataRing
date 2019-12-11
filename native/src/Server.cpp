@@ -24,6 +24,7 @@ void Server::importFile(string file_url)
     std::ifstream data(file_url);
     if (!data.is_open())
     {
+        cout << "Known Domains File is not defined" << endl;
         std::exit(EXIT_FAILURE);
     }
 
@@ -146,6 +147,7 @@ void _importQuery(map<int, string> &cols_map)
     std::ifstream data(QUERY_DIR);
     if (!data.is_open())
     {
+        cout << "Query File is not defined" << endl;
         std::exit(EXIT_FAILURE);
     }
     std::string str;

@@ -61,6 +61,7 @@ void Participant::create_TrueHistogram(int datasize_row)
     std::ifstream data(DATA_DIR);
     if (!data.is_open())
     {
+        cout << "Original File is not defined" << endl;
         std::exit(EXIT_FAILURE);
     }
 
