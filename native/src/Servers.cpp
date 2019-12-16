@@ -104,13 +104,18 @@ void Servers::fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table)
 
     cout << "Total domain encrypted as 1: " << count << endl;
 }
-
-bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack, double prob)
+/**
+ * to verify the PV
+ * @paras: eta is the probability s.t the honest participant will pass the test at eta
+ * higher eta is, smaller r0 is
+ * 
+ */ 
+bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack, double eta)
 {
     Server server = server_vect[serverId]; // shallow copy
     const int KNOWN_VECT_SIZE = server.known_vector.size();
     int v = data_size / 100;
-    const int LEAST_DOMAIN = server_vect[serverId].generatePVTestCondition(data_size, v, KNOWN_VECT_SIZE, prob);
+    const int LEAST_DOMAIN = server_vect[serverId].generatePVTestCondition(data_size, v, KNOWN_VECT_SIZE, eta);
     gamal_ciphertext_t sum, tmp, encrypt_E0;
     gamal_cipher_new(sum);
     gamal_cipher_new(tmp);
@@ -195,28 +200,28 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
 
     if (sum_res >= LEAST_DOMAIN)
     {
-        // cout << "Total domain found in PV: " << sum_res << endl;
-        // cout << "Pass the verification" << endl;
+        cout << "Total known rows found in PV: " << sum_res << endl;
+         cout << "Pass the verification" << endl;
         return true;
     }
     else
     {
-        // cout << "Total domain found in PV: " << sum_res << endl;
-        // cout << "Fail the verification" << endl;
+        cout << "Total known rows found in PV: " << sum_res << endl;
+        cout << "Fail the verification" << endl;
         return false;
     }
 }
 
-bool Servers::verifyingTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold, double prob)
+bool Servers::verifyingTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold)
 {
     dig_t decrypt_test_f = Servers::_fusionDecrypt(sum_cipher, table, serverId);
     cout << testName << " " << decrypt_test_f << endl;
 
-    float epsilon = 0.1;
-    float sensitivity = 1.0;
+    // float epsilon = 0.1;
+    // float sensitivity = 1.0;
 
-    int maxNoise = (int)(getLaplaceNoiseRange(sensitivity, epsilon, prob));
-    //cout << "Max noise: " << maxNoise << endl;
+    // int maxNoise = (int)(getLaplaceNoiseRange(sensitivity, epsilon, prob));
+    // cout << "Max noise: " << maxNoise << endl;
 
     if (decrypt_test_f >= (threshold - maxNoise) && decrypt_test_f <= (threshold + maxNoise))
     {
@@ -230,10 +235,12 @@ bool Servers::verifyingTestResult(string testName, gamal_ciphertext_t sum_cipher
     }
 }
 
-bool Servers::verifyingTestResult_Estimate(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, gamal_ciphertext_t enc_PV_answer, double alpha, double prob)
+bool Servers::verifyingTestResult_Estimate(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, gamal_ciphertext_t enc_PV_answer, double alpha)
 {
     dig_t PV_answer = Servers::_fusionDecrypt(enc_PV_answer, table, serverId);
     int int_PV_answer = (int)PV_answer;
+
+    cout<< "PV_answer = "<< PV_answer <<endl;
 
     vector<double> conf_range = Servers::estimate_conf_interval(alpha, int_PV_answer, data_size, data_size / 100); // confident interval of estimate answer
 
@@ -245,11 +252,7 @@ bool Servers::verifyingTestResult_Estimate(string testName, gamal_ciphertext_t s
     cout << "min_conf " << min_conf << ", "
          << "max_conf " << max_conf << endl;
 
-    float epsilon = 0.1;
-    float sensitivity = 1.0;
-
-    double maxNoise = getLaplaceNoiseRange(sensitivity, epsilon, prob);
-
+    
     if (decrypt_test_f >= min_conf - maxNoise && decrypt_test_f <= max_conf + maxNoise)
     {
         cout << "Pass test function estimate" << endl;

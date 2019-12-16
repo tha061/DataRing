@@ -82,8 +82,79 @@ void Server::createRandomEncrypVector(ENC_Stack &pre_enc_stack)
 
     delete[] myPIR_arr;
 }
+//added by Tham 14 Dec to improve runtime 
+void Server::prepareTestFuntion_Query_Vector(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
+{
+    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
+    {
+        id_domain_pair domain = itr->first;
+        gamal_ciphertext_t *enc_0 = new gamal_ciphertext_t[1];
+        pre_enc_stack.pop_E0(enc_0[0]);
+        enc_test_map_pre.insert({domain, enc_0[0]});
+    }    
+}
 
-void Server::generateTestHashMap_1(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
+void Server::generateTestFunction(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, int type)
+{
+    switch (type)
+    {
+    case 1: // targeting L known rows
+    {
+        Server::generateTestKnownRecords(pre_enc_stack, enc_domain_map);
+        break;
+    }
+
+    case 2: // targetting V rows in PV
+    {
+        Server::generateTestBasedPartialView(pre_enc_stack, enc_domain_map);
+        break;
+    }
+
+    case 3: // targeting V - r0 rows in PV
+    {
+        Server::generateTestHashMap_3(pre_enc_stack, enc_domain_map);
+        break;
+    }
+
+    case 4: // targeting specific attributes
+    {
+        Server::generateTest_Target_Attr(pre_enc_stack, enc_domain_map);
+        break;
+    }
+    default:
+    {
+        cout << "Please enter type of test function" << endl;
+        break;
+    }
+    }
+}
+
+
+//test target L added by Tham 14 Dec for optimize runtime
+void Server::generateTestKnownRecords_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
+{
+    enc_test_map = enc_test_map_pre;
+    gamal_ciphertext_t encrypt_1;
+    gamal_cipher_new(encrypt_1);
+    pre_enc_stack.pop_E1(encrypt_1);
+
+
+    for (ENC_DOMAIN_MAP::iterator itr = enc_test_map.begin(); itr != enc_test_map.end(); itr++)
+    {
+        id_domain_pair domain = itr->first;
+        
+        if (known_vector.find(domain) != known_vector.end())
+        {
+
+            gamal_add(itr->second, itr->second, encrypt_1);
+        }  
+        
+    }
+
+}
+
+//target L
+void Server::generateTestKnownRecords(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
 {
     for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
     {
@@ -100,8 +171,8 @@ void Server::generateTestHashMap_1(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_
         enc_test_map.insert({domain, mul_enc_ciphertext[0]});
     }
 }
-
-void Server::generateTestHashMap_2(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
+//test target V
+void Server::generateTestBasedPartialView(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
 {
     enc_test_map.clear();
     gamal_ciphertext_t encrypt_0;
@@ -116,7 +187,26 @@ void Server::generateTestHashMap_2(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_
         enc_test_map.insert({domain, add_enc_ciphertext[0]});
     }
 }
+//added by Tham to reduce runtime
+void Server::generateTestBasedPartialView_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
+{
+    //enc_test_map.clear();
+    enc_test_map = enc_domain_map;
+    gamal_ciphertext_t encrypt_0;
+    gamal_cipher_new(encrypt_0);
+    pre_enc_stack.pop_E0(encrypt_0);
 
+    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
+    {
+        id_domain_pair domain = itr->first;
+        gamal_ciphertext_t *add_enc_ciphertext = new gamal_ciphertext_t[1];
+        gamal_add(add_enc_ciphertext[0], itr->second, encrypt_0);
+        enc_test_map.insert({domain, add_enc_ciphertext[0]});
+        itr++;//only process for half of the domains to save time
+    }
+}
+
+//test target V - r0
 void Server::generateTestHashMap_3(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
 {
     enc_test_map.clear();
@@ -172,7 +262,70 @@ void _importQuery(map<int, string> &cols_map)
     }
 }
 
-void Server::generateTestHashMap_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
+//added by Tham in 14 Dec 18 to optimize runtime
+
+void Server::generateTest_Target_Attr_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
+{
+    enc_test_map.clear();
+    enc_test_map = enc_test_map_pre;
+    gamal_ciphertext_t encrypt_1;
+    gamal_cipher_new(encrypt_1);
+    pre_enc_stack.pop_E1(encrypt_1);
+
+    map<int, string> columns_map;
+    _importQuery(columns_map);
+    const int COLUMN_SIZE = 10;
+    int counter = 0;
+    int plain;
+
+    for (ENC_DOMAIN_MAP::iterator itr = enc_test_map.begin(); itr != enc_test_map.end(); itr++)
+    {
+        bool match = true;
+
+        vector<string> col_arr;
+        id_domain_pair domain_pair = itr->first;
+        string domain = domain_pair.second;
+        char delim = ' ';
+        stringstream ss(domain);
+        string token;
+        while (getline(ss, token, delim))
+        {
+            col_arr.push_back(token);
+        }
+
+        for (map<int, string>::iterator colItr = columns_map.begin(); colItr != columns_map.end(); colItr++)
+        {
+            int col_index = colItr->first;
+            string col_value = colItr->second;
+            string o_col_value = col_arr[col_index];
+
+            if (o_col_value != col_value)
+            {
+                match = false;
+            }
+        }
+
+        if (match)
+        {
+            counter++;
+            gamal_add(itr->second, itr->second, encrypt_1);
+            plain = 1;
+        }
+        else
+        {
+            
+            plain = 0;
+        }
+
+        plain_domain_map.insert({domain_pair, plain}); //for server to get answer from encrypted
+        
+    }
+
+    cout << "Total match row in attribute test func: " << counter << endl;
+}
+
+
+void Server::generateTest_Target_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
 {
     enc_test_map.clear();
 
@@ -221,7 +374,7 @@ void Server::generateTestHashMap_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP e
             pre_enc_stack.pop_E0(enc_ciphertext[0]);
             plain = 0;
         }
-        plain_domain_map.insert({domain_pair, plain});
+        plain_domain_map.insert({domain_pair, plain}); //for server to get answer from encrypted
         enc_test_map.insert({domain_pair, enc_ciphertext[0]});
     }
 
@@ -233,45 +386,65 @@ void Server::save_knownRow_found_in_PV(id_domain_pair verified_domain_pair)
     verified_set.insert(verified_domain_pair);
 }
 
-void Server::generateTestFunction(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, int type)
+
+
+//added by Tham 14 Dec 19 to optimize runtime
+void Server::generateNormalQuery_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
 {
-    switch (type)
+    enc_test_map.clear();
+    enc_test_map = enc_test_map_pre;
+
+    gamal_ciphertext_t encrypt_1;
+    gamal_cipher_new(encrypt_1);
+    pre_enc_stack.pop_E1(encrypt_1);
+
+    map<int, string> columns_map;
+    _importQuery(columns_map);
+    const int COLUMN_SIZE = 10;
+    int counter = 0;
+
+    for (ENC_DOMAIN_MAP::iterator itr = enc_test_map.begin(); itr != enc_test_map.end(); itr++)
     {
-    case 1: // targeting L known rows
-    {
-        Server::generateTestHashMap_1(pre_enc_stack, enc_domain_map);
-        break;
+        bool match = true;
+
+        vector<string> col_arr;
+        id_domain_pair domain_pair = itr->first;
+        string domain = domain_pair.second;
+        char delim = ' ';
+        stringstream ss(domain);
+        string token;
+        while (getline(ss, token, delim))
+        {
+            col_arr.push_back(token);
+        }
+
+        for (map<int, string>::iterator colItr = columns_map.begin(); colItr != columns_map.end(); colItr++)
+        {
+            int col_index = colItr->first;
+            string col_value = colItr->second;
+            string o_col_value = col_arr[col_index];
+
+            if (o_col_value != col_value)
+            {
+                match = false;
+            }
+        }
+
+        if (match)
+        {
+            counter++;
+            gamal_add(itr->second, itr->second, encrypt_1);
+        }
+        
     }
 
-    case 2: // targetting V rows in PV
-    {
-        Server::generateTestHashMap_2(pre_enc_stack, enc_domain_map);
-        break;
-    }
-
-    case 3: // targeting V - r0 rows in PV
-    {
-        Server::generateTestHashMap_3(pre_enc_stack, enc_domain_map);
-        break;
-    }
-
-    case 4: // targeting specific attributes
-    {
-        Server::generateTestHashMap_Attr(pre_enc_stack, enc_domain_map);
-        break;
-    }
-    default:
-    {
-        cout << "Please enter type of test function" << endl;
-        break;
-    }
-    }
+    cout << "Total match domains in query: " << counter << endl;
 }
 
 void Server::generateNormalQuery(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
 {
     enc_test_map.clear();
-
+    
     map<int, string> columns_map;
     _importQuery(columns_map);
     const int COLUMN_SIZE = 10;

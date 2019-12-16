@@ -814,6 +814,34 @@ int gamal_add(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciph
     return 0;
 }
 
+//added by Tham for subtraction 
+int gamal_subtract(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciphertext_t ciphertext2)
+{
+
+    /*
+		int EC_POINT_add(const EC_GROUP *group, EC_POINT *r, const EC_POINT *a,
+		                 const EC_POINT *b, BN_CTX *ctx)
+		*/
+    res->C1 = EC_POINT_new(init_group);
+    res->C2 = EC_POINT_new(init_group);
+
+    gamal_ciphertext_t tmp;
+    gamal_cipher_new(tmp);
+    tmp->C1 = ciphertext2->C1;
+    tmp->C2 = ciphertext2->C2;
+
+    BN_CTX *ctx = BN_CTX_new();
+    EC_POINT_invert(init_group, tmp->C1, ctx);
+    EC_POINT_invert(init_group, tmp->C2, ctx);
+
+    
+    EC_POINT_add(init_group, res->C1, ciphertext1->C1, tmp->C1, ctx);
+    EC_POINT_add(init_group, res->C2, ciphertext1->C2, tmp->C2, ctx);
+    BN_CTX_free(ctx);
+    return 0;
+}
+
+
 //int gamal_mult(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, int pt);
 //added by Tham
 int gamal_mult(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, dig_t pt)

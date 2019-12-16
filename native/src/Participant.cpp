@@ -56,7 +56,7 @@ Participant::Participant(string data_dir)
 }
 
 // Participant Generates original Histogram
-void Participant::create_TrueHistogram(int datasize_row)
+void Participant::create_OriginalHistogram(int datasize_row)
 {
     std::ifstream data(DATA_DIR);
     if (!data.is_open())
@@ -102,9 +102,9 @@ void Participant::create_TrueHistogram(int datasize_row)
 // initialize ciphertext stack for participant
 void Participant::initializePreStack(gamal_key_t coll_key)
 {
-    pre_enc_stack = ENC_Stack(hashMap.size(), coll_key);
-    pre_enc_stack.initializeStack_E0();
-    pre_enc_stack.initializeStack_E1();
+    pre_enc_stack_participant = ENC_Stack(hashMap.size(), coll_key);
+    pre_enc_stack_participant.initializeStack_E0();
+    pre_enc_stack_participant.initializeStack_E1();
 }
 
 void Participant::print_hash_map()
@@ -173,7 +173,7 @@ void Participant::addDummy_TrueHistogram(int factorSize)
     // cout << "Total size of partial view histogram: " << hashMap.size() << endl
     //      << endl;
 
-    fakeHashMap = hashMap;
+    // fakeHashMap = hashMap;
 }
 
 /*
@@ -190,23 +190,24 @@ void Participant::addDummy_TrueHistogram(int factorSize)
 
 void Participant::addDummy_FakeHist(int keepDomainS, int factorSize)
 {
-    int domain_size = hashMap.size();
+    fakeHashMap = hashMap; // Participant always gen a true histo plus dummy at setup phase
+    int domain_size = fakeHashMap.size();
     cout << "Size of original histogram: " << domain_size << endl;
     int pv_size = factorSize * size_dataset;
 
     int dummy_id = size_dataset;
-    while (hashMap.size() < pv_size)
+    while (fakeHashMap.size() < pv_size)
     {
         string dummy_domain = getDummyDomain();
-        hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
+        fakeHashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
         dummy_id++;
     }
 
     int replaceDomainS = size_dataset - keepDomainS;
     int counter = 0;
 
-    hash_pair_map::iterator itr = hashMap.begin();
-    for (itr; itr != hashMap.end(); itr++)
+    hash_pair_map::iterator itr = fakeHashMap.begin();
+    for (itr; itr != fakeHashMap.end(); itr++)
     {
         if (counter >= replaceDomainS)
         {
@@ -215,17 +216,17 @@ void Participant::addDummy_FakeHist(int keepDomainS, int factorSize)
         int count = itr->second;
         if (count > 0)
         {
-            hashMap.erase(itr);
+            fakeHashMap.erase(itr);
             string dummy_domain = getDummyDomain();
             dummy_id++;
-            hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 1});
+            fakeHashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 1});
             counter++;
         }
     }
-    cout << "Total size of fake partial view histogram: " << hashMap.size() << endl
+    cout << "Total size of fake partial view histogram: " << fakeHashMap.size() << endl
          << endl;
 
-    fakeHashMap = hashMap;
+    
 }
 
 /*
@@ -255,7 +256,8 @@ void Participant::addDummy_FakeHist_random(int keepDomainS, int factorSize)
     // }
 
     // fakeHashMap = hashMap;
-    Participant::addDummy_TrueHistogram(factorSize);
+    //Participant::addDummy_TrueHistogram(factorSize); //Tham modified: participant always gens a true histogram at setup phase
+    fakeHashMap = hashMap; //added by Tham
     int replaceDomainS = size_dataset - keepDomainS;
     int pv_size = factorSize * size_dataset;
 
@@ -349,13 +351,13 @@ void Participant::selfCreateFakePV(int keepDomainS, int factorSize)
         if (domain_count > 0)
         {
             decypt_cip = 1;
-            pre_enc_stack.pop_E1(mul_enc_ciphertext[0]);
+            pre_enc_stack_participant.pop_E1(mul_enc_ciphertext[0]);
             counter_row++;
         }
         else
         {
             decypt_cip = 0;
-            pre_enc_stack.pop_E0(mul_enc_ciphertext[0]);
+            pre_enc_stack_participant.pop_E0(mul_enc_ciphertext[0]);
         }
 
         enc_domain_map.insert({domain, mul_enc_ciphertext[0]});
@@ -403,8 +405,35 @@ void _printCiphertext(gamal_ciphertext_ptr ciphertext)
     printf("\n");
 }
 
+//added by Tham to reduce runtime for PV generation 16 Dec 2019
+void Participant::pre_process_generatePV(bool useTruth)
+{
+    hash_pair_map tmp_hashMap = useTruth ? hashMap : fakeHashMap;
+    int count =0;
+    for (hash_pair_map::iterator itr = tmp_hashMap.begin(); itr != tmp_hashMap.end(); ++itr)
+    {
+
+        id_domain_pair domain = itr->first;
+        int domain_count = itr->second;
+
+        gamal_ciphertext_t *mul_enc_ciphertext = new gamal_ciphertext_t[1];
+        
+        if (domain_count == 0)
+        {
+            Participant::pre_enc_stack_participant.pop_E0(mul_enc_ciphertext[0]);
+            enc_domain_map.insert({domain, mul_enc_ciphertext[0]});
+            count++;
+        }
+        
+    }
+    cout << "Number of enc(0) is pre processed: " << count << endl;
+
+    tmp_hashMap.clear();
+}
+
 // plain_track_list: 1, 0 vector encrypted from Server
 // enc_list: E1, E0 vector encrypted from Server
+
 void Participant::generatePV(int *plain_track_list, gamal_ciphertext_t *enc_list, bool useTruth)
 {
     hash_pair_map tmp_hashMap = useTruth ? hashMap : fakeHashMap;
@@ -429,14 +458,46 @@ void Participant::generatePV(int *plain_track_list, gamal_ciphertext_t *enc_list
         else
         {
             decypt_cip = 0;
-            Participant::pre_enc_stack.pop_E0(mul_enc_ciphertext[0]);
-        }
-
+            Participant::pre_enc_stack_participant.pop_E0(mul_enc_ciphertext[0]);
+        } 
+        
         enc_domain_map.insert({domain, mul_enc_ciphertext[0]});
         plain_domain_map.insert({domain, decypt_cip});
+    
     }
 
     // cout << "Counter row " << counter_row << endl;
+    tmp_hashMap.clear();
+}
+
+//added by Tham to reduce runtime for PV generation 16 Dec 19
+void Participant::generatePV_opt(gamal_ciphertext_t *enc_list, bool useTruth)
+{
+    hash_pair_map tmp_hashMap = useTruth ? hashMap : fakeHashMap;
+    int counter_row = 0;
+    // cout << "PV SIZE " << tmp_hashMap.size() << ", VECTOR FROM SERVER SIZE " << size_dataset << endl;
+    for (hash_pair_map::iterator itr = tmp_hashMap.begin(); itr != tmp_hashMap.end(); ++itr)
+    {
+        int decypt_cip = 0;
+
+        id_domain_pair domain = itr->first;
+        int domain_count = itr->second;
+
+        gamal_ciphertext_t *mul_enc_ciphertext = new gamal_ciphertext_t[1];
+
+        //using pre-generatePV to reduce runtime:
+        if (domain_count > 0)
+        {
+            gamal_mult_opt(mul_enc_ciphertext[0], enc_list[counter_row], domain_count);
+            counter_row++;
+
+            enc_domain_map.insert({domain, mul_enc_ciphertext[0]});
+        }
+        
+
+    }
+
+    cout << "Number of enc(1) is processed: " << counter_row << endl;
     tmp_hashMap.clear();
 }
 
@@ -464,7 +525,7 @@ void Participant::test_cleartext()
     cout << "Total count of chosen plaintext 1 from server: " << count << endl;
 }
 
-void Participant::computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key, double prob)
+void Participant::computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key)
 {
     hash_pair_map tmp_hashMap = useTruth ? hashMap : fakeHashMap;
 
@@ -506,16 +567,10 @@ void Participant::computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t
     }
     cout << "Counter " << counter << endl;
 
-    float epsilon = 0.1;
-    float sensitivity = 1.0;
-
-    double maxNoise = getLaplaceNoiseRange(sensitivity, epsilon, prob);
-    double minNoise = -maxNoise;
-    cout << "Min noise: " << minNoise << endl;
-    cout << "Max noise: " << maxNoise << endl;
-
     int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
-    // cout << "Random noise: " << randomNoise << endl;
+    int randomNoise_to_enc;
+    cout << "max noise: " << maxNoise << endl;
+    cout << "min noise: " << minNoise << endl;
 
     if (randomNoise < minNoise)
     {
@@ -526,21 +581,35 @@ void Participant::computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t
         randomNoise = (int)(maxNoise);
     }
 
-    if(randomNoise < 0)
-    {
-        randomNoise = -randomNoise;
-    }
-
+    
     cout << "Random noise: " << randomNoise << endl;
 
+    if(randomNoise < 0)
+    {
+        randomNoise_to_enc = -randomNoise;
+    }
+    else {
+        randomNoise_to_enc = randomNoise;
+    }
+
+    cout << "Random noise to enc: " << randomNoise_to_enc << endl;
+
+    //randomNoise = 0; //to test
     gamal_ciphertext_t noiseEnc;
     gamal_cipher_new(noiseEnc);
-    gamal_encrypt(noiseEnc, coll_key, randomNoise);
+    gamal_encrypt(noiseEnc, coll_key, randomNoise_to_enc);
 
     gamal_cipher_new(tmp);
     tmp->C1 = sum_cipher->C1;
     tmp->C2 = sum_cipher->C2;
-    gamal_add(sum_cipher, tmp, noiseEnc);
+
+    if (randomNoise >= 0)
+    {
+        gamal_add(sum_cipher, tmp, noiseEnc);
+    }
+    else{
+        gamal_subtract(sum_cipher, tmp, noiseEnc); //Tham fixed the issue of negative noise
+    }
     
     tmp_hashMap.clear();
 }

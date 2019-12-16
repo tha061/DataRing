@@ -10,11 +10,14 @@ class Participant
 
 public:
     string DATA_DIR;
-    ENC_Stack pre_enc_stack;
+    ENC_Stack pre_enc_stack_participant;
     ENC_DOMAIN_MAP enc_domain_map;
     hash_pair_map hashMap, plain_domain_map, fakeHashMap;
     int size_dataset;
-
+    float epsilon;
+    float sensitivity;
+    double maxNoise;
+    double minNoise;
     Participant();
     Participant(string data_dir);
 
@@ -31,17 +34,19 @@ public:
 
     void initializePreStack(gamal_key_t coll_key);
 
-    //RENAME THIS FUNCTION to create_TrueHistogram()
-    void create_TrueHistogram(int datasize_row);
+    //RENAME THIS FUNCTION to create_OriginalHistogram()
+    void create_OriginalHistogram(int datasize_row);
     void print_hash_map();
 
     ////RENAME THIS FUNCTION to generatePV()
+    void pre_process_generatePV(bool useTruth);
+    void generatePV_opt(gamal_ciphertext_t *myPIR_enc, bool useTruth);
     void generatePV(int *plain_track_list, gamal_ciphertext_t *myPIR_enc, bool useTruth);
     void test_cleartext();
     
     //RENAME THIS FUNCTION to computeAnswer()
     // adding a function to generate Laplace noise and then add this noise to the computed answer
-    void computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key, double prob);
+    void computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key);
 };
 
 #endif

@@ -173,6 +173,12 @@ int gamal_decrypt(dig_t *res, gamal_key_t key, gamal_ciphertext_t ciphertext, bs
 int gamal_add(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciphertext_t ciphertext2);
 
 /**
+ * Added by Tham to substract two ciphertexts 
+ */
+
+int gamal_subtract(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciphertext_t ciphertext2);
+
+/**
  * Added by Nam
  * Generates an collective EC-ElGamal key pair from number of parties
  * @param coll_keys: the collective keypair
