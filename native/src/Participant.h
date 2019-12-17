@@ -47,6 +47,7 @@ public:
     //RENAME THIS FUNCTION to computeAnswer()
     // adding a function to generate Laplace noise and then add this noise to the computed answer
     void computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key);
+    void computeAnswer_opt(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key);
 };
 
 #endif

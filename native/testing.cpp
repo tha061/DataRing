@@ -241,13 +241,23 @@ int main(int argc, char **argv)
 
 	t1 = high_resolution_clock::now();
 	gamal_cipher_new(sum_cipher);
-	part_A.computeAnswer(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
 	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Compute ans L (ms)", t1, t2);
+	trackTaskPerformance(time_track_list, "Compute ans L opt (ms)", t1, t2);
 
 	threshold = server1.known_vector.size();
 	test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold);
 	trackTaskStatus(time_track_list, "Test target L status", test_status);
+
+	// t1 = high_resolution_clock::now();
+	// gamal_cipher_new(sum_cipher);
+	// part_A.computeAnswer(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Compute ans L (ms)", t1, t2);
+
+	// threshold = server1.known_vector.size();
+	// test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold);
+	// trackTaskStatus(time_track_list, "Test target L status", test_status);
 
 	//====== TEST FUNCTION 2 targeting V records in V ======//
 	// t1 = high_resolution_clock::now();
@@ -330,7 +340,7 @@ int main(int argc, char **argv)
 	// t1 = high_resolution_clock::now();
 	// server1.generateMatchDomain();
 	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Gen Match DOmain (ms)", t1, t2);
+	// trackTaskPerformance(time_track_list, "Matching Domain (ms)", t1, t2);
 
 	// t1 = high_resolution_clock::now();
 	// server1.generateTest_Target_Attr_opt(pre_enc_stack);
@@ -339,17 +349,16 @@ int main(int argc, char **argv)
 
 	// t1 = high_resolution_clock::now();
 	// gamal_cipher_new(sum_cipher);
-	// part_A.computeAnswer(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+	// part_A.computeAnswer(server1.enc_test_map, sum_cipher, true, servers.coll_key);
 	// t2 = high_resolution_clock::now();
 	
 	// trackTaskPerformance(time_track_list, "Compute ans Test Attr (ms)", t1, t2);
 
 
-	// // ===================== //
 	// t1 = high_resolution_clock::now();
 	// server1.generateServerDomain_Test_Target_Attr(pre_enc_stack);
 	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Gen Server Domain from test function (ms)", t1, t2);
+	// trackTaskPerformance(time_track_list, "Gen test attr clear (ms)", t1, t2);
 
 	// gamal_ciphertext_t enc_PV_answer;
 	// gamal_cipher_new(enc_PV_answer);

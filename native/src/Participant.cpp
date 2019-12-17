@@ -612,3 +612,91 @@ void Participant::computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t
     
     tmp_hashMap.clear();
 }
+
+void Participant::computeAnswer_opt(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key)
+{
+    //generatePV_opt
+    hash_pair_map tmp_hashMap = useTruth ? hashMap : fakeHashMap;
+
+    // const int size_test_map = enc_test_map.size();
+    // gamal_ciphertext_t *enc_list = new gamal_ciphertext_t[size_test_map];
+
+    int counter = 0;
+
+    gamal_ciphertext_t tmp, mul_tmp;
+    gamal_cipher_new(tmp);
+    gamal_cipher_new(mul_tmp);
+
+    for(hash_pair_map::iterator itr = tmp_hashMap.begin(); itr != tmp_hashMap.end(); itr++)
+    {
+        id_domain_pair domain_pair = itr->first;
+        int value = itr->second;
+        ENC_DOMAIN_MAP::iterator find = enc_test_map.find(domain_pair);
+        if(find != enc_test_map.end() && value > 0)
+        {
+            //gamal_mult_opt(mul_tmp, find->second, value);
+
+            if (counter == 0)
+            {
+                sum_cipher->C1 = mul_tmp->C1;
+                sum_cipher->C2 = mul_tmp->C2;
+            }
+            else
+            {
+                tmp->C1 = sum_cipher->C1;
+                tmp->C2 = sum_cipher->C2;
+                gamal_add(sum_cipher, tmp, find->second);
+            }
+
+            counter++;
+        }
+    }
+
+    cout << "Counter " << counter << endl;
+
+    int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+    int randomNoise_to_enc;
+    cout << "max noise: " << maxNoise << endl;
+    cout << "min noise: " << minNoise << endl;
+
+    if (randomNoise < minNoise)
+    {
+        randomNoise = (int)(minNoise);
+    }
+    else if (randomNoise > maxNoise)
+    {
+        randomNoise = (int)(maxNoise);
+    }
+
+    
+    cout << "Random noise: " << randomNoise << endl;
+
+    if(randomNoise < 0)
+    {
+        randomNoise_to_enc = -randomNoise;
+    }
+    else {
+        randomNoise_to_enc = randomNoise;
+    }
+
+    cout << "Random noise to enc: " << randomNoise_to_enc << endl;
+
+    //randomNoise = 0; //to test
+    gamal_ciphertext_t noiseEnc;
+    gamal_cipher_new(noiseEnc);
+    gamal_encrypt(noiseEnc, coll_key, randomNoise_to_enc);
+
+    gamal_cipher_new(tmp);
+    tmp->C1 = sum_cipher->C1;
+    tmp->C2 = sum_cipher->C2;
+
+    if (randomNoise >= 0)
+    {
+        gamal_add(sum_cipher, tmp, noiseEnc);
+    }
+    else{
+        gamal_subtract(sum_cipher, tmp, noiseEnc); //Tham fixed the issue of negative noise
+    }
+    
+    tmp_hashMap.clear();
+}
