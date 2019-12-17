@@ -31,6 +31,8 @@ public:
 
     // make vector by self and make PV View without Servers
     void selfCreateFakePV(int fakeEnc1, int factorSize);
+    void selfCreateFakePV_opt(bool useTruth);
+    void selfCreate_Fake_Historgram(int fakeEnc1, int factorSize);
 
     void initializePreStack(gamal_key_t coll_key);
 

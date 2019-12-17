@@ -308,6 +308,7 @@ void Participant::addDummy_FakeHist_random(int keepDomainS, int factorSize)
 void Participant::selfCreateFakePV(int keepDomainS, int factorSize)
 {
     Participant::addDummy_TrueHistogram(factorSize);
+   
     int replaceDomainS = (size_dataset / 100) - keepDomainS;
     int pv_size = factorSize * size_dataset;
 
@@ -371,6 +372,71 @@ void Participant::selfCreateFakePV(int keepDomainS, int factorSize)
     cout << "Total size of original partial view histogram: " << hashMap.size() << endl
          << endl;
 }
+
+void Participant::selfCreate_Fake_Historgram(int keepDomainS, int factorSize)
+{
+   
+    fakeHashMap = hashMap;
+    int replaceDomainS = (size_dataset / 100) - keepDomainS;
+    int pv_size = factorSize * size_dataset;
+
+    int replace_counter = 0;
+    while (replace_counter < replaceDomainS)
+    {
+        int random_id = _getRandomInRange(size_dataset, pv_size - 1);
+        hash_pair_map::iterator find = fakeHashMap.find({to_string(random_id), ""});
+        if (find != fakeHashMap.end() && find->second == 0)
+        {
+            find->second = 1;
+            replace_counter++;
+        }
+    }
+
+    replace_counter = 0;
+    int total_replace_actual = size_dataset - keepDomainS;
+    while (replace_counter < total_replace_actual)
+    {
+        int random_id = _getRandomInRange(0, size_dataset - 1);
+        hash_pair_map::iterator find = fakeHashMap.find({to_string(random_id), ""});
+        if (find != fakeHashMap.end() && find->second == 1)
+        {
+            find->second = 0;
+            replace_counter++;
+        }
+    }
+
+}
+
+
+void Participant::selfCreateFakePV_opt(bool useTruth)
+{
+    hash_pair_map tmp_hashMap = useTruth ? hashMap : fakeHashMap;
+    int counter_row = 0;
+    // cout << "PV SIZE " << tmp_hashMap.size() << ", VECTOR FROM SERVER SIZE " << size_dataset << endl;
+    for (hash_pair_map::iterator itr = tmp_hashMap.begin(); itr != tmp_hashMap.end(); ++itr)
+    {
+
+        id_domain_pair domain = itr->first;
+        int domain_count = itr->second;
+
+        gamal_ciphertext_t *enc_1 = new gamal_ciphertext_t[1];
+
+        //using pre-generatePV to reduce runtime:
+        if (domain_count > 0)
+        {
+            
+            pre_enc_stack_participant.pop_E1(enc_1[0]);    
+            enc_domain_map.insert({domain, enc_1[0]});
+            counter_row++;
+        }
+        
+
+    }
+
+    cout << "Number of enc(1) is processed: " << counter_row << endl;
+    tmp_hashMap.clear();
+}
+
 
 void _printCiphertext(gamal_ciphertext_ptr ciphertext)
 {
@@ -478,7 +544,6 @@ void Participant::generatePV_opt(gamal_ciphertext_t *enc_list, bool useTruth)
     // cout << "PV SIZE " << tmp_hashMap.size() << ", VECTOR FROM SERVER SIZE " << size_dataset << endl;
     for (hash_pair_map::iterator itr = tmp_hashMap.begin(); itr != tmp_hashMap.end(); ++itr)
     {
-        int decypt_cip = 0;
 
         id_domain_pair domain = itr->first;
         int domain_count = itr->second;
