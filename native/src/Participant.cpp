@@ -527,9 +527,10 @@ void Participant::test_cleartext()
 
 void Participant::computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key)
 {
+    //generatePV_opt
     hash_pair_map tmp_hashMap = useTruth ? hashMap : fakeHashMap;
 
-    const int size_test_map = enc_test_map.size();
+    // const int size_test_map = enc_test_map.size();
     // gamal_ciphertext_t *enc_list = new gamal_ciphertext_t[size_test_map];
 
     int counter = 0;
@@ -538,17 +539,14 @@ void Participant::computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t
     gamal_cipher_new(tmp);
     gamal_cipher_new(mul_tmp);
 
-    // cout << "Start multiply and add " << endl;
-    int i = 0;
-    for (ENC_DOMAIN_MAP::iterator itr = enc_test_map.begin(); itr != enc_test_map.end(); itr++)
+    for(hash_pair_map::iterator itr = tmp_hashMap.begin(); itr != tmp_hashMap.end(); itr++)
     {
-        string key = itr->first.first;
-        string domain = itr->first.second;
-
-        int value = tmp_hashMap[{key, domain}];
-        if (value > 0)
+        id_domain_pair domain_pair = itr->first;
+        int value = itr->second;
+        ENC_DOMAIN_MAP::iterator find = enc_test_map.find(domain_pair);
+        if(find != enc_test_map.end() && value > 0)
         {
-            gamal_mult_opt(mul_tmp, itr->second, value);
+            gamal_mult_opt(mul_tmp, find->second, value);
 
             if (counter == 0)
             {
@@ -565,6 +563,7 @@ void Participant::computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t
             counter++;
         }
     }
+
     cout << "Counter " << counter << endl;
 
     int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);

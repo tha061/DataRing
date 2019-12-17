@@ -16,6 +16,7 @@ public:
     id_domain_set verified_set;
 
     hash_pair_map plain_domain_map;
+    id_domain_vector match_query_domain_vect;    
 
     int *plain_track_list;
     int size_dataset;
@@ -25,6 +26,9 @@ public:
     Server(int size, string known_domain_dir);
     void createRandomEncrypVector(ENC_Stack &pre_enc_stack);
     void importFile(string file_url);
+
+    // function is resposiblle for find matching domain from query
+    void generateMatchDomain();
 
     
     // this function is to determine mininum number of known rows needs to be found in PV
@@ -63,7 +67,9 @@ public:
     // clear test function
     void generateTest_Target_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map); 
 
-    void generateTest_Target_Attr_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map); 
+    void generateTest_Target_Attr_opt(ENC_Stack &pre_enc_stack); 
+
+    void generateServerDomain_Test_Target_Attr(ENC_Stack &pre_enc_stack);
 
     /**
      * This function is to generate test function, there are many options
@@ -79,7 +85,7 @@ public:
 
 
     //added by Tham in 14 Dec 19 to optimize runtime
-    void generateNormalQuery_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map); 
+    void generateNormalQuery_opt(ENC_Stack &pre_enc_stack); 
 
     void generateNormalQuery(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map);
 

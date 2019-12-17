@@ -82,7 +82,7 @@ void Server::createRandomEncrypVector(ENC_Stack &pre_enc_stack)
 
     delete[] myPIR_arr;
 }
-//added by Tham 14 Dec to improve runtime 
+//added by Tham 14 Dec to improve runtime
 void Server::prepareTestFuntion_Query_Vector(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
 {
     for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
@@ -91,7 +91,7 @@ void Server::prepareTestFuntion_Query_Vector(ENC_Stack &pre_enc_stack, ENC_DOMAI
         gamal_ciphertext_t *enc_0 = new gamal_ciphertext_t[1];
         pre_enc_stack.pop_E0(enc_0[0]);
         enc_test_map_pre.insert({domain, enc_0[0]});
-    }    
+    }
 }
 
 void Server::generateTestFunction(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, int type)
@@ -129,7 +129,6 @@ void Server::generateTestFunction(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_d
     }
 }
 
-
 //test target L added by Tham 14 Dec for optimize runtime
 void Server::generateTestKnownRecords_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
 {
@@ -138,19 +137,16 @@ void Server::generateTestKnownRecords_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_M
     gamal_cipher_new(encrypt_1);
     pre_enc_stack.pop_E1(encrypt_1);
 
-
     for (ENC_DOMAIN_MAP::iterator itr = enc_test_map.begin(); itr != enc_test_map.end(); itr++)
     {
         id_domain_pair domain = itr->first;
-        
+
         if (known_vector.find(domain) != known_vector.end())
         {
 
             gamal_add(itr->second, itr->second, encrypt_1);
-        }  
-        
+        }
     }
-
 }
 
 //target L
@@ -202,7 +198,7 @@ void Server::generateTestBasedPartialView_opt(ENC_Stack &pre_enc_stack, ENC_DOMA
         gamal_ciphertext_t *add_enc_ciphertext = new gamal_ciphertext_t[1];
         gamal_add(add_enc_ciphertext[0], itr->second, encrypt_0);
         enc_test_map.insert({domain, add_enc_ciphertext[0]});
-        itr++;//only process for half of the domains to save time
+        itr++; //only process for half of the domains to save time
     }
 }
 
@@ -262,68 +258,56 @@ void _importQuery(map<int, string> &cols_map)
     }
 }
 
+void Server::generateServerDomain_Test_Target_Attr(ENC_Stack &pre_enc_stack)
+{
+    for (ENC_DOMAIN_MAP::iterator itr = enc_test_map_pre.begin(); itr != enc_test_map_pre.end(); itr++)
+    {
+        id_domain_pair domain_pair = itr->first;
+        plain_domain_map.insert({domain_pair, 0});
+    }
+
+
+    int counter = 0;
+    for (int i = 0; i < match_query_domain_vect.size(); i++)
+    {
+        id_domain_pair match_domain = match_query_domain_vect[i];
+        hash_pair_map::iterator find = plain_domain_map.find(match_domain);
+        if (find != plain_domain_map.end() && find->second == 0)
+        {
+            counter++;
+            find->second = 1;
+        }
+    }
+
+    cout << "Total match plain domain: " << counter << endl;
+}
+
 //added by Tham in 14 Dec 18 to optimize runtime
 
-void Server::generateTest_Target_Attr_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
+void Server::generateTest_Target_Attr_opt(ENC_Stack &pre_enc_stack)
 {
     enc_test_map.clear();
     enc_test_map = enc_test_map_pre;
+
     gamal_ciphertext_t encrypt_1;
     gamal_cipher_new(encrypt_1);
     pre_enc_stack.pop_E1(encrypt_1);
 
-    map<int, string> columns_map;
-    _importQuery(columns_map);
-    const int COLUMN_SIZE = 10;
     int counter = 0;
-    int plain;
 
-    for (ENC_DOMAIN_MAP::iterator itr = enc_test_map.begin(); itr != enc_test_map.end(); itr++)
+    for (int i = 0; i < match_query_domain_vect.size(); i++)
     {
-        bool match = true;
-
-        vector<string> col_arr;
-        id_domain_pair domain_pair = itr->first;
-        string domain = domain_pair.second;
-        char delim = ' ';
-        stringstream ss(domain);
-        string token;
-        while (getline(ss, token, delim))
-        {
-            col_arr.push_back(token);
-        }
-
-        for (map<int, string>::iterator colItr = columns_map.begin(); colItr != columns_map.end(); colItr++)
-        {
-            int col_index = colItr->first;
-            string col_value = colItr->second;
-            string o_col_value = col_arr[col_index];
-
-            if (o_col_value != col_value)
-            {
-                match = false;
-            }
-        }
-
-        if (match)
+        id_domain_pair match_domain = match_query_domain_vect[i];
+        ENC_DOMAIN_MAP::iterator find = enc_test_map.find(match_domain);
+        if (find != enc_test_map.end())
         {
             counter++;
-            gamal_add(itr->second, itr->second, encrypt_1);
-            plain = 1;
+            gamal_add(find->second, find->second, encrypt_1);
         }
-        else
-        {
-            
-            plain = 0;
-        }
-
-        plain_domain_map.insert({domain_pair, plain}); //for server to get answer from encrypted
-        
     }
 
-    cout << "Total match row in attribute test func: " << counter << endl;
+    cout << "Total match domains in query: " << counter << endl;
 }
-
 
 void Server::generateTest_Target_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
 {
@@ -386,24 +370,14 @@ void Server::save_knownRow_found_in_PV(id_domain_pair verified_domain_pair)
     verified_set.insert(verified_domain_pair);
 }
 
-
-
-//added by Tham 14 Dec 19 to optimize runtime
-void Server::generateNormalQuery_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
+void Server::generateMatchDomain()
 {
-    enc_test_map.clear();
-    enc_test_map = enc_test_map_pre;
-
-    gamal_ciphertext_t encrypt_1;
-    gamal_cipher_new(encrypt_1);
-    pre_enc_stack.pop_E1(encrypt_1);
-
     map<int, string> columns_map;
     _importQuery(columns_map);
-    const int COLUMN_SIZE = 10;
+
     int counter = 0;
 
-    for (ENC_DOMAIN_MAP::iterator itr = enc_test_map.begin(); itr != enc_test_map.end(); itr++)
+    for (ENC_DOMAIN_MAP::iterator itr = enc_test_map_pre.begin(); itr != enc_test_map_pre.end(); itr++)
     {
         bool match = true;
 
@@ -432,10 +406,32 @@ void Server::generateNormalQuery_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP en
 
         if (match)
         {
-            counter++;
-            gamal_add(itr->second, itr->second, encrypt_1);
+            match_query_domain_vect.push_back(domain_pair);
         }
-        
+    }
+}
+
+//added by Tham 14 Dec 19 to optimize runtime
+void Server::generateNormalQuery_opt(ENC_Stack &pre_enc_stack)
+{
+    enc_test_map.clear();
+    enc_test_map = enc_test_map_pre;
+
+    gamal_ciphertext_t encrypt_1;
+    gamal_cipher_new(encrypt_1);
+    pre_enc_stack.pop_E1(encrypt_1);
+
+    int counter = 0;
+
+    for (int i = 0; i < match_query_domain_vect.size(); i++)
+    {
+        id_domain_pair match_domain = match_query_domain_vect[i];
+        ENC_DOMAIN_MAP::iterator find = enc_test_map.find(match_domain);
+        if (find != enc_test_map.end())
+        {
+            counter++;
+            gamal_add(find->second, find->second, encrypt_1);
+        }
     }
 
     cout << "Total match domains in query: " << counter << endl;
@@ -444,7 +440,7 @@ void Server::generateNormalQuery_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP en
 void Server::generateNormalQuery(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
 {
     enc_test_map.clear();
-    
+
     map<int, string> columns_map;
     _importQuery(columns_map);
     const int COLUMN_SIZE = 10;
