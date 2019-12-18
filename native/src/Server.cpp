@@ -295,6 +295,8 @@ void Server::generateTest_Target_Attr_opt(ENC_Stack &pre_enc_stack)
 
     int counter = 0;
 
+    cout << "Mach domains: " << match_query_domain_vect.size() << endl;
+
     for (int i = 0; i < match_query_domain_vect.size(); i++)
     {
         id_domain_pair match_domain = match_query_domain_vect[i];

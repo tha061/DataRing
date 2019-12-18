@@ -252,8 +252,8 @@ bool Servers::verifyingTestResult_Estimate(string testName, gamal_ciphertext_t s
     cout << "min_conf " << min_conf << ", "
          << "max_conf " << max_conf << endl;
 
-    
-    if (decrypt_test_f >= min_conf - maxNoise && decrypt_test_f <= max_conf + maxNoise)
+    cout << "maxNoise " << (int)(maxNoise) << endl;
+    if (decrypt_test_f >= min_conf - (int)(maxNoise) && decrypt_test_f <= max_conf + (int)(maxNoise))
     {
         cout << "Pass test function estimate" << endl;
         return true;
