@@ -17,6 +17,7 @@ public:
 
     double maxNoise;
     double minNoise;
+    double pv_ratio;
 
     // Servers();
     Servers(int server_size, int data_size, string known_domain_dir);

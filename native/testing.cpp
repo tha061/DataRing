@@ -21,6 +21,7 @@ int main(int argc, char **argv)
 	int a = 2;				   //make it an argument to scale up the histogram for adding dummy
 	double eta;				   //make it an argument use to determine r0
 	double alpha = 0.05;
+	double pv_ratio = 0.01;
 	
 	string UNIQUE_DOMAIN_DIR, KNOWN_DOMAIN_DIR;
 	if (argc > 1)
@@ -30,10 +31,11 @@ int main(int argc, char **argv)
 			UNIQUE_DOMAIN_DIR = argv[1];
 			KNOWN_DOMAIN_DIR = argv[2];
 			datasize_row = stoi(argv[3]); //size of dataset
-			SERVER_SIZE = stoi(argv[4]);
-			a = stoi(argv[5]);
-			eta = stod(argv[6]); //make it an argument use to determine r0
-			alpha = stod(argv[7]);
+			pv_ratio = stod(argv[4]); // pv sample rate
+			SERVER_SIZE = stoi(argv[5]);
+			a = stoi(argv[6]);
+			eta = stod(argv[7]); //make it an argument use to determine r0
+			alpha = stod(argv[8]);
 		}
 		else
 		{
@@ -50,7 +52,7 @@ int main(int argc, char **argv)
 	double percentile_noise = 0.95;			   //use to determine Laplace max_noise
 	float epsilon = 0.1;
 	float sensitivity = 1.0;
-	int PV_size = int(datasize_row / 100); // actual V, not the PV histogram form
+	int PV_size = (int)datasize_row*pv_ratio; // actual V, not the PV histogram form
 	int keep_rows = 400000;
 	TRACK_LIST time_track_list;
 
@@ -73,20 +75,21 @@ int main(int argc, char **argv)
 	// PARTICIPANT CONVERT DATASET TO HISTOGRAM
 	Participant part_A(UNIQUE_DOMAIN_DIR);
 
-	t1 = high_resolution_clock::now();
+	// t1 = high_resolution_clock::now();
 	part_A.create_OriginalHistogram(datasize_row);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Create Hist (ms)", t1, t2);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Create Hist (ms)", t1, t2);
 
-	cout << "Total rows: " << part_A.size_dataset << endl;
-	cout << "Total domains: " << part_A.hashMap.size() << endl;
+	// cout << "Total rows: " << part_A.size_dataset << endl;
+	// cout << "Total domains: " << part_A.hashMap.size() << endl;
 
 	part_A.print_hash_map();
 
 	t1 = high_resolution_clock::now();
+	// t1 = high_resolution_clock::now();
 	part_A.addDummy_TrueHistogram(a);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Add dummy to true Hist (ms)", t1, t2);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Add dummy to true Hist (ms)", t1, t2);
 
 	int size_dataset = part_A.size_dataset;
 
@@ -96,6 +99,7 @@ int main(int argc, char **argv)
 	Servers servers(SERVER_SIZE, size_dataset, KNOWN_DOMAIN_DIR);
 
 	servers.generateCollKey();
+	servers.pv_ratio = pv_ratio;
 
 	// INITIALIZE CIPHERTEXT STACK FOR PARTY
 	part_A.initializePreStack(servers.coll_key);
@@ -107,6 +111,7 @@ int main(int argc, char **argv)
 	part_A.epsilon = epsilon;
 	part_A.sensitivity = sensitivity;
 	part_A.minNoise = -part_A.maxNoise;
+	part_A.pv_ratio = pv_ratio;
 
 	// INITIALIZE CIPHERTEXT STACK FOR SERVERS
 	ENC_Stack pre_enc_stack(size_dataset, servers.coll_key);
@@ -131,10 +136,10 @@ int main(int argc, char **argv)
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 	// SERVER CREATE PV SAMPLING VECTOR
-	t1 = high_resolution_clock::now();
+	// t1 = high_resolution_clock::now();
 	servers.createPVsamplingVector(pre_enc_stack);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen PV sampling (ms)", t1, t2);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Gen PV sampling (ms)", t1, t2);
 
 	// PARTY IS HONEST
 
@@ -144,6 +149,12 @@ int main(int argc, char **argv)
 	part_A.pre_process_generatePV(true);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
+	////Gen PV optimal by pre-compte Enc(0) to all dummy domains at offline
+	// //pre process:
+	// t1 = high_resolution_clock::now();
+	// part_A.pre_process_generatePV(true);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
 	
 	t1 = high_resolution_clock::now();
 	part_A.generatePV_opt(servers.s_myPIR_enc, true);
@@ -151,7 +162,7 @@ int main(int argc, char **argv)
 	trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
 	//// PARTY IS DISHONEST
-	
+
 	//====== strategy 1
 
 	// int keep_row = int(datasize_row*0.9); //lie about 50% rows
@@ -199,11 +210,21 @@ int main(int argc, char **argv)
 	// //pre process:
 	// t1 = high_resolution_clock::now();
 	// part_A.pre_process_generatePV(false);
+	int true_record_PV = 2000;
+	// t1 = high_resolution_clock::now();
+	part_A.selfCreate_Fake_Historgram(true_record_PV, a);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Part_A keep x rows: ", t1, t2);
+
+	//pre process:
+	// t1 = high_resolution_clock::now();
+	part_A.pre_process_generatePV(false);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
 
 	// t1 = high_resolution_clock::now();
 	// part_A.selfCreateFakePV_opt(false);
+	part_A.selfCreateFakePV_opt(false);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
@@ -212,9 +233,10 @@ int main(int argc, char **argv)
 	Server server1 = servers.server_vect[server_id];
 
 	t1 = high_resolution_clock::now();
+	// t1 = high_resolution_clock::now();
 	bool verify_status = servers.verifyingPV(part_A.enc_domain_map, table, server_id, pre_enc_stack, eta);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Verify PV (ms)", t1, t2);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Verify PV (ms)", t1, t2);
 
 	bool test_status;
 	int threshold;
@@ -227,6 +249,7 @@ int main(int argc, char **argv)
 	//Server determines maxNoise
 	servers.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon, percentile_noise);
 	servers.minNoise = -servers.maxNoise;
+	Server server1 = servers.server_vect[0];
 
 	//===== TEST FUNCTION 1 targeting L records in dataset =====//
 	// t1 = high_resolution_clock::now();

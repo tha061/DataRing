@@ -20,8 +20,9 @@ Servers::Servers(int server_size, int data_size, string known_domain_dir)
 void Servers::createPVsamplingVector(ENC_Stack &pre_enc_stack)
 {
     int enc_types[] = {1, 0};
-    int freq[] = {1, 99};
-    int pv_ratio = 100;
+    int up_freq = (int)(1/pv_ratio-1);
+    int freq[] = {1, up_freq};
+    // int pv_ratio = 50; // V = 2% of n
 
     pir_gen(s_plain_track_list, enc_types, freq, data_size, pv_ratio); // function that server place 1 or 0 randomly
 
@@ -114,7 +115,7 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
 {
     Server server = server_vect[serverId]; // shallow copy
     const int KNOWN_VECT_SIZE = server.known_vector.size();
-    int v = data_size / 100;
+    int v = (int)data_size*pv_ratio;
     const int LEAST_DOMAIN = server_vect[serverId].generatePVTestCondition(data_size, v, KNOWN_VECT_SIZE, eta);
     gamal_ciphertext_t sum, tmp, encrypt_E0;
     gamal_cipher_new(sum);

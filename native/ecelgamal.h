@@ -257,6 +257,6 @@ int mods_func(int number);
 int findCeil(int arr[], int r, int l, int h);
 int myRand(int arr[], int freq[], int n);
 int *hist_gen(int histogr[], int arr[], int freq[], int datasize, int scale_up);
-int *pir_gen(int myPIR_arr[], int arr[], int freq[], int datasize, int pv_ratio);
+// int *pir_gen(int myPIR_arr[], int arr[], int freq[], int datasize, double pv_ratio);
 
 #endif //ECELGAMAL_ECELGAMAL_H

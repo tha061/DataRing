@@ -309,7 +309,7 @@ void Participant::selfCreateFakePV(int keepDomainS, int factorSize)
 {
     Participant::addDummy_TrueHistogram(factorSize);
    
-    int replaceDomainS = (size_dataset / 100) - keepDomainS;
+    int replaceDomainS = (int)(size_dataset*pv_ratio) - keepDomainS;
     int pv_size = factorSize * size_dataset;
 
     int replace_counter = 0;
@@ -377,7 +377,7 @@ void Participant::selfCreate_Fake_Historgram(int keepDomainS, int factorSize)
 {
    
     fakeHashMap = hashMap;
-    int replaceDomainS = (size_dataset / 100) - keepDomainS;
+    int replaceDomainS = (int)(size_dataset*pv_ratio) - keepDomainS;
     int pv_size = factorSize * size_dataset;
 
     int replace_counter = 0;

@@ -24,7 +24,7 @@ void trackTaskPerformance(TRACK_LIST &time_track_list, string task_name, high_re
 
 int computeTimeEvaluation()
 {
-	std::ifstream data("./data/report_honestPV_maliciousQuery_1M_900K_randomelie.csv");
+	std::ifstream data("./data/report_maliciousPV_selfcreate_n1000000_x2000_eta095.csv");
 	if (!data.is_open())
 	{
 		std::exit(EXIT_FAILURE);
@@ -76,8 +76,8 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, boo
 		fstream fout;
 		if (strcmp(argv[8], "1") == 0)
 		{
-			fout.open("./data/report_honestPV_maliciousQuery_1M_900K_randomelie.csv", ios::out | ios::trunc);
-			fout << "Iteration, Verification Status";
+			fout.open("./data/report_maliciousPV_selfcreate_n1000000_x2000_eta095.csv", ios::out | ios::trunc);
+			fout << "Iteration, PV Verification";
 			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
 				string column = itr->first;
@@ -87,7 +87,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, boo
 		}
 		else
 		{
-			fout.open("./data/report_honestPV_maliciousQuery_1M_900K_randomelie.csv", ios::out | ios::app);
+			fout.open("./data/report_maliciousPV_selfcreate_n1000000_x2000_eta095.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file

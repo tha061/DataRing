@@ -20,7 +20,6 @@ public:
 
     int *plain_track_list;
     int size_dataset;
-    
 
     Server();
     Server(int size, string known_domain_dir);

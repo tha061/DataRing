@@ -80,9 +80,9 @@ int *hist_gen(int histogr[], int arr[], int freq[], int datasize, int scale_up)
     printf("number of bins '1' after adding dummy = %d\n", count_bin1);
 }
 
-int *pir_gen(int *myPIR_arr, int arr[], int freq[], int datasize, int pv_ratio)
+int *pir_gen(int *myPIR_arr, int arr[], int freq[], int datasize, double pv_ratio)
 {
-    int pv_size = (int)datasize / pv_ratio; 
+    int pv_size = (int)datasize*pv_ratio; 
     int n = sizeof(arr) / sizeof(arr[0]);  
     int count_1 = 0;
     int i;
@@ -121,8 +121,5 @@ int *pir_gen(int *myPIR_arr, int arr[], int freq[], int datasize, int pv_ratio)
         }
     }
 
-    // printf("\n/======================= Server random pick up plaintext 1 or 0 from shuffle vector =====================/\n");
-    // printf("pv size = %d\n", pv_size);
-    // printf("number of '1' for PV collect = %d\n", count_1);
-    // printf("\n/============================================/\n");
+
 }

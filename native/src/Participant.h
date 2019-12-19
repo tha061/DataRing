@@ -14,6 +14,7 @@ public:
     ENC_DOMAIN_MAP enc_domain_map;
     hash_pair_map hashMap, plain_domain_map, fakeHashMap;
     int size_dataset;
+    double pv_ratio;
     float epsilon;
     float sensitivity;
     double maxNoise;
