@@ -249,7 +249,6 @@ int main(int argc, char **argv)
 	//Server determines maxNoise
 	servers.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon, percentile_noise);
 	servers.minNoise = -servers.maxNoise;
-	Server server1 = servers.server_vect[0];
 
 	//===== TEST FUNCTION 1 targeting L records in dataset =====//
 	// t1 = high_resolution_clock::now();
