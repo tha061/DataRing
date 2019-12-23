@@ -24,7 +24,7 @@ void trackTaskPerformance(TRACK_LIST &time_track_list, string task_name, high_re
 
 int computeTimeEvaluation()
 {
-	std::ifstream data("./data/report_maliciousPV_selfcreate_n1000000_x2000_eta095.csv");
+	std::ifstream data("./results/report_maliciousPV_selfcreate_n500000_pv0005_x010V_eta099.csv");
 	if (!data.is_open())
 	{
 		std::exit(EXIT_FAILURE);
@@ -74,9 +74,9 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, boo
 	if (argc > 1)
 	{
 		fstream fout;
-		if (strcmp(argv[8], "1") == 0)
+		if (strcmp(argv[9], "1") == 0)
 		{
-			fout.open("./data/report_maliciousPV_selfcreate_n1000000_x2000_eta095.csv", ios::out | ios::trunc);
+			fout.open("./results/report_maliciousPV_selfcreate_n500000_pv0005_x010V_eta099.csv", ios::out | ios::trunc);
 			fout << "Iteration, PV Verification";
 			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
@@ -87,11 +87,11 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, boo
 		}
 		else
 		{
-			fout.open("./data/report_maliciousPV_selfcreate_n1000000_x2000_eta095.csv", ios::out | ios::app);
+			fout.open("./results/report_maliciousPV_selfcreate_n500000_pv0005_x010V_eta099.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file
-		fout << argv[8] << ", " << verify_status;
+		fout << argv[9] << ", " << verify_status;
 		for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 		{
 			string time_diff = itr->second;
