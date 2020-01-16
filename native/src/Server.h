@@ -12,7 +12,8 @@ public:
     gamal_ciphertext_t *myPIR_enc;
     id_domain_set known_vector;
     ENC_DOMAIN_MAP enc_test_map;
-    ENC_DOMAIN_MAP enc_test_map_pre, enc_test_map_tmp; // for preprare a test funtion
+    // ENC_DOMAIN_MAP enc_test_map_pre, enc_test_map_tmp; // for preprare a test funtion
+    ENC_DOMAIN_MAP enc_test_map_pre; // for preprare a test funtion
     id_domain_set verified_set;
 
     hash_pair_map plain_domain_map;

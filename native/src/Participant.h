@@ -11,7 +11,7 @@ class Participant
 public:
     string DATA_DIR;
     ENC_Stack pre_enc_stack_participant;
-    ENC_DOMAIN_MAP enc_domain_map;
+    ENC_DOMAIN_MAP enc_domain_map; //partial view encrypted
     hash_pair_map hashMap, plain_domain_map, fakeHashMap;
     int size_dataset;
     double pv_ratio;

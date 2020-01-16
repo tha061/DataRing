@@ -82,9 +82,11 @@ void Server::createRandomEncrypVector(ENC_Stack &pre_enc_stack)
 
     delete[] myPIR_arr;
 }
+
 //added by Tham 14 Dec to improve runtime
 void Server::prepareTestFuntion_Query_Vector(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
 {
+    enc_test_map_pre.clear();
     for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
     {
         id_domain_pair domain = itr->first;
@@ -147,6 +149,7 @@ void Server::generateTestKnownRecords_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_M
             gamal_add(itr->second, itr->second, encrypt_1);
         }
     }
+   
 }
 
 //target L
@@ -186,7 +189,7 @@ void Server::generateTestBasedPartialView(ENC_Stack &pre_enc_stack, ENC_DOMAIN_M
 //added by Tham to reduce runtime
 void Server::generateTestBasedPartialView_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
 {
-    //enc_test_map.clear();
+    enc_test_map.clear();
     enc_test_map = enc_domain_map;
     gamal_ciphertext_t encrypt_0;
     gamal_cipher_new(encrypt_0);
@@ -258,6 +261,7 @@ void _importQuery(map<int, string> &cols_map)
     }
 }
 
+//generate clear test attribute for server to query the submitted partial view
 void Server::generateServerDomain_Test_Target_Attr(ENC_Stack &pre_enc_stack)
 {
     for (ENC_DOMAIN_MAP::iterator itr = enc_test_map_pre.begin(); itr != enc_test_map_pre.end(); itr++)
@@ -377,6 +381,7 @@ void Server::generateMatchDomain()
     map<int, string> columns_map;
     _importQuery(columns_map);
 
+    match_query_domain_vect.clear();
     int counter = 0;
 
     for (ENC_DOMAIN_MAP::iterator itr = enc_test_map_pre.begin(); itr != enc_test_map_pre.end(); itr++)

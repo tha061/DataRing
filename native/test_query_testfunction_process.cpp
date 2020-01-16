@@ -9,19 +9,16 @@
 
 // #include "testing2.cpp"
 
-int runtime_testing(int argc, char **argv)
+int phase_3_test(int argc, char **argv)
 {
-	// if (argc > 1 && strcmp(argv[1], "-1") == 0)
-	// {
-	// 	return computeTimeEvaluation();
-	// }
-
 	int datasize_row = 500000; //make it an argument to use to determine dataset_size
 	int SERVER_SIZE = 3;	   //make it an argument use to setup number of servers
 	int a = 2;				   //make it an argument to scale up the histogram for adding dummy
 	double eta;				   //make it an argument use to determine r0
 	double alpha = 0.05;
 	double pv_ratio = 0.01;
+    int num_query;
+    double test_frequency;
 	
 	string UNIQUE_DOMAIN_DIR, KNOWN_DOMAIN_DIR;
 	if (argc > 1)
@@ -36,6 +33,9 @@ int runtime_testing(int argc, char **argv)
 			a = stoi(argv[6]);
 			eta = stod(argv[7]); //make it an argument use to determine r0
 			alpha = stod(argv[8]);
+            num_query = stoi(argv[9]);
+            test_frequency = stod(argv[10]);
+
 		}
 		else
 		{
@@ -50,9 +50,14 @@ int runtime_testing(int argc, char **argv)
 	}
 
 	double percentile_noise = 0.95;			   //use to determine Laplace max_noise
-	float epsilon = 0.1;
+	float noise_budget = 0.1;
 	float sensitivity = 1.0;
 	int PV_size = (int)datasize_row*pv_ratio; // actual V, not the PV histogram form
+
+    int num_test = (int)(num_query*test_frequency/(1-test_frequency));
+    int iterations = num_query + num_test;
+
+    float epsilon = noise_budget/iterations;
 	
 	TRACK_LIST time_track_list;
 
@@ -66,6 +71,8 @@ int runtime_testing(int argc, char **argv)
 	gamal_init(CURVE_256_SEC);
 	// gamal_generate_keys(key);
 	gamal_init_bsgs_table(table, (dig_t)1L << 16);
+
+    
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 	//                          SETUP PHASE                                     //
@@ -107,7 +114,7 @@ int runtime_testing(int argc, char **argv)
 
 	//Participant determine maxNoise
 	part_A.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon, percentile_noise);
-	part_A.epsilon = epsilon;
+	part_A.epsilon = epsilon; // total budget is epsilon for all iterations
 	part_A.sensitivity = sensitivity;
 	part_A.minNoise = -part_A.maxNoise;
 	part_A.pv_ratio = pv_ratio;
@@ -241,218 +248,161 @@ int runtime_testing(int argc, char **argv)
 	servers.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon, percentile_noise);
 	servers.minNoise = -servers.maxNoise;
 
-    //+++++++++++++++++++RUNTIME OPTIMIZED++++++++++++++++++++++++++++++//
+	int itr = 1;
+	while (itr <= num_query)
+    {
+         // // ==== NORMAL QUERY PRE_COMPUTE TO OPTIMIZE RUNTIME ============//
+      
+        cout<< "\nQuery: #" <<itr << endl;
+		bool check = server1.enc_test_map.empty();
+		cout<< "enc_test_map empty? "<<check<<endl;
+		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
+       
+        server1.generateMatchDomain();
+      
+        server1.generateNormalQuery_opt(pre_enc_stack);
+       
+        gamal_cipher_new(sum_cipher);
+        part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
 
-	// //====TEST FUNCTION KNOWN RECORDS NEW USING PRE_COMPUTE TEST FUCTION =====//
-	// Pre process
-
-	
-	t1 = high_resolution_clock::now();
-	server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Prepare Test function (ms)", t1, t2);
-
-	t1 = high_resolution_clock::now();
-	server1.generateTestKnownRecords_opt(pre_enc_stack, part_A.enc_domain_map);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen Test L (ms)", t1, t2);
-
-	t1 = high_resolution_clock::now();
-	gamal_cipher_new(sum_cipher);
-	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Compute ans L opt (ms)", t1, t2);
-
-	//Tham added 15 Jan, delete test at server side
-	server1.enc_test_map.clear();
-
-	threshold = server1.known_vector.size();
-	test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold);
-	trackTaskStatus(time_track_list, "Test target L status", test_status);
-
-	
+        //Tham added 15 Jan, delete query at the server side
+        server1.enc_test_map.clear();
+		server1.match_query_domain_vect.clear();
+        itr++;
+    }
 
 
 	// //===== TEST FUNCTION BASED PV OPTIMAL =====
 
-	t1 = high_resolution_clock::now();
-	server1.generateTestBasedPartialView_opt(pre_enc_stack, part_A.enc_domain_map);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen Test V optimal (ms)", t1, t2);
+	for (int i = 1; i<=1; i++) 
+	{
+		cout<<"\nTest L: #"<<i<<endl;
+		bool check = server1.enc_test_map.empty();
+		cout<< "enc_test_map empty? "<<check<<endl;
+		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
+		
+		server1.generateTestKnownRecords_opt(pre_enc_stack, part_A.enc_domain_map);
+		
+		
+		gamal_cipher_new(sum_cipher);
+		part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+		
 
-	t1 = high_resolution_clock::now();
-	gamal_cipher_new(sum_cipher);
-	part_A.computeAnswer(server1.enc_test_map, sum_cipher, true, servers.coll_key);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Compute ans V (ms)", t1, t2);
+		//Tham added 15 Jan, delete test at server side
+		server1.enc_test_map.clear();
 
-	//Tham added 15 Jan, delete test at server side
-	server1.enc_test_map.clear();
+		threshold = server1.known_vector.size();
+		cout<< "Threshold L = " << threshold <<endl;
+		test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold);
+		trackTaskStatus(time_track_list, "Test target L status", test_status);
+		server1.enc_test_map_pre.clear();
 
-	threshold = PV_size; //actual PV size = V (not the PV histogram)
-	test_status = servers.verifyingTestResult("Test target V rows found:", sum_cipher, table, server_id, threshold);
-	trackTaskStatus(time_track_list, "Test target V status", test_status);
-
+	}
 	
+
+	 // //====TEST FUNCTION KNOWN RECORDS NEW USING PRE_COMPUTE TEST FUCTION =====//
+    // Pre process
+	
+	for (int i=1; i<=1; i++)
+	{
+		cout<<"\nTest V: #"<<i<<endl;
+		bool check = server1.enc_test_map.empty();
+		cout<< "enc_test_map empty? "<<check<<endl;
+		
+		server1.generateTestBasedPartialView_opt(pre_enc_stack, part_A.enc_domain_map);
+	
+		gamal_cipher_new(sum_cipher);
+		part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+
+		//Tham added 15 Jan, delete test at server side
+		server1.enc_test_map.clear();
+
+		threshold = PV_size; //actual PV size = V (not the PV histogram)
+		cout<<"Threshold V = " << threshold << endl;
+		test_status = servers.verifyingTestResult("Test target V rows found:", sum_cipher, table, server_id, threshold);
+		trackTaskStatus(time_track_list, "Test target V status", test_status);
+		
+		server1.enc_test_map_pre.clear();
+	}
+
+
 	
 	//====== RUNTIME OPTIMAL TEST FUNCTION 4 targeting specific attributes ==========//
 
-	t1 = high_resolution_clock::now();
-	server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Preprare Test (ms)", t1, t2);
+	for (int i=1; i<=1; i++)
+	{
+		cout<<"\nTest estimate: #"<<i<<endl;
+		bool check = server1.enc_test_map.empty();
+		cout<< "enc_test_map empty? "<<check<<endl;
+		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
 
-	t1 = high_resolution_clock::now();
-	server1.generateMatchDomain();
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Matching Domain (ms)", t1, t2);
+		server1.generateMatchDomain();
+		
 
-	t1 = high_resolution_clock::now();
-	server1.generateTest_Target_Attr_opt(pre_enc_stack);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen Test Attr (ms)", t1, t2);
+		server1.generateTest_Target_Attr_opt(pre_enc_stack);
+		
+		
+		gamal_cipher_new(sum_cipher);
+		part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);	
 
-	t1 = high_resolution_clock::now();
-	gamal_cipher_new(sum_cipher);
-	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Compute ans Test Attr opt (ms)", t1, t2);
-
-	//Tham added 15 Jan, delete test at server side
-	server1.enc_test_map.clear();
-
-	t1 = high_resolution_clock::now();
-	server1.generateServerDomain_Test_Target_Attr(pre_enc_stack);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen test attr clear (ms)", t1, t2);
-
-	gamal_ciphertext_t enc_PV_answer;
-	gamal_cipher_new(enc_PV_answer);
-	server1.getTestResult_fromPV(part_A.enc_domain_map, enc_PV_answer);
+		//Tham added 15 Jan, delete test at server side
+		server1.enc_test_map.clear();
 
 
-	test_status = servers.verifyingTestResult_Estimate("Test attr found:", sum_cipher, table, server_id, enc_PV_answer, alpha);
-	trackTaskStatus(time_track_list, "Test attr status", test_status);
+		server1.generateServerDomain_Test_Target_Attr(pre_enc_stack);
+		
+
+		gamal_ciphertext_t enc_PV_answer;
+		gamal_cipher_new(enc_PV_answer);
+		server1.getTestResult_fromPV(part_A.enc_domain_map, enc_PV_answer);
 
 
-    // // ==== NORMAL QUERY PRE_COMPUTE TO OPTIMIZE RUNTIME ============//
+		test_status = servers.verifyingTestResult_Estimate("Test attr found:", sum_cipher, table, server_id, enc_PV_answer, alpha);
+		trackTaskStatus(time_track_list, "Test attr status", test_status);
 
-	t1 = high_resolution_clock::now();
-	server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Preprare Query (ms)", t1, t2);
+		server1.match_query_domain_vect.clear();
+		server1.enc_test_map_pre.clear();
 
+	}
+	cout<<"DONE: "<<endl;
+	cout<<"====SERVER memory check=====\n";
+	bool S_check = server1.enc_test_map.empty();
+	cout<< "test/query = enc_test_map empty? "<<S_check<<endl;
 
-	t1 = high_resolution_clock::now();
-	server1.generateMatchDomain();
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen Match Domain (ms)", t1, t2);
+	bool S_check2 = server1.known_vector.empty();
+	cout << "server1.known_vector.empty(); "<<S_check2<<endl;
 
+	bool S_check3 = server1.enc_test_map_pre.empty();
+	cout << "server1.enc_test_map_pre.empty(); "<<S_check3<<endl;
 
-	t1 = high_resolution_clock::now();
-	server1.generateNormalQuery_opt(pre_enc_stack);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen Query (ms)", t1, t2);
+	bool S_check4 = server1.verified_set.empty();
+	cout << "server1.verified_set.empty(); "<<S_check4<<endl;
 
-	t1 = high_resolution_clock::now();
-	gamal_cipher_new(sum_cipher);
-	part_A.computeAnswer(server1.enc_test_map, sum_cipher, true, servers.coll_key);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Compute ans Query (ms)", t1, t2);
+	bool S_check5 = server1.plain_domain_map.empty();
+	cout << "server1.plain_domain_map.empty(); "<<S_check5<<endl;
 
-	//Tham added 15 Jan, delete query at the server side
-	server1.enc_test_map.clear();
+	bool S_check6 = server1.match_query_domain_vect.empty();
+	cout << "server1.match_query_domain_vect.empty(); "<<S_check6<<endl;
 
-    //// ++++++++ NOT OPTIMIZED++++++++
-    // //===== TEST FUNCTION 1 targeting L records in dataset =====//
-	// t1 = high_resolution_clock::now();
-	// server1.generateTestFunction(pre_enc_stack, part_A.enc_domain_map, 1);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Gen Test L (ms)", t1, t2);
+	bool stack_check = pre_enc_stack.isEmpty();
+	cout <<"pre_enc_stack.isEmpty(); "<<stack_check<<endl;
 
-	// t1 = high_resolution_clock::now();
-	// gamal_cipher_new(sum_cipher);
-	// part_A.computeAnswer(server1.enc_test_map, sum_cipher, true, servers.coll_key, percentile_noise);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Compute ans L (ms)", t1, t2);
+	cout<<"====PARTY memory check======\n";
+	bool P_check = part_A.enc_domain_map.empty();
+	cout<< "PV = enc_domain_map empty? "<<P_check<<endl;
 
-	// threshold = server1.known_vector.size();
-	// test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold, percentile_noise);
-	// trackTaskStatus(time_track_list, "Test target L status", test_status);
+	bool P_check2 = part_A.pre_enc_stack_participant.isEmpty();
+	cout << "pre_enc_stack_participant.isEmpty() "<< P_check2<<endl;
 
+	bool P_check3 = part_A.hashMap.empty();
+	cout << "part_A.hashMap.empty() "<<P_check3<<endl;
 
-	//====== TEST FUNCTION 2 targeting V records in V ======//
-	// t1 = high_resolution_clock::now();
-	// server1.generateTestFunction(pre_enc_stack, part_A.enc_domain_map, 2);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Gen Test V (ms)", t1, t2);
+	bool P_check4 = part_A.plain_domain_map.empty();
+	cout <<"part_A.plain_domain_map.empty() "<<P_check4<<endl;
 
-	// t1 = high_resolution_clock::now();
-	// gamal_cipher_new(sum_cipher);
-	// part_A.computeAnswer(server1.enc_test_map, sum_cipher, true, servers.coll_key, percentile_noise);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Compute ans V (ms)", t1, t2);
-
-	// threshold = PV_size; //actual PV size = V (not the PV histogram)
-	// test_status = servers.verifyingTestResult("Test target V rows found:", sum_cipher, table, server_id, threshold, percentile_noise);
-	// trackTaskStatus(time_track_list, "Test target V status", test_status);
-
-    //===== TEST FUNCTION 3 targeting V - r0 records in PV ====//
-
-	// t1 = high_resolution_clock::now();
-	// server1.generateTestHashMap_3(pre_enc_stack, part_A.enc_domain_map);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Gen Test V - r0 (ms)", t1, t2);
-
-	// t1 = high_resolution_clock::now();
-	// gamal_cipher_new(sum_cipher);
-	// part_A.computeAnswer(server1.enc_test_map, sum_cipher, false, servers.coll_key, percentile_noise);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Compute ans V - r0 (ms)", t1, t2);
-
-	// threshold = PV_size - server1.verified_set.size();
-	// test_status = servers.verifyingTestResult("Test target V - r0 rows found:", sum_cipher, table, server_id, threshold, percentile_noise);
-	// trackTaskStatus(time_track_list, "Test target V - r0 status", test_status);
-
-    // //====== TEST FUNCTION 4 targeting specific attributes ==========//
-
-	// t1 = high_resolution_clock::now();
-	// server1.generateTestFunction(pre_enc_stack, part_A.enc_domain_map, 4);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Gen Test Attr (ms)", t1, t2);
-
-	// t1 = high_resolution_clock::now();
-	// gamal_cipher_new(sum_cipher);
-	// part_A.computeAnswer(server1.enc_test_map, sum_cipher, true, servers.coll_key);
-	// t2 = high_resolution_clock::now();
-	
-	// trackTaskPerformance(time_track_list, "Compute ans Test Attr (ms)", t1, t2);
-
-	// gamal_ciphertext_t enc_PV_answer;
-	// gamal_cipher_new(enc_PV_answer);
-	// server1.getTestResult_fromPV(part_A.enc_domain_map, enc_PV_answer);
-
-	// test_status = servers.verifyingTestResult_Estimate("Test attr found:", sum_cipher, table, server_id, enc_PV_answer, alpha);
-	// trackTaskStatus(time_track_list, "Test attr status", test_status);
-
-	// ====== NORMAL QUERY =============//
-
-	//// Servers will not verify the answer,
-	//// but re-encrypt the encrypted answer to public key of querying party (participant B)
-
-	// t1 = high_resolution_clock::now();
-	// server1.generateNormalQuery(pre_enc_stack, part_A.enc_domain_map);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Gen Query (ms)", t1, t2);
-
-	// t1 = high_resolution_clock::now();
-	// gamal_cipher_new(sum_cipher);
-	// part_A.computeAnswer(server1.enc_test_map, sum_cipher, true, servers.coll_key, percentile_noise);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Compute ans Query (ms)", t1, t2);
-
-
-	
+	bool P_check5 = part_A.fakeHashMap.empty();
+	cout << "part_A.fakeHashMap.empty(); "<<P_check5<<endl;
+   
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 	//                          RELEASE SHARED DATA                             //

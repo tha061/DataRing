@@ -102,7 +102,8 @@ void Participant::create_OriginalHistogram(int datasize_row)
 // initialize ciphertext stack for participant
 void Participant::initializePreStack(gamal_key_t coll_key)
 {
-    pre_enc_stack_participant = ENC_Stack(hashMap.size(), coll_key);
+    // pre_enc_stack_participant = ENC_Stack(hashMap.size(), coll_key);
+     pre_enc_stack_participant = ENC_Stack(size_dataset, coll_key);
     pre_enc_stack_participant.initializeStack_E0();
     pre_enc_stack_participant.initializeStack_E1();
 }

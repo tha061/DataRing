@@ -8,8 +8,18 @@
 #include "public_func.h"
 
 #include "testing2.cpp"
+#include "test-runtime.cpp"
+#include "test_query_testfunction_process.cpp"
+
 
 int main(int argc, char **argv)
+{
+	// runtime_testing(argc, argv);
+	phase_3_test(argc, argv);
+	return 0;
+}
+
+int main1(int argc, char **argv)
 {
 	// if (argc > 1 && strcmp(argv[1], "-1") == 0)
 	// {
@@ -203,8 +213,8 @@ int main(int argc, char **argv)
 
 	//======= strategy 3: participant does not use PV sampling vector from server
 	
-	// int true_record_PV = (int)PV_size*0.5;
-	int true_record_PV = 2372;
+	int true_record_PV = (int)PV_size*0.7;
+	// int true_record_PV = 2372
 	// t1 = high_resolution_clock::now();
 	part_A.selfCreate_Fake_Historgram(true_record_PV, a);
 	// t2 = high_resolution_clock::now();
