@@ -50,7 +50,7 @@ int phase_3_test(int argc, char **argv)
 	}
 
 	double percentile_noise = 0.95;			   //use to determine Laplace max_noise
-	float noise_budget = 0.1;
+	float noise_budget = 0.5;
 	float sensitivity = 1.0;
 	int PV_size = (int)datasize_row*pv_ratio; // actual V, not the PV histogram form
 
@@ -152,15 +152,15 @@ int phase_3_test(int argc, char **argv)
 
 	////Gen PV optimal by pre-compte Enc(0) to all dummy domains at offline
 	// //pre process:
-	t1 = high_resolution_clock::now();
-	part_A.pre_process_generatePV(true);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// part_A.pre_process_generatePV(true);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
 	
-	t1 = high_resolution_clock::now();
-	part_A.generatePV_opt(servers.s_myPIR_enc, true);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// part_A.generatePV_opt(servers.s_myPIR_enc, true);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
 	//++++++++++ PARTY IS DISHONEST ++++++++++++//
 
@@ -185,23 +185,23 @@ int phase_3_test(int argc, char **argv)
 
 	//====== strategy 2: participant generate fake histogram randomly
 	
-	// // int keep_row = int(datasize_row*0.6); //lie about 50% rows
+	int keep_row = int(datasize_row*0.4); //lie about 50% rows
 	// int keep_row = 428027; 
-	// // t1 = high_resolution_clock::now();
-	// part_A.addDummy_FakeHist_random(keep_row, a);
-	// // t2 = high_resolution_clock::now();
-	// // trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
+	t1 = high_resolution_clock::now();
+	part_A.addDummy_FakeHist_random(keep_row, a);
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 
 	// //pre process:
-	// // t1 = high_resolution_clock::now();
-	// part_A.pre_process_generatePV(false);
-	// // t2 = high_resolution_clock::now();
-	// // trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
+	t1 = high_resolution_clock::now();
+	part_A.pre_process_generatePV(false);
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
 
-	// // t1 = high_resolution_clock::now();
-	// part_A.generatePV_opt(servers.s_myPIR_enc, false);
-	// // t2 = high_resolution_clock::now();
-	// // trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
+	t1 = high_resolution_clock::now();
+	part_A.generatePV_opt(servers.s_myPIR_enc, false);
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
 	//======= strategy 3: participant does not use PV sampling vector from server
 	
@@ -260,10 +260,16 @@ int phase_3_test(int argc, char **argv)
        
         server1.generateMatchDomain();
       
-        server1.generateNormalQuery_opt(pre_enc_stack);
-       
-        gamal_cipher_new(sum_cipher);
-        part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+        t1 = high_resolution_clock::now();
+		server1.generateNormalQuery_opt(pre_enc_stack);
+		t2 = high_resolution_clock::now();
+		trackTaskPerformance(time_track_list, "Gen Query (ms)", t1, t2);
+
+		t1 = high_resolution_clock::now();
+		gamal_cipher_new(sum_cipher);
+		part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+		t2 = high_resolution_clock::now();
+		trackTaskPerformance(time_track_list, "Compute ans Query (ms)", t1, t2);
 
         //Tham added 15 Jan, delete query at the server side
         server1.enc_test_map.clear();
@@ -271,8 +277,9 @@ int phase_3_test(int argc, char **argv)
         itr++;
     }
 
-
-	// //===== TEST FUNCTION BASED PV OPTIMAL =====
+	// //====TEST FUNCTION KNOWN RECORDS NEW USING PRE_COMPUTE TEST FUCTION =====//
+    // Pre process
+	
 
 	for (int i = 1; i<=1; i++) 
 	{
@@ -281,11 +288,17 @@ int phase_3_test(int argc, char **argv)
 		cout<< "enc_test_map empty? "<<check<<endl;
 		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
 		
+		t1 = high_resolution_clock::now();
 		server1.generateTestKnownRecords_opt(pre_enc_stack, part_A.enc_domain_map);
-		
-		
+		t2 = high_resolution_clock::now();
+		trackTaskPerformance(time_track_list, "Gen Test L(ms)", t1, t2);
+
+		t1 = high_resolution_clock::now();
 		gamal_cipher_new(sum_cipher);
-		part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+		// part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+		part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+		t2 = high_resolution_clock::now();
+		trackTaskPerformance(time_track_list, "Compute ans L(ms)", t1, t2);
 		
 
 		//Tham added 15 Jan, delete test at server side
@@ -299,9 +312,8 @@ int phase_3_test(int argc, char **argv)
 
 	}
 	
-
-	 // //====TEST FUNCTION KNOWN RECORDS NEW USING PRE_COMPUTE TEST FUCTION =====//
-    // Pre process
+	// //===== TEST FUNCTION BASED PV OPTIMAL =====
+	 
 	
 	for (int i=1; i<=1; i++)
 	{
@@ -309,10 +321,17 @@ int phase_3_test(int argc, char **argv)
 		bool check = server1.enc_test_map.empty();
 		cout<< "enc_test_map empty? "<<check<<endl;
 		
+		t1 = high_resolution_clock::now();
 		server1.generateTestBasedPartialView_opt(pre_enc_stack, part_A.enc_domain_map);
-	
+		t2 = high_resolution_clock::now();
+		trackTaskPerformance(time_track_list, "Gen Test V optimal (ms)", t1, t2);
+
+		t1 = high_resolution_clock::now();
 		gamal_cipher_new(sum_cipher);
-		part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+		// part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+		part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+		t2 = high_resolution_clock::now();
+		trackTaskPerformance(time_track_list, "Compute ans V (ms)", t1, t2);
 
 		//Tham added 15 Jan, delete test at server side
 		server1.enc_test_map.clear();
@@ -325,7 +344,22 @@ int phase_3_test(int argc, char **argv)
 		server1.enc_test_map_pre.clear();
 	}
 
+	//===== TEST FUNCTION 3 targeting V - r0 records in PV ====//
 
+	t1 = high_resolution_clock::now();
+	server1.generateTestHashMap_3(pre_enc_stack, part_A.enc_domain_map);
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_list, "Gen Test V - r0 (ms)", t1, t2);
+
+	t1 = high_resolution_clock::now();
+	gamal_cipher_new(sum_cipher);
+	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_list, "Compute ans V - r0 (ms)", t1, t2);
+
+	threshold = PV_size - server1.verified_set.size();
+	test_status = servers.verifyingTestResult("Test target V - r0 rows found:", sum_cipher, table, server_id, threshold);
+	trackTaskStatus(time_track_list, "Test target V - r0 status", test_status);
 	
 	//====== RUNTIME OPTIMAL TEST FUNCTION 4 targeting specific attributes ==========//
 
@@ -339,11 +373,17 @@ int phase_3_test(int argc, char **argv)
 		server1.generateMatchDomain();
 		
 
+		t1 = high_resolution_clock::now();
 		server1.generateTest_Target_Attr_opt(pre_enc_stack);
-		
-		
+		t2 = high_resolution_clock::now();
+		trackTaskPerformance(time_track_list, "Gen Test Attr (ms)", t1, t2);
+
+		t1 = high_resolution_clock::now();
 		gamal_cipher_new(sum_cipher);
-		part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);	
+		part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+		// part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+		t2 = high_resolution_clock::now();
+		trackTaskPerformance(time_track_list, "Compute ans Test Attr opt (ms)", t1, t2);
 
 		//Tham added 15 Jan, delete test at server side
 		server1.enc_test_map.clear();
@@ -364,44 +404,51 @@ int phase_3_test(int argc, char **argv)
 		server1.enc_test_map_pre.clear();
 
 	}
-	cout<<"DONE: "<<endl;
-	cout<<"====SERVER memory check=====\n";
-	bool S_check = server1.enc_test_map.empty();
-	cout<< "test/query = enc_test_map empty? "<<S_check<<endl;
 
-	bool S_check2 = server1.known_vector.empty();
-	cout << "server1.known_vector.empty(); "<<S_check2<<endl;
+	// cout<<"DONE: "<<endl;
+	// cout<<"====SERVER memory check=====\n";
+	// bool S_check = server1.enc_test_map.empty();
+	// cout<< "test/query = enc_test_map empty? "<<S_check<<endl;
 
-	bool S_check3 = server1.enc_test_map_pre.empty();
-	cout << "server1.enc_test_map_pre.empty(); "<<S_check3<<endl;
+	// bool S_check2 = server1.known_vector.empty();
+	// cout << "server1.known_vector.empty(); "<<S_check2<<endl;
 
-	bool S_check4 = server1.verified_set.empty();
-	cout << "server1.verified_set.empty(); "<<S_check4<<endl;
 
-	bool S_check5 = server1.plain_domain_map.empty();
-	cout << "server1.plain_domain_map.empty(); "<<S_check5<<endl;
+	// bool S_check3 = server1.enc_test_map_pre.empty();
+	// cout << "server1.enc_test_map_pre.empty(); "<<S_check3<<endl;
 
-	bool S_check6 = server1.match_query_domain_vect.empty();
-	cout << "server1.match_query_domain_vect.empty(); "<<S_check6<<endl;
 
-	bool stack_check = pre_enc_stack.isEmpty();
-	cout <<"pre_enc_stack.isEmpty(); "<<stack_check<<endl;
 
-	cout<<"====PARTY memory check======\n";
-	bool P_check = part_A.enc_domain_map.empty();
-	cout<< "PV = enc_domain_map empty? "<<P_check<<endl;
+	// bool S_check4 = server1.verified_set.empty();
+	// cout << "server1.verified_set.empty(); "<<S_check4<<endl;
 
-	bool P_check2 = part_A.pre_enc_stack_participant.isEmpty();
-	cout << "pre_enc_stack_participant.isEmpty() "<< P_check2<<endl;
+	
+	// bool S_check5 = server1.plain_domain_map.empty();
+	// cout << "server1.plain_domain_map.empty(); "<<S_check5<<endl;
 
-	bool P_check3 = part_A.hashMap.empty();
-	cout << "part_A.hashMap.empty() "<<P_check3<<endl;
 
-	bool P_check4 = part_A.plain_domain_map.empty();
-	cout <<"part_A.plain_domain_map.empty() "<<P_check4<<endl;
+	// bool S_check6 = server1.match_query_domain_vect.empty();
+	// cout << "server1.match_query_domain_vect.empty(); "<<S_check6<<endl;
 
-	bool P_check5 = part_A.fakeHashMap.empty();
-	cout << "part_A.fakeHashMap.empty(); "<<P_check5<<endl;
+	
+	// bool stack_check = pre_enc_stack.isEmpty();
+	// cout <<"pre_enc_stack.isEmpty(); "<<stack_check<<endl;
+
+	// cout<<"====PARTY memory check======\n";
+	// bool P_check = part_A.enc_domain_map.empty();
+	// cout<< "PV = enc_domain_map empty? "<<P_check<<endl;
+
+	// bool P_check2 = part_A.pre_enc_stack_participant.isEmpty();
+	// cout << "pre_enc_stack_participant.isEmpty() "<< P_check2<<endl;
+
+	// bool P_check3 = part_A.hashMap.empty();
+	// cout << "part_A.hashMap.empty() "<<P_check3<<endl;
+
+	// bool P_check4 = part_A.plain_domain_map.empty();
+	// cout <<"part_A.plain_domain_map.empty() "<<P_check4<<endl;
+
+	// bool P_check5 = part_A.fakeHashMap.empty();
+	// cout << "part_A.fakeHashMap.empty(); "<<P_check5<<endl;
    
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -423,6 +470,51 @@ int phase_3_test(int argc, char **argv)
 	// cout << "Track map size: " << time_track_list.size() << endl;
 
 	storeTimeEvaluation(argc, argv, time_track_list, verify_status);
+
+
+	// // void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, bool verify_status)
+	// // {
+
+		if (argc > 1)
+		{
+			fstream fout;
+			if (strcmp(argv[11], "1") == 0)
+			{
+				fout.open("./results/runtime_phase3_malicious_fakePV_participant_500K_pv_001_L_1000_3query_4test.csv", ios::out | ios::trunc);
+				// fout << "Iteration, PV Verification";
+				
+				fout << "Iteration" << ", "<<argv[11];
+				fout<<"\n";
+				fout <<"\n";
+				fout << "PV Verification"<<", "<<verify_status;
+				fout<<"\n";
+				for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
+				{
+					string column = itr->first;
+					string time_diff = itr->second;
+					// fout << ", " << column << ","<<time_diff;
+					fout << column << ","<<time_diff;
+					fout << "\n";
+				}
+				// fout << "\n";
+			}
+			else
+			{
+				fout.open("./results/runtime_phase3_malicious_fakePV_participant_500K_pv_001_L_1000_3query_4test.csv", ios::out | ios::app);
+			}
+
+			// Insert the data to file
+			// fout << argv[11] << ", " << verify_status;
+			// for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
+			// {
+			// 	string time_diff = itr->second;
+			// 	fout << ", " << time_diff;
+			// 	fout << "\n";
+			// }
+			// fout << "\n";
+			fout.close();
+		}
+	// // }
 
 	return 0;
 }

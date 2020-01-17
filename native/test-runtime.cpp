@@ -282,7 +282,7 @@ int runtime_testing(int argc, char **argv)
 
 	t1 = high_resolution_clock::now();
 	gamal_cipher_new(sum_cipher);
-	part_A.computeAnswer(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Compute ans V (ms)", t1, t2);
 
@@ -356,7 +356,7 @@ int runtime_testing(int argc, char **argv)
 
 	t1 = high_resolution_clock::now();
 	gamal_cipher_new(sum_cipher);
-	part_A.computeAnswer(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Compute ans Query (ms)", t1, t2);
 
