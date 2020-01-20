@@ -22,51 +22,51 @@ void trackTaskPerformance(TRACK_LIST &time_track_list, string task_name, high_re
 	time_track_list.push_back(make_pair(task_name, to_string(task_time_diff)));
 }
 
-int computeTimeEvaluation()
-{
-	std::ifstream data("./results/runtime_phase3_honest_participant_500K_pv_001_L_1000_4query_3test.csv");
-	if (!data.is_open())
-	{
-		std::exit(EXIT_FAILURE);
-	}
+// int computeTimeEvaluation()
+// {
+// 	std::ifstream data("./results/runtime_phase3_honest_participant_500K_pv_001_L_1000_4query_3test.csv");
+// 	if (!data.is_open())
+// 	{
+// 		std::exit(EXIT_FAILURE);
+// 	}
 
-	int i = 0;
-	std::string str;
-	std::getline(data, str); // skip the first line
+// 	int i = 0;
+// 	std::string str;
+// 	std::getline(data, str); // skip the first line
 
-	int verify_status_1 = 0;
-	int verify_status_0 = 0;
+// 	int verify_status_1 = 0;
+// 	int verify_status_0 = 0;
 
-	while (!data.eof())
-	{
-		getline(data, str);
-		if (str.empty())
-		{
-			continue;
-		}
-		string id;
-		int verify;
-		istringstream iss(str);
-		getline(iss, id, ',');
-		iss >> verify;
+// 	while (!data.eof())
+// 	{
+// 		getline(data, str);
+// 		if (str.empty())
+// 		{
+// 			continue;
+// 		}
+// 		string id;
+// 		int verify;
+// 		istringstream iss(str);
+// 		getline(iss, id, ',');
+// 		iss >> verify;
 
-		if (verify == 0)
-		{
-			verify_status_0++;
-		}
+// 		if (verify == 0)
+// 		{
+// 			verify_status_0++;
+// 		}
 
-		// string id_domain = id + " " + to_string(verify);
-		// cout << id_domain << endl;
-		i++;
-	}
+// 		// string id_domain = id + " " + to_string(verify);
+// 		// cout << id_domain << endl;
+// 		i++;
+// 	}
 
-	verify_status_1 = i - verify_status_0;
+// 	verify_status_1 = i - verify_status_0;
 
-	cout << "Total number of pass verification iteration: " << verify_status_1 << "/" << i << endl;
-	cout << "Total number of fail verification iteration: " << verify_status_0 << "/" << i << endl;
+// 	cout << "Total number of pass verification iteration: " << verify_status_1 << "/" << i << endl;
+// 	cout << "Total number of fail verification iteration: " << verify_status_0 << "/" << i << endl;
 
-	return -1;
-}
+// 	return -1;
+// }
 
 void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, bool verify_status)
 {
@@ -76,7 +76,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, boo
 		fstream fout;
 		if (strcmp(argv[9], "1") == 0)
 		{
-			fout.open("./results/runtime_phase3_honest_participant_500K_pv_001_L_1000_4query_3test.csv", ios::out | ios::trunc);
+			fout.open("./results/malicious_participant_500K_pv_0005_L_1000_selfPV_vx_010v.csv", ios::out | ios::trunc);
 			fout << "Iteration, PV Verification";
 			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
@@ -87,7 +87,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, boo
 		}
 		else
 		{
-			fout.open("./results/runtime_phase3_honest_participant_500K_pv_001_L_1000_4query_3test.csv", ios::out | ios::app);
+			fout.open("./results/malicious_participant_500K_pv_0005_L_1000_selfPV_vx_010v.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file

@@ -58,6 +58,11 @@ int phase_3_test(int argc, char **argv)
     int iterations = num_query + num_test;
 
     float epsilon = noise_budget/iterations;
+
+	double num_test_each = (double)num_test/3;
+	int num_test_rounded = ceil(num_test_each);
+	cout << "num_test_rounded = "<< num_test_rounded <<endl;
+	// cout << "num_test = " << num_test_each <<endl;
 	
 	TRACK_LIST time_track_list;
 
@@ -150,17 +155,17 @@ int phase_3_test(int argc, char **argv)
 	//+++++++++++ PARTY IS HONEST +++++++++++++++//
 
 
-	////Gen PV optimal by pre-compte Enc(0) to all dummy domains at offline
-	// //pre process:
-	// t1 = high_resolution_clock::now();
-	// part_A.pre_process_generatePV(true);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
+	//Gen PV optimal by pre-compte Enc(0) to all dummy domains at offline
+	//pre process:
+	t1 = high_resolution_clock::now();
+	part_A.pre_process_generatePV(true);
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
 	
-	// t1 = high_resolution_clock::now();
-	// part_A.generatePV_opt(servers.s_myPIR_enc, true);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
+	t1 = high_resolution_clock::now();
+	part_A.generatePV_opt(servers.s_myPIR_enc, true);
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
 	//++++++++++ PARTY IS DISHONEST ++++++++++++//
 
@@ -185,28 +190,28 @@ int phase_3_test(int argc, char **argv)
 
 	//====== strategy 2: participant generate fake histogram randomly
 	
-	int keep_row = int(datasize_row*0.4); //lie about 50% rows
-	// int keep_row = 428027; 
-	t1 = high_resolution_clock::now();
-	part_A.addDummy_FakeHist_random(keep_row, a);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
+	// int keep_row = int(datasize_row*0.4); //lie about 50% rows
+	// // int keep_row = 428027; 
+	// t1 = high_resolution_clock::now();
+	// part_A.addDummy_FakeHist_random(keep_row, a);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 
-	// //pre process:
-	t1 = high_resolution_clock::now();
-	part_A.pre_process_generatePV(false);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
+	// // //pre process:
+	// t1 = high_resolution_clock::now();
+	// part_A.pre_process_generatePV(false);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
 
-	t1 = high_resolution_clock::now();
-	part_A.generatePV_opt(servers.s_myPIR_enc, false);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// part_A.generatePV_opt(servers.s_myPIR_enc, false);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
 	//======= strategy 3: participant does not use PV sampling vector from server
 	
-	// // int true_record_PV = (int)PV_size*0.5;
-	// int true_record_PV = 1498;
+	// int true_record_PV = (int)PV_size;
+	// // int true_record_PV = 1498;
 	// // t1 = high_resolution_clock::now();
 	// part_A.selfCreate_Fake_Historgram(true_record_PV, a);
 	// // t2 = high_resolution_clock::now();
@@ -248,6 +253,15 @@ int phase_3_test(int argc, char **argv)
 	servers.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon, percentile_noise);
 	servers.minNoise = -servers.maxNoise;
 
+	//party create fake histogram:
+	int keep_row = int(datasize_row*0.1); 
+	// int keep_row = 428027; 
+	t1 = high_resolution_clock::now();
+	part_A.addDummy_FakeHist_random(keep_row, a);
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
+
+
 	int itr = 1;
 	while (itr <= num_query)
     {
@@ -267,7 +281,7 @@ int phase_3_test(int argc, char **argv)
 
 		t1 = high_resolution_clock::now();
 		gamal_cipher_new(sum_cipher);
-		part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+		part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
 		t2 = high_resolution_clock::now();
 		trackTaskPerformance(time_track_list, "Compute ans Query (ms)", t1, t2);
 
@@ -281,7 +295,7 @@ int phase_3_test(int argc, char **argv)
     // Pre process
 	
 
-	for (int i = 1; i<=1; i++) 
+	for (int i = 1; i<=num_test_rounded; i++) 
 	{
 		cout<<"\nTest L: #"<<i<<endl;
 		bool check = server1.enc_test_map.empty();
@@ -315,7 +329,7 @@ int phase_3_test(int argc, char **argv)
 	// //===== TEST FUNCTION BASED PV OPTIMAL =====
 	 
 	
-	for (int i=1; i<=1; i++)
+	for (int i=1; i<=num_test_rounded; i++)
 	{
 		cout<<"\nTest V: #"<<i<<endl;
 		bool check = server1.enc_test_map.empty();
@@ -346,24 +360,24 @@ int phase_3_test(int argc, char **argv)
 
 	//===== TEST FUNCTION 3 targeting V - r0 records in PV ====//
 
-	t1 = high_resolution_clock::now();
-	server1.generateTestHashMap_3(pre_enc_stack, part_A.enc_domain_map);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen Test V - r0 (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// server1.generateTestHashMap_3(pre_enc_stack, part_A.enc_domain_map);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Gen Test V - r0 (ms)", t1, t2);
 
-	t1 = high_resolution_clock::now();
-	gamal_cipher_new(sum_cipher);
-	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Compute ans V - r0 (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// gamal_cipher_new(sum_cipher);
+	// part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Compute ans V - r0 (ms)", t1, t2);
 
-	threshold = PV_size - server1.verified_set.size();
-	test_status = servers.verifyingTestResult("Test target V - r0 rows found:", sum_cipher, table, server_id, threshold);
-	trackTaskStatus(time_track_list, "Test target V - r0 status", test_status);
+	// threshold = PV_size - server1.verified_set.size();
+	// test_status = servers.verifyingTestResult("Test target V - r0 rows found:", sum_cipher, table, server_id, threshold);
+	// trackTaskStatus(time_track_list, "Test target V - r0 status", test_status);
 	
 	//====== RUNTIME OPTIMAL TEST FUNCTION 4 targeting specific attributes ==========//
 
-	for (int i=1; i<=1; i++)
+	for (int i=1; i<= num_test - 2*num_test_rounded; i++)
 	{
 		cout<<"\nTest estimate: #"<<i<<endl;
 		bool check = server1.enc_test_map.empty();
@@ -469,7 +483,7 @@ int phase_3_test(int argc, char **argv)
 
 	// cout << "Track map size: " << time_track_list.size() << endl;
 
-	storeTimeEvaluation(argc, argv, time_track_list, verify_status);
+	// storeTimeEvaluation(argc, argv, time_track_list, verify_status);
 
 
 	// // void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, bool verify_status)
@@ -477,41 +491,48 @@ int phase_3_test(int argc, char **argv)
 
 		if (argc > 1)
 		{
+			
 			fstream fout;
 			if (strcmp(argv[11], "1") == 0)
 			{
-				fout.open("./results/runtime_phase3_malicious_fakePV_participant_500K_pv_001_L_1000_3query_4test.csv", ios::out | ios::trunc);
+				fout.open("./results/runtime_phase3_honestPV_malicious_answer_300K_pv_001_L_1000_5query_5test_fakeHist_01.csv", ios::out | ios::trunc);
 				// fout << "Iteration, PV Verification";
 				
-				fout << "Iteration" << ", "<<argv[11];
+				fout << "Iteration" << ", "<<argv[11] <<", ";
 				fout<<"\n";
 				fout <<"\n";
-				fout << "PV Verification"<<", "<<verify_status;
+				fout << "PV Verification"<<", "<<verify_status<<", ";
 				fout<<"\n";
 				for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 				{
 					string column = itr->first;
 					string time_diff = itr->second;
 					// fout << ", " << column << ","<<time_diff;
-					fout << column << ","<<time_diff;
+					fout << column << ","<<time_diff << ", ";
 					fout << "\n";
 				}
-				// fout << "\n";
+				 fout << ", ";
 			}
 			else
 			{
-				fout.open("./results/runtime_phase3_malicious_fakePV_participant_500K_pv_001_L_1000_3query_4test.csv", ios::out | ios::app);
+				
+				fout.open("./results/runtime_phase3_honestPV_malicious_answer_300K_pv_001_L_1000_5query_5test_fakeHist_08.csv", ios::out | ios::app);
+				// Insert the data to file
+				fout << argv[11];
+				fout << "\n";
+				fout << verify_status;
+				fout << "\n";
+				for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
+				{
+					string time_diff = itr->second;
+					fout << time_diff;
+					fout << "\n";
+				}
 			}
 
-			// Insert the data to file
-			// fout << argv[11] << ", " << verify_status;
-			// for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
-			// {
-			// 	string time_diff = itr->second;
-			// 	fout << ", " << time_diff;
-			// 	fout << "\n";
-			// }
-			// fout << "\n";
+			
+			fout << ", ";
+			// fout << ",";
 			fout.close();
 		}
 	// // }
