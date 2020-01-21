@@ -57,6 +57,13 @@ int phase_3_test(int argc, char **argv)
     int num_test = (int)(num_query*test_frequency/(1-test_frequency));
     int iterations = num_query + num_test;
 
+	// Setup answer strategy
+	int answer_strategy;
+	int true_fake[] = {1, 0};
+	int freq[] = {30, 70}; //using fake dataset with p2 = 0.1
+	int n = sizeof(true_fake)/sizeof(true_fake[0]);
+
+
     float epsilon = noise_budget/iterations;
 
 	double num_test_each = (double)num_test/3;
@@ -96,6 +103,7 @@ int phase_3_test(int argc, char **argv)
 
 	// part_A.print_hash_map();
 
+	// party generate true histogram
 	t1 = high_resolution_clock::now();
 	t1 = high_resolution_clock::now();
 	part_A.addDummy_TrueHistogram(a);
@@ -104,6 +112,14 @@ int phase_3_test(int argc, char **argv)
 
 	int size_dataset = part_A.size_dataset;
 
+
+	//party create fake histogram: keep some true rows
+	int keep_row = int(datasize_row*0.1); 
+	// int keep_row = 428027; 
+	t1 = high_resolution_clock::now();
+	part_A.addDummy_FakeHist_random(keep_row, a);
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 	
 
 	// SERVER SETUP COLLECTIVE KEY
@@ -139,7 +155,6 @@ int phase_3_test(int argc, char **argv)
 	// trackTaskPerformance(time_track_list, "Precompute Enc1 (ms)", t1, t2);
 	// cout << endl;
 
-	
 
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -253,13 +268,6 @@ int phase_3_test(int argc, char **argv)
 	servers.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon, percentile_noise);
 	servers.minNoise = -servers.maxNoise;
 
-	//party create fake histogram:
-	int keep_row = int(datasize_row*0.1); 
-	// int keep_row = 428027; 
-	t1 = high_resolution_clock::now();
-	part_A.addDummy_FakeHist_random(keep_row, a);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 
 
 	int itr = 1;
@@ -274,16 +282,75 @@ int phase_3_test(int argc, char **argv)
        
         server1.generateMatchDomain();
       
-        t1 = high_resolution_clock::now();
+        // t1 = high_resolution_clock::now();
 		server1.generateNormalQuery_opt(pre_enc_stack);
-		t2 = high_resolution_clock::now();
-		trackTaskPerformance(time_track_list, "Gen Query (ms)", t1, t2);
+		// t2 = high_resolution_clock::now();
+		// trackTaskPerformance(time_track_list, "Gen Query (ms)", t1, t2);
 
-		t1 = high_resolution_clock::now();
-		gamal_cipher_new(sum_cipher);
-		part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
-		t2 = high_resolution_clock::now();
-		trackTaskPerformance(time_track_list, "Compute ans Query (ms)", t1, t2);
+		//====party answer using true/fake dataset
+		// t1 = high_resolution_clock::now();
+		// gamal_cipher_new(sum_cipher);
+		// part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+		// part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+		// t2 = high_resolution_clock::now();
+		// trackTaskPerformance(time_track_list, "Compute ans Query (ms)", t1, t2);
+
+
+		// //=====party answer using true/fake dataset at random
+		// int toss = rand()%2;
+		// cout<<"toss = "<<toss<<endl;
+		// if (toss == 0)
+		// {
+		// 	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+		// }
+		// else
+		// {
+		// 	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+		// }
+		// trackTaskStatus(time_track_list, "Query:Dataset true/false", toss);
+
+		//====answer using fake dataset with probability p2
+	
+		answer_strategy = myRand(true_fake, freq, n);
+		cout<<	"answer_strategy = " <<answer_strategy<<endl;
+
+		if (answer_strategy == 0)
+		{
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+
+		}
+		else
+		{
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+			
+		}	
+		trackTaskStatus(time_track_list, "Query:Dataset true/false", answer_strategy);
+
+		// //==== answer L to all questions
+		// gamal_cipher_new(sum_cipher);
+		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_vector.size());
+
+		// //==== answer V to all questions
+		// gamal_cipher_new(sum_cipher);
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+		// gamal_encrypt(sum_cipher, servers.coll_key, PV_size + randomNoise);
+
+
+		// //====answer L or V at random
+
+		// int toss =rand()%2;
+		// cout<<"toss = "<<toss<<endl;
+		// if (toss == 0) { //answer L + noise
+		// 	gamal_cipher_new(sum_cipher);
+		// 	int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+		// 	gamal_encrypt(sum_cipher, servers.coll_key, server1.known_vector.size() + randomNoise);
+		// }
+		// else
+		// { //answer V + noise
+		// 	gamal_cipher_new(sum_cipher);
+		// 	int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+		// 	gamal_encrypt(sum_cipher, servers.coll_key, PV_size + randomNoise);
+		// }
 
         //Tham added 15 Jan, delete query at the server side
         server1.enc_test_map.clear();
@@ -302,18 +369,75 @@ int phase_3_test(int argc, char **argv)
 		cout<< "enc_test_map empty? "<<check<<endl;
 		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
 		
-		t1 = high_resolution_clock::now();
+		// t1 = high_resolution_clock::now();
 		server1.generateTestKnownRecords_opt(pre_enc_stack, part_A.enc_domain_map);
-		t2 = high_resolution_clock::now();
-		trackTaskPerformance(time_track_list, "Gen Test L(ms)", t1, t2);
+		// t2 = high_resolution_clock::now();
+		// trackTaskPerformance(time_track_list, "Gen Test L(ms)", t1, t2);
 
-		t1 = high_resolution_clock::now();
-		gamal_cipher_new(sum_cipher);
+		//====party answer using true/fake dataset
+		// t1 = high_resolution_clock::now();
+		// gamal_cipher_new(sum_cipher);
 		// part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
-		part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
-		t2 = high_resolution_clock::now();
-		trackTaskPerformance(time_track_list, "Compute ans L(ms)", t1, t2);
+		// part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+		// t2 = high_resolution_clock::now();
+		// trackTaskPerformance(time_track_list, "Compute ans L(ms)", t1, t2);
 		
+		// //=====party answer using true/fake dataset at random
+		// int toss = rand()%2;
+		// cout<<"toss = "<<toss<<endl;
+		// if (toss == 0)
+		// {
+		// 	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+		// }
+		// else
+		// {
+		// 	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+		// }
+		// trackTaskStatus(time_track_list, "Test:Dataset true/false", toss);
+
+		//====answer using fake dataset with probability p2
+	
+		answer_strategy = myRand(true_fake, freq, n);
+		cout<<	"answer_strategy = " <<answer_strategy<<endl;
+
+		if (answer_strategy == 0)
+		{
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+
+		}
+		else
+		{
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+			
+		}	
+		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
+
+		// //==== answer L to all questions
+		// gamal_cipher_new(sum_cipher);
+		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_vector.size());
+
+		// //==== answer V to all questions
+		// gamal_cipher_new(sum_cipher);
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+		// gamal_encrypt(sum_cipher, servers.coll_key, PV_size + randomNoise);
+
+
+		// //====answer L or V at random
+
+		// int toss =rand()%2;
+		// cout<<"toss = "<<toss<<endl;
+		// if (toss == 0) {
+		// 	gamal_cipher_new(sum_cipher);
+		// 	int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+		// 	gamal_encrypt(sum_cipher, servers.coll_key, server1.known_vector.size() + randomNoise);
+		// }
+		// else
+		// {
+		// 	gamal_cipher_new(sum_cipher);
+		// 	int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+		// 	gamal_encrypt(sum_cipher, servers.coll_key, PV_size + randomNoise);
+		// }
+
 
 		//Tham added 15 Jan, delete test at server side
 		server1.enc_test_map.clear();
@@ -335,17 +459,75 @@ int phase_3_test(int argc, char **argv)
 		bool check = server1.enc_test_map.empty();
 		cout<< "enc_test_map empty? "<<check<<endl;
 		
-		t1 = high_resolution_clock::now();
+		// t1 = high_resolution_clock::now();
 		server1.generateTestBasedPartialView_opt(pre_enc_stack, part_A.enc_domain_map);
-		t2 = high_resolution_clock::now();
-		trackTaskPerformance(time_track_list, "Gen Test V optimal (ms)", t1, t2);
+		// t2 = high_resolution_clock::now();
+		// trackTaskPerformance(time_track_list, "Gen Test V optimal (ms)", t1, t2);
 
-		t1 = high_resolution_clock::now();
-		gamal_cipher_new(sum_cipher);
+		//====party answer using true/fake dataset
+		// t1 = high_resolution_clock::now();
+		// gamal_cipher_new(sum_cipher);
 		// part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
-		part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
-		t2 = high_resolution_clock::now();
-		trackTaskPerformance(time_track_list, "Compute ans V (ms)", t1, t2);
+		//  part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+		// t2 = high_resolution_clock::now();
+		// trackTaskPerformance(time_track_list, "Compute ans V (ms)", t1, t2);
+
+		// //=====party answer using true/fake dataset at random
+		// int toss = rand()%2;
+		// cout<<"toss = "<<toss<<endl;
+		// if (toss == 0)
+		// {
+		// 	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+		// }
+		// else
+		// {
+		// 	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+		// }
+		// trackTaskStatus(time_track_list, "Test:Dataset true/false", toss);
+
+		//====answer using fake dataset with probability p2
+	
+		answer_strategy = myRand(true_fake, freq, n);
+		cout<<	"answer_strategy = " <<answer_strategy<<endl;
+
+		if (answer_strategy == 0)
+		{
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+
+		}
+		else
+		{
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+			
+		}	
+		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
+
+		// //==== answer L to all questions
+		// gamal_cipher_new(sum_cipher);
+		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_vector.size());
+		
+
+		// //==== answer V to all questions
+		// gamal_cipher_new(sum_cipher);
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+		// gamal_encrypt(sum_cipher, servers.coll_key, PV_size + randomNoise);
+
+		// //====answer L or V at random
+
+		// int toss =rand()%2;
+		// cout<<"toss = "<<toss<<endl;
+		// if (toss == 0) {
+		// 	gamal_cipher_new(sum_cipher);
+		// 	int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+		// 	gamal_encrypt(sum_cipher, servers.coll_key, server1.known_vector.size() + randomNoise);
+		// }
+		// else
+		// {
+		// 	gamal_cipher_new(sum_cipher);
+		// 	int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+		// 	gamal_encrypt(sum_cipher, servers.coll_key, PV_size + randomNoise);
+		// }
+
 
 		//Tham added 15 Jan, delete test at server side
 		server1.enc_test_map.clear();
@@ -387,17 +569,75 @@ int phase_3_test(int argc, char **argv)
 		server1.generateMatchDomain();
 		
 
-		t1 = high_resolution_clock::now();
+		// t1 = high_resolution_clock::now();
 		server1.generateTest_Target_Attr_opt(pre_enc_stack);
-		t2 = high_resolution_clock::now();
-		trackTaskPerformance(time_track_list, "Gen Test Attr (ms)", t1, t2);
+		// t2 = high_resolution_clock::now();
+		// trackTaskPerformance(time_track_list, "Gen Test Attr (ms)", t1, t2);
 
-		t1 = high_resolution_clock::now();
-		gamal_cipher_new(sum_cipher);
-		part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+		//====party answer using true/fake dataset
+		// t1 = high_resolution_clock::now();
+		// gamal_cipher_new(sum_cipher);
+		// part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
 		// part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
-		t2 = high_resolution_clock::now();
-		trackTaskPerformance(time_track_list, "Compute ans Test Attr opt (ms)", t1, t2);
+		// t2 = high_resolution_clock::now();
+		// trackTaskPerformance(time_track_list, "Compute ans Test Attr opt (ms)", t1, t2);
+
+
+		// //=====party answer using true/fake dataset at random
+		// int toss = rand()%2;
+		// cout<<"toss = "<<toss<<endl;
+		// if (toss == 0)
+		// {
+		// 	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+		// }
+		// else
+		// {
+		// 	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+		// }
+		// trackTaskStatus(time_track_list, "Test:Dataset true/false", toss);
+		
+		//====answer using fake dataset with probability p2
+	
+		answer_strategy = myRand(true_fake, freq, n);
+		cout<<	"answer_strategy = " <<answer_strategy<<endl;
+
+		if (answer_strategy == 0)
+		{
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+
+		}
+		else
+		{
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+			
+		}	
+		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
+
+
+		// //==== answer L to all questions===//
+		// gamal_cipher_new(sum_cipher);
+		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_vector.size());
+
+		// //==== answer V to all questions====//
+		// gamal_cipher_new(sum_cipher);
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+		// gamal_encrypt(sum_cipher, servers.coll_key, PV_size + randomNoise);
+
+		// //====answer L or V at random===//
+
+		// int toss =rand()%2;
+		// cout<<"toss = "<<toss<<endl;
+		// if (toss == 0) {
+		// 	gamal_cipher_new(sum_cipher);
+		// 	int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+		// 	gamal_encrypt(sum_cipher, servers.coll_key, server1.known_vector.size() + randomNoise);
+		// }
+		// else
+		// {
+		// 	gamal_cipher_new(sum_cipher);
+		// 	int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+		// 	gamal_encrypt(sum_cipher, servers.coll_key, PV_size + randomNoise);
+		// }
 
 		//Tham added 15 Jan, delete test at server side
 		server1.enc_test_map.clear();
@@ -489,53 +729,84 @@ int phase_3_test(int argc, char **argv)
 	// // void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, bool verify_status)
 	// // {
 
-		if (argc > 1)
-		{
+		// if (argc > 1)
+		// {
 			
-			fstream fout;
-			if (strcmp(argv[11], "1") == 0)
-			{
-				fout.open("./results/runtime_phase3_honestPV_malicious_answer_300K_pv_001_L_1000_5query_5test_fakeHist_01.csv", ios::out | ios::trunc);
-				// fout << "Iteration, PV Verification";
+		// 	fstream fout;
+		// 	if (strcmp(argv[11], "1") == 0)
+		// 	{
+		// 		fout.open("./results/phase3_honestPV_malicious_answer_300K_pv_001_L_1000_5query_5test_answer_fakeHist_01.csv", ios::out | ios::trunc);
+		// 		// fout << "Iteration, PV Verification";
 				
-				fout << "Iteration" << ", "<<argv[11] <<", ";
-				fout<<"\n";
-				fout <<"\n";
-				fout << "PV Verification"<<", "<<verify_status<<", ";
-				fout<<"\n";
-				for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
-				{
-					string column = itr->first;
-					string time_diff = itr->second;
-					// fout << ", " << column << ","<<time_diff;
-					fout << column << ","<<time_diff << ", ";
-					fout << "\n";
-				}
-				 fout << ", ";
-			}
-			else
-			{
+		// 		fout << "Iteration" << ", "<<argv[11] <<", ";
+		// 		fout<<"\n";
+		// 		fout <<"\n";
+		// 		fout << "PV Verification"<<", "<<verify_status<<", ";
+		// 		fout<<"\n";
+		// 		for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
+		// 		{
+		// 			string column = itr->first;
+		// 			string time_diff = itr->second;
+		// 			// fout << ", " << column << ","<<time_diff;
+		// 			fout << column << ","<<time_diff << ", ";
+		// 			fout << "\n";
+		// 		}
+		// 		 fout << ", ";
+		// 	}
+		// 	else
+		// 	{
 				
-				fout.open("./results/runtime_phase3_honestPV_malicious_answer_300K_pv_001_L_1000_5query_5test_fakeHist_08.csv", ios::out | ios::app);
-				// Insert the data to file
-				fout << argv[11];
-				fout << "\n";
-				fout << verify_status;
-				fout << "\n";
-				for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
-				{
-					string time_diff = itr->second;
-					fout << time_diff;
-					fout << "\n";
-				}
-			}
+		// 		fout.open("./results/phase3_honestPV_malicious_answer_300K_pv_001_L_1000_5query_5test_answer_fakeHist_01.csv", ios::out | ios::app);
+		// 		// Insert the data to file
+		// 		fout << argv[11];
+		// 		fout << "\n";
+		// 		fout << verify_status;
+		// 		fout << "\n";
+		// 		for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
+		// 		{
+		// 			string time_diff = itr->second;
+		// 			fout << time_diff;
+		// 			fout << "\n";
+		// 		}
+		// 	}
 
 			
-			fout << ", ";
-			// fout << ",";
-			fout.close();
-		}
+		// 	fout << ", ";
+		// 	// fout << ",";
+		// 	fout.close();
+		// }
 	// // }
+
+	if (argc > 1)
+	{
+		fstream fout;
+		if (strcmp(argv[11], "1") == 0)
+		{
+			fout.open("./results/phase3_honestPV_malicious_answer_300K_pv_001_L_1000_5query_5test_answer_true_fakeHist_p2_07.csv", ios::out | ios::trunc);
+			fout << "Iteration, PV Verification";
+			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
+			{
+				string column = itr->first;
+				fout << ", " << column;
+			}
+			fout << "\n";
+		}
+		else
+		{
+			fout.open("./results/phase3_honestPV_malicious_answer_300K_pv_001_L_1000_5query_5test_answer_true_fakeHist_p2_07.csv", ios::out | ios::app);
+		}
+
+		// Insert the data to file
+		fout << argv[11] << ", " << verify_status;
+		for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
+		{
+			string time_diff = itr->second;
+			fout << ", " << time_diff;
+		}
+		fout << "\n";
+		fout.close();
+	}
+
 
 	return 0;
 }

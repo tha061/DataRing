@@ -13,6 +13,7 @@ public:
     ENC_Stack pre_enc_stack_participant;
     ENC_DOMAIN_MAP enc_domain_map; //partial view encrypted
     hash_pair_map hashMap, plain_domain_map, fakeHashMap;
+    gamal_key_t keys;
     int size_dataset;
     double pv_ratio;
     float epsilon;

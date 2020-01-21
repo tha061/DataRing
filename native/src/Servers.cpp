@@ -46,9 +46,11 @@ void Servers::generateCollKey()
 {
     int server_size = server_vect.size();
     EC_POINT **p_key_list = new EC_POINT *[server_size];
+    // BIGNUM **secret_key_list = new BIGNUM *[server_size]; //added 21 Jan by Tham: for re-encryption
     for (int i = 0; i < server_size; i++)
     {
         p_key_list[i] = server_vect[i].key->Y;
+        // secret_key_list[i] = server_vect[i].key->secret; //added 21 Jan by Tham: for re-encryption
     }
 
     gamal_collective_publickey_gen(coll_key, p_key_list, server_size);

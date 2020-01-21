@@ -13,11 +13,19 @@
 #include "test_query_testfunction_process.cpp"
 
 
+
+
 int main(int argc, char **argv)
 {
-	// runtime_testing(argc, argv);
-	phase_3_test(argc, argv);
+	
+	srand(time(NULL));
+	runtime_testing(argc, argv);
+	// phase_3_test(argc, argv);
 	// partialView_verification(argc, argv);
+
+	// test_key_switch_new(3);
+
+
 	return 0;
 }
 
