@@ -501,35 +501,5 @@ int runtime_testing(int argc, char **argv)
 	// storeTimeEvaluation(argc, argv, time_track_list, verify_status);
 
 
-	if (argc > 1)
-	{
-		fstream fout;
-		if (strcmp(argv[9], "1") == 0)
-		{
-			fout.open("./results/runtime_honest_party_n500K_5_attribute.csv", ios::out | ios::trunc);
-			fout << "Iteration, PV Verification";
-			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
-			{
-				string column = itr->first;
-				fout << ", " << column;
-			}
-			fout << "\n";
-		}
-		else
-		{
-			fout.open("./results/runtime_honest_party_n500K_5_attribute.csv", ios::out | ios::app);
-		}
-
-		// Insert the data to file
-		fout << argv[9] << ", " << verify_status;
-		for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
-		{
-			string time_diff = itr->second;
-			fout << ", " << time_diff;
-		}
-		fout << "\n";
-		fout.close();
-	}
-
 	return 0;
 }

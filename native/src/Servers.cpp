@@ -20,7 +20,7 @@ Servers::Servers(int server_size, int data_size, string known_domain_dir)
 void Servers::createPVsamplingVector(ENC_Stack &pre_enc_stack)
 {
     int enc_types[] = {1, 0};
-    int up_freq = (int)(1/pv_ratio-1);
+    int up_freq = (int)(1 / pv_ratio - 1);
     int freq[] = {1, up_freq};
     // int pv_ratio = 50; // V = 2% of n
 
@@ -112,12 +112,12 @@ void Servers::fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table)
  * @paras: eta is the probability s.t the honest participant will pass the test at eta
  * higher eta is, smaller r0 is
  * 
- */ 
+ */
 bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack, double eta)
 {
     Server server = server_vect[serverId]; // shallow copy
     const int KNOWN_VECT_SIZE = server.known_vector.size();
-    int v = (int)data_size*pv_ratio;
+    int v = (int)data_size * pv_ratio;
     const int LEAST_DOMAIN = server_vect[serverId].generatePVTestCondition(data_size, v, KNOWN_VECT_SIZE, eta);
     gamal_ciphertext_t sum, tmp, encrypt_E0;
     gamal_cipher_new(sum);
@@ -133,26 +133,26 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
     gamal_cipher_new(total_v_decrypt);
     int count = 0;
 
-    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
+    for (id_domain_set::iterator itr = server.known_vector.begin(); itr != server.known_vector.end(); itr++)
     {
-        id_domain_pair domain_pair = itr->first;
-        id_domain_set::iterator find = server.known_vector.find(domain_pair);
-        if (find != server.known_vector.end())
+        id_domain_pair domain_pair = *itr;
+        ENC_DOMAIN_MAP::iterator find = enc_domain_map.find(domain_pair);
+        if (find != enc_domain_map.end())
         {
             if (counter == 0)
             {
-                sum->C1 = itr->second->C1;
-                sum->C2 = itr->second->C2;
+                sum->C1 = find->second->C1;
+                sum->C2 = find->second->C2;
             }
             else
             {
                 tmp->C1 = sum->C1;
                 tmp->C2 = sum->C2;
-                gamal_add(sum, tmp, itr->second);
+                gamal_add(sum, tmp, find->second);
             }
 
             gamal_ciphertext_t tmp_decrypt;
-            gamal_add(tmp_decrypt, itr->second, encrypt_E0); // to fix the decryption function
+            gamal_add(tmp_decrypt, find->second, encrypt_E0); // to fix the decryption function
             dig_t domain_decrypt = Servers::_fusionDecrypt(tmp_decrypt, table, serverId);
             if (domain_decrypt > 0)
             {
@@ -163,19 +163,6 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
             counter++;
         }
 
-        if (count == 0)
-        {
-            total_v_decrypt->C1 = itr->second->C1;
-            total_v_decrypt->C2 = itr->second->C2;
-        }
-        else
-        {
-            tmp_v_decrypt->C1 = total_v_decrypt->C1;
-            tmp_v_decrypt->C2 = total_v_decrypt->C2;
-            gamal_add(total_v_decrypt, tmp_v_decrypt, itr->second);
-        }
-
-        count++;
     }
 
     // dig_t total_v = Servers::_fusionDecrypt(total_v_decrypt, table, serverId);
@@ -199,12 +186,14 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
     //     cout << "Fail L size verification" << endl;
     // }
 
+    // cout << "Total matching domain: " << counter << endl;
+
     dig_t sum_res = Servers::_fusionDecrypt(sum, table, serverId);
 
     if (sum_res >= LEAST_DOMAIN)
     {
         cout << "Total known rows found in PV: " << sum_res << endl;
-         cout << "Pass the verification" << endl;
+        cout << "Pass the verification" << endl;
         return true;
     }
     else
@@ -243,7 +232,7 @@ bool Servers::verifyingTestResult_Estimate(string testName, gamal_ciphertext_t s
     dig_t PV_answer = Servers::_fusionDecrypt(enc_PV_answer, table, serverId);
     int int_PV_answer = (int)PV_answer;
 
-    cout<< "PV_answer = "<< PV_answer <<endl;
+    cout << "PV_answer = " << PV_answer << endl;
 
     vector<double> conf_range = Servers::estimate_conf_interval(alpha, int_PV_answer, data_size, data_size / 100); // confident interval of estimate answer
 
