@@ -42,9 +42,13 @@ int partialView_verification(int argc, char **argv)
 	}
 
 	double percentile_noise = 0.95;			   //use to determine Laplace max_noise
-	float epsilon = 0.1;
+	float noise_budget = 0.5;
 	float sensitivity = 1.0;
 	int PV_size = (int)datasize_row*pv_ratio; // actual V, not the PV histogram form
+
+	float epsilon_q = noise_budget; //only for test PV, noise is not a matter
+	float epsilon_test = epsilon_q; //only for test PV, noise is not a matter
+	float epsilon = noise_budget;  //only for test PV, noise is not a matter
 	
 	TRACK_LIST time_track_list;
 
@@ -97,13 +101,15 @@ int partialView_verification(int argc, char **argv)
 
 
 
-	//Participant determine maxNoise
-	part_A.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon, percentile_noise);
-	part_A.epsilon = epsilon;
-	part_A.sensitivity = sensitivity;
-	part_A.minNoise = -part_A.maxNoise;
-	part_A.pv_ratio = pv_ratio;
+	part_A.maxNoise_q = getLaplaceNoiseRange(sensitivity, epsilon_q, percentile_noise);
+	part_A.epsilon_q = epsilon_q; // total budget is epsilon for all iterations
+	part_A.minNoise_q = -part_A.maxNoise_q;
+	part_A.maxNoise_test = getLaplaceNoiseRange(sensitivity, epsilon_test, percentile_noise);
+	part_A.epsilon_test = epsilon_test; // total budget is epsilon for all iterations
+	part_A.minNoise_test = -part_A.maxNoise_test;
 
+	part_A.sensitivity = sensitivity;
+	part_A.pv_ratio = pv_ratio;
 	// INITIALIZE CIPHERTEXT STACK FOR SERVERS
 	ENC_Stack pre_enc_stack(size_dataset, servers.coll_key);
 

@@ -434,7 +434,7 @@ void Participant::selfCreateFakePV_opt(bool useTruth)
 
     }
 
-    cout << "Number of enc(1) is processed: " << counter_row << endl;
+    // cout << "Number of enc(1) is processed: " << counter_row << endl;
     tmp_hashMap.clear();
 }
 
@@ -487,7 +487,7 @@ void Participant::pre_process_generatePV(bool useTruth)
         
         if (domain_count == 0)
         {
-            Participant::pre_enc_stack_participant.pop_E0(mul_enc_ciphertext[0]);
+            Participant::pre_enc_stack_participant.pop_E0(mul_enc_ciphertext[0]); //multiple with 0 will become ciphertext of 0 - Tham
             enc_domain_map.insert({domain, mul_enc_ciphertext[0]});
             count++;
         }
@@ -542,28 +542,39 @@ void Participant::generatePV_opt(gamal_ciphertext_t *enc_list, bool useTruth)
 {
     hash_pair_map tmp_hashMap = useTruth ? hashMap : fakeHashMap;
     int counter_row = 0;
+    gamal_ciphertext_t tmp; // Tham added Jan 24, for improve the mult of cipher with 1
     // cout << "PV SIZE " << tmp_hashMap.size() << ", VECTOR FROM SERVER SIZE " << size_dataset << endl;
     for (hash_pair_map::iterator itr = tmp_hashMap.begin(); itr != tmp_hashMap.end(); ++itr)
     {
 
         id_domain_pair domain = itr->first;
         int domain_count = itr->second;
+        // cout<< "domain count = " << domain_count<<endl;
 
         gamal_ciphertext_t *mul_enc_ciphertext = new gamal_ciphertext_t[1];
 
-        //using pre-generatePV to reduce runtime:
-        if (domain_count > 0)
+        //using pre-generatePV to reduce runtime: domain = 0, already done in pre-generate
+        
+        if (domain_count == 1)
+        {
+            Participant::pre_enc_stack_participant.pop_E0(tmp); //take enc(0) - Tham
+            gamal_add(mul_enc_ciphertext[0], enc_list[counter_row], tmp); //enc(0) added to make different ciphertext - Tham
+            counter_row++;
+        }
+        else if (domain_count > 1)
         {
             gamal_mult_opt(mul_enc_ciphertext[0], enc_list[counter_row], domain_count);
             counter_row++;
 
-            enc_domain_map.insert({domain, mul_enc_ciphertext[0]});
         }
+
+         enc_domain_map.insert({domain, mul_enc_ciphertext[0]});
+          
         
 
     }
 
-    cout << "Number of enc(1) is processed: " << counter_row << endl;
+    // cout << "Number of enc(1) is processed: " << counter_row << endl;
     tmp_hashMap.clear();
 }
 
@@ -591,6 +602,7 @@ void Participant::test_cleartext()
     cout << "Total count of chosen plaintext 1 from server: " << count << endl;
 }
 
+/*
 void Participant::computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key)
 {
     //generatePV_opt
@@ -678,8 +690,8 @@ void Participant::computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t
     
     tmp_hashMap.clear();
 }
-
-void Participant::computeAnswer_opt(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key)
+*/
+void Participant::computeAnswer_opt(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key, float epsilon_i)
 {
     //generatePV_opt
     hash_pair_map tmp_hashMap = useTruth ? hashMap : fakeHashMap;
@@ -718,24 +730,43 @@ void Participant::computeAnswer_opt(ENC_DOMAIN_MAP &enc_test_map, gamal_cipherte
         }
     }
 
-    cout << "Counter " << counter << endl;
+    // cout << "Counter " << counter << endl;
 
-    int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+    int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_i);
+    // cout << "Random noise: " << randomNoise << endl;
     int randomNoise_to_enc;
-    cout << "max noise: " << maxNoise << endl;
-    cout << "min noise: " << minNoise << endl;
+    // cout << "Party: max noise: " << maxNoise_test << endl;
+    // cout << "Party: min noise: " << minNoise_test << endl;
 
-    if (randomNoise < minNoise)
+    if (epsilon_i == epsilon_test) 
     {
-        randomNoise = (int)(minNoise);
-    }
-    else if (randomNoise > maxNoise)
-    {
-        randomNoise = (int)(maxNoise);
-    }
-
+        if (randomNoise < minNoise_test)
+        {
+            randomNoise = (int)(minNoise_test);                
+        }
+        else if (randomNoise > maxNoise_test)
+        {
+            randomNoise = (int)(maxNoise_test);  
     
-    cout << "Random noise: " << randomNoise << endl;
+        }
+        
+    }
+    else
+    {
+        if (randomNoise < minNoise_q)
+        {
+            randomNoise = (int)(minNoise_q);                
+        }
+         else if (randomNoise > maxNoise_test)
+        {
+            randomNoise = (int)(maxNoise_test);  
+    
+        }
+        
+    }
+    
+    
+    // cout << "Random noise: " << randomNoise << endl;
 
     if(randomNoise < 0)
     {

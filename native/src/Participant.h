@@ -13,13 +13,16 @@ public:
     ENC_Stack pre_enc_stack_participant;
     ENC_DOMAIN_MAP enc_domain_map; //partial view encrypted
     hash_pair_map hashMap, plain_domain_map, fakeHashMap;
-    gamal_key_t keys;
+    gamal_key_t keys; //added by Tham 21 Jan
     int size_dataset;
     double pv_ratio;
-    float epsilon;
+    float epsilon_q;
+    float epsilon_test;
     float sensitivity;
-    double maxNoise;
-    double minNoise;
+    double maxNoise_q;
+    double minNoise_q;
+    double maxNoise_test;
+    double minNoise_test;
     Participant();
     Participant(string data_dir);
 
@@ -51,7 +54,7 @@ public:
     //RENAME THIS FUNCTION to computeAnswer()
     // adding a function to generate Laplace noise and then add this noise to the computed answer
     void computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key);
-    void computeAnswer_opt(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key);
+    void computeAnswer_opt(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key, float epsilon_i);
 };
 
 #endif

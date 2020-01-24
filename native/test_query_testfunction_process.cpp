@@ -50,7 +50,7 @@ int phase_3_test(int argc, char **argv)
 	}
 
 	double percentile_noise = 0.95;			   //use to determine Laplace max_noise
-	float noise_budget = 0.5;
+	float noise_budget = 1;
 	float sensitivity = 1.0;
 	int PV_size = (int)datasize_row*pv_ratio; // actual V, not the PV histogram form
 
@@ -60,11 +60,14 @@ int phase_3_test(int argc, char **argv)
 	// Setup answer strategy
 	int answer_strategy;
 	int true_fake[] = {1, 0};
-	int freq[] = {30, 70}; //using fake dataset with p2 = 0.1
+	int fake_freq = 10; //freq of lie
+	int freq[] = {100 - fake_freq, fake_freq}; //using fake dataset with p2 = 0.1
 	int n = sizeof(true_fake)/sizeof(true_fake[0]);
 
+	// participant computes epsilon for a query's answer and a test's answer
+    float epsilon_q = noise_budget/(num_query+3*num_test);
+	float epsilon_test = 3*epsilon_q;
 
-    float epsilon = noise_budget/iterations;
 
 	double num_test_each = (double)num_test/3;
 	int num_test_rounded = ceil(num_test_each);
@@ -114,7 +117,8 @@ int phase_3_test(int argc, char **argv)
 
 
 	//party create fake histogram: keep some true rows
-	int keep_row = int(datasize_row*0.1); 
+	float amt_lie = 0.9;
+	int keep_row = int(datasize_row*(1-amt_lie)); //amount of lie
 	// int keep_row = 428027; 
 	t1 = high_resolution_clock::now();
 	part_A.addDummy_FakeHist_random(keep_row, a);
@@ -134,11 +138,18 @@ int phase_3_test(int argc, char **argv)
 
 
 	//Participant determine maxNoise
-	part_A.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon, percentile_noise);
-	part_A.epsilon = epsilon; // total budget is epsilon for all iterations
+	part_A.maxNoise_q = getLaplaceNoiseRange(sensitivity, epsilon_q, percentile_noise);
+	part_A.epsilon_q = epsilon_q; // total budget is epsilon for all iterations
+	part_A.minNoise_q = -part_A.maxNoise_q;
+	part_A.maxNoise_test = getLaplaceNoiseRange(sensitivity, epsilon_test, percentile_noise);
+	part_A.epsilon_test = epsilon_test; // total budget is epsilon for all iterations
+	part_A.minNoise_test = -part_A.maxNoise_test;
+
 	part_A.sensitivity = sensitivity;
-	part_A.minNoise = -part_A.maxNoise;
 	part_A.pv_ratio = pv_ratio;
+
+	cout<<"Party A: maxNoise query = "<< part_A.maxNoise_q<<endl;
+	cout<<"Party A: maxNoise test = "<< part_A.maxNoise_test<<endl;
 
 	// INITIALIZE CIPHERTEXT STACK FOR SERVERS
 	ENC_Stack pre_enc_stack(size_dataset, servers.coll_key);
@@ -265,19 +276,20 @@ int phase_3_test(int argc, char **argv)
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 	
 	//Server determines maxNoise
-	servers.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon, percentile_noise);
+	servers.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon_test, percentile_noise);
 	servers.minNoise = -servers.maxNoise;
 
-
+	cout<<"Server: maxNoise = "<<servers.maxNoise<<endl;
 
 	int itr = 1;
+	
 	while (itr <= num_query)
     {
          // // ==== NORMAL QUERY PRE_COMPUTE TO OPTIMIZE RUNTIME ============//
       
         cout<< "\nQuery: #" <<itr << endl;
-		bool check = server1.enc_test_map.empty();
-		cout<< "enc_test_map empty? "<<check<<endl;
+		// bool check = server1.enc_test_map.empty();
+		// cout<< "enc_test_map empty? "<<check<<endl;
 		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
        
         server1.generateMatchDomain();
@@ -312,16 +324,16 @@ int phase_3_test(int argc, char **argv)
 		//====answer using fake dataset with probability p2
 	
 		answer_strategy = myRand(true_fake, freq, n);
-		cout<<	"answer_strategy = " <<answer_strategy<<endl;
+		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
 
 		if (answer_strategy == 0)
 		{
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_q);
 
 		}
 		else
 		{
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon_q);
 			
 		}	
 		trackTaskStatus(time_track_list, "Query:Dataset true/false", answer_strategy);
@@ -358,6 +370,7 @@ int phase_3_test(int argc, char **argv)
         itr++;
     }
 
+	
 	// //====TEST FUNCTION KNOWN RECORDS NEW USING PRE_COMPUTE TEST FUCTION =====//
     // Pre process
 	
@@ -365,8 +378,8 @@ int phase_3_test(int argc, char **argv)
 	for (int i = 1; i<=num_test_rounded; i++) 
 	{
 		cout<<"\nTest L: #"<<i<<endl;
-		bool check = server1.enc_test_map.empty();
-		cout<< "enc_test_map empty? "<<check<<endl;
+		// bool check = server1.enc_test_map.empty();
+		// cout<< "enc_test_map empty? "<<check<<endl;
 		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
 		
 		// t1 = high_resolution_clock::now();
@@ -398,16 +411,17 @@ int phase_3_test(int argc, char **argv)
 		//====answer using fake dataset with probability p2
 	
 		answer_strategy = myRand(true_fake, freq, n);
-		cout<<	"answer_strategy = " <<answer_strategy<<endl;
+		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
+		// answer_strategy = 1;
 
 		if (answer_strategy == 0)
 		{
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_test);
 
 		}
 		else
 		{
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon_test);
 			
 		}	
 		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
@@ -443,7 +457,7 @@ int phase_3_test(int argc, char **argv)
 		server1.enc_test_map.clear();
 
 		threshold = server1.known_vector.size();
-		cout<< "Threshold L = " << threshold <<endl;
+		// cout<< "Threshold L = " << threshold <<endl;
 		test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold);
 		trackTaskStatus(time_track_list, "Test target L status", test_status);
 		server1.enc_test_map_pre.clear();
@@ -456,8 +470,8 @@ int phase_3_test(int argc, char **argv)
 	for (int i=1; i<=num_test_rounded; i++)
 	{
 		cout<<"\nTest V: #"<<i<<endl;
-		bool check = server1.enc_test_map.empty();
-		cout<< "enc_test_map empty? "<<check<<endl;
+		// bool check = server1.enc_test_map.empty();
+		// cout<< "enc_test_map empty? "<<check<<endl;
 		
 		// t1 = high_resolution_clock::now();
 		server1.generateTestBasedPartialView_opt(pre_enc_stack, part_A.enc_domain_map);
@@ -488,16 +502,16 @@ int phase_3_test(int argc, char **argv)
 		//====answer using fake dataset with probability p2
 	
 		answer_strategy = myRand(true_fake, freq, n);
-		cout<<	"answer_strategy = " <<answer_strategy<<endl;
+		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
 
 		if (answer_strategy == 0)
 		{
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_test);
 
 		}
 		else
 		{
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon_test);
 			
 		}	
 		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
@@ -533,7 +547,7 @@ int phase_3_test(int argc, char **argv)
 		server1.enc_test_map.clear();
 
 		threshold = PV_size; //actual PV size = V (not the PV histogram)
-		cout<<"Threshold V = " << threshold << endl;
+		// cout<<"Threshold V = " << threshold << endl;
 		test_status = servers.verifyingTestResult("Test target V rows found:", sum_cipher, table, server_id, threshold);
 		trackTaskStatus(time_track_list, "Test target V status", test_status);
 		
@@ -562,8 +576,8 @@ int phase_3_test(int argc, char **argv)
 	for (int i=1; i<= num_test - 2*num_test_rounded; i++)
 	{
 		cout<<"\nTest estimate: #"<<i<<endl;
-		bool check = server1.enc_test_map.empty();
-		cout<< "enc_test_map empty? "<<check<<endl;
+		// bool check = server1.enc_test_map.empty();
+		// cout<< "enc_test_map empty? "<<check<<endl;
 		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
 
 		server1.generateMatchDomain();
@@ -599,16 +613,16 @@ int phase_3_test(int argc, char **argv)
 		//====answer using fake dataset with probability p2
 	
 		answer_strategy = myRand(true_fake, freq, n);
-		cout<<	"answer_strategy = " <<answer_strategy<<endl;
+		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
 
 		if (answer_strategy == 0)
 		{
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_test);
 
 		}
 		else
 		{
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon_test);
 			
 		}	
 		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
@@ -658,6 +672,8 @@ int phase_3_test(int argc, char **argv)
 		server1.enc_test_map_pre.clear();
 
 	}
+
+	
 
 	// cout<<"DONE: "<<endl;
 	// cout<<"====SERVER memory check=====\n";
@@ -723,7 +739,7 @@ int phase_3_test(int argc, char **argv)
 
 	// cout << "Track map size: " << time_track_list.size() << endl;
 
-	// storeTimeEvaluation(argc, argv, time_track_list, verify_status);
+	storeTimeEvaluation(argc, argv, time_track_list, verify_status);
 
 
 	// // void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, bool verify_status)
@@ -777,35 +793,35 @@ int phase_3_test(int argc, char **argv)
 		// }
 	// // }
 
-	if (argc > 1)
-	{
-		fstream fout;
-		if (strcmp(argv[11], "1") == 0)
-		{
-			fout.open("./results/phase3_honestPV_malicious_answer_300K_pv_001_L_1000_5query_5test_answer_true_fakeHist_p2_07.csv", ios::out | ios::trunc);
-			fout << "Iteration, PV Verification";
-			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
-			{
-				string column = itr->first;
-				fout << ", " << column;
-			}
-			fout << "\n";
-		}
-		else
-		{
-			fout.open("./results/phase3_honestPV_malicious_answer_300K_pv_001_L_1000_5query_5test_answer_true_fakeHist_p2_07.csv", ios::out | ios::app);
-		}
+	// if (argc > 1)
+	// {
+	// 	fstream fout;
+	// 	if (strcmp(argv[11], "1") == 0)
+	// 	{
+	// 		fout.open("./results/phase3_honestPV_malicious_answer_100K_pv_001_L_500_10query_freq_test_05_freq_lie_03_fake_07.csv", ios::out | ios::trunc);
+	// 		fout << "Iteration, PV Verification";
+	// 		for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
+	// 		{
+	// 			string column = itr->first;
+	// 			fout << ", " << column;
+	// 		}
+	// 		fout << "\n";
+	// 	}
+	// 	else
+	// 	{
+	// 		fout.open("./results/phase3_honestPV_malicious_answer_100K_pv_001_L_500_10query_freq_test_05_freq_lie_03_fake_07.csv", ios::out | ios::app);
+	// 	}
 
-		// Insert the data to file
-		fout << argv[11] << ", " << verify_status;
-		for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
-		{
-			string time_diff = itr->second;
-			fout << ", " << time_diff;
-		}
-		fout << "\n";
-		fout.close();
-	}
+	// 	// Insert the data to file
+	// 	fout << argv[11] << ", " << verify_status;
+	// 	for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
+	// 	{
+	// 		string time_diff = itr->second;
+	// 		fout << ", " << time_diff;
+	// 	}
+	// 	fout << "\n";
+	// 	fout.close();
+	// }
 
 
 	return 0;

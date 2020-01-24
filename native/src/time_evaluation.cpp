@@ -3,10 +3,10 @@
 double timeEvaluate(string task_name, high_resolution_clock::time_point t1, high_resolution_clock::time_point t2)
 {
 	double time_diff = duration_cast<nanoseconds>(t2 - t1).count();
-	cout << "\n -------------------------------------------------------------------- \n";
+	// cout << "\n -------------------------------------------------------------------- \n";
 	// cout << "\nTime Evaluation \n";
-	cout << task_name << " : " << time_diff / 1000000.0 << " ms";
-	cout << "\n -------------------------------------------------------------------- \n";
+	// cout << task_name << " : " << time_diff / 1000000.0 << " ms";
+	// cout << "\n -------------------------------------------------------------------- \n";
 
 	return time_diff / 1000000.0;
 }
@@ -74,9 +74,9 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, boo
 	if (argc > 1)
 	{
 		fstream fout;
-		if (strcmp(argv[9], "1") == 0)
+		if (strcmp(argv[11], "1") == 0)
 		{
-			fout.open("./results/malicious_participant_500K_pv_0005_L_1000_selfPV_vx_010v.csv", ios::out | ios::trunc);
+			fout.open("./results/phase3_honestPV_malicious_answer_100K_pv_001_L_500_10query_freq_test_05_freq_lie_01_fake_09.csv", ios::out | ios::trunc);
 			fout << "Iteration, PV Verification";
 			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
@@ -87,11 +87,11 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, boo
 		}
 		else
 		{
-			fout.open("./results/malicious_participant_500K_pv_0005_L_1000_selfPV_vx_010v.csv", ios::out | ios::app);
+			fout.open("./results/phase3_honestPV_malicious_answer_100K_pv_001_L_500_10query_freq_test_05_freq_lie_01_fake_09.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file
-		fout << argv[9] << ", " << verify_status;
+		fout << argv[11] << ", " << verify_status;
 		for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 		{
 			string time_diff = itr->second;

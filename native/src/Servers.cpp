@@ -105,7 +105,7 @@ void Servers::fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table)
         }
     }
 
-    cout << "Total domain encrypted as 1: " << count << endl;
+    // cout << "Total domain encrypted as 1: " << count << endl;
 }
 /**
  * to verify the PV
@@ -255,7 +255,7 @@ bool Servers::verifyingTestResult_Estimate(string testName, gamal_ciphertext_t s
     cout << "min_conf " << min_conf << ", "
          << "max_conf " << max_conf << endl;
 
-    cout << "maxNoise " << (int)(maxNoise) << endl;
+    // cout << "maxNoise " << (int)(maxNoise) << endl;
     if (decrypt_test_f >= min_conf - (int)(maxNoise) && decrypt_test_f <= max_conf + (int)(maxNoise))
     {
         cout << "Pass test function estimate" << endl;

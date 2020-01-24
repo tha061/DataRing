@@ -920,15 +920,19 @@ int gamal_mult_opt(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext, dig_t 
     res->C2 = EC_POINT_new(init_group);
 
     ///** n-1 doublings and m - 1 additions: double-and-add binary-correct
-    if (pt == 0)
+    // if (pt == 0) 
+    // {
+    //     res->C1 = 0;
+    //     res->C2 = 0;
+    // }
+    // else if (pt == 1) 
+    // {
+    //     res->C1 = ciphertext->C1;
+    //     res->C2 = ciphertext->C2;
+    // }
+    if (pt == 0 || pt == 1) //change by Tham 24 Jan 2020
     {
-        res->C1 = 0;
-        res->C2 = 0;
-    }
-    else if (pt == 1)
-    {
-        res->C1 = ciphertext->C1;
-        res->C2 = ciphertext->C2;
+       printf("gamal_mult_opt require scalar is greater than 1\n");        
     }
     else
     {

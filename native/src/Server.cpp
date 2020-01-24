@@ -299,7 +299,7 @@ void Server::generateTest_Target_Attr_opt(ENC_Stack &pre_enc_stack)
 
     int counter = 0;
 
-    cout << "Mach domains: " << match_query_domain_vect.size() << endl;
+    // cout << "Mach domains: " << match_query_domain_vect.size() << endl;
 
     for (int i = 0; i < match_query_domain_vect.size(); i++)
     {
@@ -312,7 +312,7 @@ void Server::generateTest_Target_Attr_opt(ENC_Stack &pre_enc_stack)
         }
     }
 
-    cout << "Total match domains in query: " << counter << endl;
+    // cout << "Total match domains in query: " << counter << endl;
 }
 
 void Server::generateTest_Target_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
@@ -368,7 +368,7 @@ void Server::generateTest_Target_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP e
         enc_test_map.insert({domain_pair, enc_ciphertext[0]});
     }
 
-    cout << "Total match row in attribute test func: " << counter << endl;
+    // cout << "Total match row in attribute test func: " << counter << endl;
 }
 
 void Server::save_knownRow_found_in_PV(id_domain_pair verified_domain_pair)
@@ -441,7 +441,7 @@ void Server::generateNormalQuery_opt(ENC_Stack &pre_enc_stack)
         }
     }
 
-    cout << "Total match domains in query: " << counter << endl;
+    // cout << "Total match domains in query: " << counter << endl;
 }
 
 void Server::generateNormalQuery(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
@@ -493,7 +493,7 @@ void Server::generateNormalQuery(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_do
         enc_test_map.insert({domain_pair, enc_ciphertext[0]});
     }
 
-    cout << "Total match domains in query: " << counter << endl;
+    // cout << "Total match domains in query: " << counter << endl;
 }
 
 float Server::generatePVTestCondition(int dataset, int PV, int known_records, double eta)
