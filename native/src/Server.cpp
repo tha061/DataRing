@@ -520,7 +520,24 @@ void Server::getTestResult_fromPV(ENC_DOMAIN_MAP enc_domain_map, gamal_ciphertex
         string domain = itr->first.second;
 
         int value = plain_domain_map[{key, domain}];
-        if (value > 0)
+        if (value == 1)
+        {
+             if (counter == 0)
+            {
+                enc_PV_answer->C1 = tmp->C1;
+                enc_PV_answer->C2 = tmp->C2;
+            }
+            else
+            {
+                tmp->C1 = enc_PV_answer->C1;
+                tmp->C2 = enc_PV_answer->C2;
+                gamal_add(enc_PV_answer, tmp, itr->second);
+            }
+
+            counter++;
+        
+        }
+        else if (value > 1)
         {
             gamal_mult_opt(mul_tmp, itr->second, value);
 

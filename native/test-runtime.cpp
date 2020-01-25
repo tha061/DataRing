@@ -161,7 +161,7 @@ int runtime_testing(int argc, char **argv)
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
 
-	cout<<"pre PV gen done!"<<endl;
+	
 
 	
 	t1 = high_resolution_clock::now();
@@ -169,8 +169,7 @@ int runtime_testing(int argc, char **argv)
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
-	cout<<"PV gen done!"<<endl;
-
+	
 	//++++++++++ PARTY IS DISHONEST ++++++++++++//
 
 	//====== strategy 1
@@ -250,7 +249,7 @@ int runtime_testing(int argc, char **argv)
 	gamal_ciphertext_t sum_cipher;
 
 
-/*
+
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 	//                          QUERY & TEST PHASE                              //
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -526,7 +525,7 @@ int runtime_testing(int argc, char **argv)
 
 	// storeTimeEvaluation(argc, argv, time_track_list, verify_status);
 
-*/
+
 	if (argc > 1)
 	{
 		fstream fout;

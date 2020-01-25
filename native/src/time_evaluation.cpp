@@ -22,6 +22,12 @@ void trackTaskPerformance(TRACK_LIST &time_track_list, string task_name, high_re
 	time_track_list.push_back(make_pair(task_name, to_string(task_time_diff)));
 }
 
+void trackTestAccu(TRACK_LIST &time_track_list, string task_name, int test_result)
+{
+	
+	time_track_list.push_back(make_pair(task_name, to_string(test_result)));
+}
+
 // int computeTimeEvaluation()
 // {
 // 	std::ifstream data("./results/runtime_phase3_honest_participant_500K_pv_001_L_1000_4query_3test.csv");
@@ -76,7 +82,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, boo
 		fstream fout;
 		if (strcmp(argv[11], "1") == 0)
 		{
-			fout.open("./results/phase3_honestPV_malicious_answer_100K_pv_001_L_500_10query_freq_test_05_freq_lie_01_fake_09.csv", ios::out | ios::trunc);
+			fout.open("./results/phase3_honestPV_malicious_answer_100K_pv_001_L_500_10query_freq_test_05_freq_lie_05_fake_09_new.csv", ios::out | ios::trunc);
 			fout << "Iteration, PV Verification";
 			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
@@ -87,7 +93,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, boo
 		}
 		else
 		{
-			fout.open("./results/phase3_honestPV_malicious_answer_100K_pv_001_L_500_10query_freq_test_05_freq_lie_01_fake_09.csv", ios::out | ios::app);
+			fout.open("./results/phase3_honestPV_malicious_answer_100K_pv_001_L_500_10query_freq_test_05_freq_lie_05_fake_09_new.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file

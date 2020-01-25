@@ -23,6 +23,8 @@ public:
     double minNoise_q;
     double maxNoise_test;
     double minNoise_test;
+    int no_lied_answer; 
+
     Participant();
     Participant(string data_dir);
 

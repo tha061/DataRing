@@ -60,8 +60,12 @@ int phase_3_test(int argc, char **argv)
 	// Setup answer strategy
 	int answer_strategy;
 	int true_fake[] = {1, 0};
-	int fake_freq = 10; //freq of lie
+	int fake_freq = 50; //freq of lie
 	int freq[] = {100 - fake_freq, fake_freq}; //using fake dataset with p2 = 0.1
+
+	float lie_freq = 0.5;//(float)50/100;
+
+
 	int n = sizeof(true_fake)/sizeof(true_fake[0]);
 
 	// participant computes epsilon for a query's answer and a test's answer
@@ -268,6 +272,8 @@ int phase_3_test(int argc, char **argv)
 
 
 	bool test_status;
+	int count_lied_ans = 0;
+	int no_lied_detected = 0;
 	int threshold;
 	gamal_ciphertext_t sum_cipher;
 
@@ -280,6 +286,13 @@ int phase_3_test(int argc, char **argv)
 	servers.minNoise = -servers.maxNoise;
 
 	cout<<"Server: maxNoise = "<<servers.maxNoise<<endl;
+
+	part_A.no_lied_answer = (int)(lie_freq*iterations);
+	cout<<"freq of lie = "<<lie_freq<<endl;
+	cout<<"iterations = "<<iterations<<endl;
+	cout<<"no of lies = "<<part_A.no_lied_answer<<endl;
+
+	
 
 	int itr = 1;
 	
@@ -321,14 +334,17 @@ int phase_3_test(int argc, char **argv)
 		// }
 		// trackTaskStatus(time_track_list, "Query:Dataset true/false", toss);
 
-		//====answer using fake dataset with probability p2
+		// //====answer using fake dataset with probability p2
 	
 		answer_strategy = myRand(true_fake, freq, n);
+		
 		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
 
-		if (answer_strategy == 0)
+		if (answer_strategy == 0 && count_lied_ans < part_A.no_lied_answer)
 		{
 			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_q);
+			count_lied_ans++;
+			
 
 		}
 		else
@@ -337,6 +353,9 @@ int phase_3_test(int argc, char **argv)
 			
 		}	
 		trackTaskStatus(time_track_list, "Query:Dataset true/false", answer_strategy);
+		
+
+		
 
 		// //==== answer L to all questions
 		// gamal_cipher_new(sum_cipher);
@@ -414,10 +433,11 @@ int phase_3_test(int argc, char **argv)
 		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
 		// answer_strategy = 1;
 
-		if (answer_strategy == 0)
+		if (answer_strategy == 0 && count_lied_ans < part_A.no_lied_answer)
 		{
 			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_test);
-
+			count_lied_ans++;
+		
 		}
 		else
 		{
@@ -459,7 +479,12 @@ int phase_3_test(int argc, char **argv)
 		threshold = server1.known_vector.size();
 		// cout<< "Threshold L = " << threshold <<endl;
 		test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold);
+		if (test_status == 0)
+		{
+			no_lied_detected++;
+		}
 		trackTaskStatus(time_track_list, "Test target L status", test_status);
+		// trackTaskStatus(time_track_list, "No of lied ans", count_lied_ans);
 		server1.enc_test_map_pre.clear();
 
 	}
@@ -504,10 +529,10 @@ int phase_3_test(int argc, char **argv)
 		answer_strategy = myRand(true_fake, freq, n);
 		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
 
-		if (answer_strategy == 0)
+		if (answer_strategy == 0 && count_lied_ans < part_A.no_lied_answer)
 		{
 			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_test);
-
+			count_lied_ans++;
 		}
 		else
 		{
@@ -549,7 +574,14 @@ int phase_3_test(int argc, char **argv)
 		threshold = PV_size; //actual PV size = V (not the PV histogram)
 		// cout<<"Threshold V = " << threshold << endl;
 		test_status = servers.verifyingTestResult("Test target V rows found:", sum_cipher, table, server_id, threshold);
+		
 		trackTaskStatus(time_track_list, "Test target V status", test_status);
+
+		if (test_status == 0)
+		{
+			no_lied_detected++;
+		}
+		
 		
 		server1.enc_test_map_pre.clear();
 	}
@@ -615,10 +647,12 @@ int phase_3_test(int argc, char **argv)
 		answer_strategy = myRand(true_fake, freq, n);
 		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
 
-		if (answer_strategy == 0)
+		if (answer_strategy == 0 && count_lied_ans < part_A.no_lied_answer)
 		{
 			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_test);
-
+			count_lied_ans++;
+			
+			
 		}
 		else
 		{
@@ -667,9 +701,14 @@ int phase_3_test(int argc, char **argv)
 
 		test_status = servers.verifyingTestResult_Estimate("Test attr found:", sum_cipher, table, server_id, enc_PV_answer, alpha);
 		trackTaskStatus(time_track_list, "Test attr status", test_status);
+		if (test_status == 0)
+		{
+			no_lied_detected++;
+		}
 
 		server1.match_query_domain_vect.clear();
 		server1.enc_test_map_pre.clear();
+		
 
 	}
 
@@ -738,6 +777,17 @@ int phase_3_test(int argc, char **argv)
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 	// cout << "Track map size: " << time_track_list.size() << endl;
+
+	
+
+	// cout<<"no of lied ans = "<< count_lied_ans<<endl;
+	// cout<<"no of lied detected = "<< no_lied_detected<<endl;
+
+
+
+	trackTestAccu(time_track_list, "No. of lied answer", count_lied_ans);
+	trackTestAccu(time_track_list, "No. of lied detected", no_lied_detected);
+
 
 	storeTimeEvaluation(argc, argv, time_track_list, verify_status);
 
