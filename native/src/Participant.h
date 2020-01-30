@@ -28,8 +28,9 @@ public:
     Participant();
     Participant(string data_dir);
 
-    //RENAME THIS FUNCTION to addDummy_TrueHistogram()
-    void addDummy_TrueHistogram(int factorSize);
+    //RENAME THIS FUNCTION to addDummy_to_Histogram()
+    void addDummy_to_Histogram(int factorSize);
+    void addDummy_all_ones_FakeHistogram(int factorSize); //added by Tham 29 Jan
     // replace n-keepDomainS with dummy of E(1)
     void addDummy_FakeHist(int keepDomainS, int factorSize);
 

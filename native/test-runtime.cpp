@@ -90,7 +90,7 @@ int runtime_testing(int argc, char **argv)
 
 	t1 = high_resolution_clock::now();
 	t1 = high_resolution_clock::now();
-	part_A.addDummy_TrueHistogram(a);
+	part_A.addDummy_to_Histogram(a);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Add dummy to true Hist (ms)", t1, t2);
 
@@ -260,40 +260,40 @@ int runtime_testing(int argc, char **argv)
 
     //+++++++++++++++++++RUNTIME OPTIMIZED++++++++++++++++++++++++++++++//
 
-	// //====TEST FUNCTION KNOWN RECORDS NEW USING PRE_COMPUTE TEST FUCTION =====//
-	// Pre process
+	// // //====TEST FUNCTION KNOWN RECORDS NEW USING PRE_COMPUTE TEST FUCTION =====//
+	// // Pre process
 
 	
-	t1 = high_resolution_clock::now();
-	server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Prepare Test function (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Prepare Test function (ms)", t1, t2);
 
-	t1 = high_resolution_clock::now();
-	server1.generateTestKnownRecords_opt(pre_enc_stack, part_A.enc_domain_map);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen Test L (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// server1.generateTestKnownRecords_opt(pre_enc_stack, part_A.enc_domain_map);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Gen Test L (ms)", t1, t2);
 
-	t1 = high_resolution_clock::now();
-	gamal_cipher_new(sum_cipher);
-	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Compute ans L opt (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// gamal_cipher_new(sum_cipher);
+	// part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Compute ans L opt (ms)", t1, t2);
 
-	//Tham added 15 Jan, delete test at server side
-	server1.enc_test_map.clear();
+	// //Tham added 15 Jan, delete test at server side
+	// server1.enc_test_map.clear();
 
-	threshold = server1.known_vector.size();
-	t1 = high_resolution_clock::now();
-	test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Verify test L result  (ms)", t1, t2);
-	trackTaskStatus(time_track_list, "Test target L status", test_status);
+	// threshold = server1.known_record_subset.size();
+	// t1 = high_resolution_clock::now();
+	// test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Verify test L result  (ms)", t1, t2);
+	// trackTaskStatus(time_track_list, "Test target L status", test_status);
 
 	
 
 
-	// // //===== TEST FUNCTION BASED PV OPTIMAL =====
+	// //===== TEST FUNCTION BASED PV OPTIMAL =====
 
 	t1 = high_resolution_clock::now();
 	server1.generateTestBasedPartialView_opt(pre_enc_stack, part_A.enc_domain_map);
@@ -362,54 +362,54 @@ int runtime_testing(int argc, char **argv)
 
     // // ==== NORMAL QUERY PRE_COMPUTE TO OPTIMIZE RUNTIME ============//
 
-	t1 = high_resolution_clock::now();
-	server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Preprare Query (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Preprare Query (ms)", t1, t2);
 
 
-	t1 = high_resolution_clock::now();
-	server1.generateMatchDomain();
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen Match Domain (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// server1.generateMatchDomain();
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Gen Match Domain (ms)", t1, t2);
 
 
-	t1 = high_resolution_clock::now();
-	server1.generateNormalQuery_opt(pre_enc_stack);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen Query (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// server1.generateNormalQuery_opt(pre_enc_stack);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Gen Query (ms)", t1, t2);
 
-	t1 = high_resolution_clock::now();
-	gamal_cipher_new(sum_cipher);
-	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Compute ans Query (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// gamal_cipher_new(sum_cipher);
+	// part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Compute ans Query (ms)", t1, t2);
 	
 	
 
-	// Re-encrypt query answer to participant B's public key
+	// // Re-encrypt query answer to participant B's public key
 
-	gamal_ciphertext_t sum_cipher_update;
+	// gamal_ciphertext_t sum_cipher_update;
 
-	gamal_generate_keys(part_B.keys); //part_B keys pair   
+	// gamal_generate_keys(part_B.keys); //part_B keys pair   
 
-	t1 = high_resolution_clock::now();
-	gama_key_switch_lead(sum_cipher_update, sum_cipher, server1.key, part_B.keys);
-	for (int i=1; i< SERVER_SIZE; i++)
-	{
-		gama_key_switch_follow(sum_cipher_update, sum_cipher, servers.server_vect[server_id+i].key, part_B.keys);
-	}
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Re-encryption (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// gama_key_switch_lead(sum_cipher_update, sum_cipher, server1.key, part_B.keys);
+	// for (int i=1; i< SERVER_SIZE; i++)
+	// {
+	// 	gama_key_switch_follow(sum_cipher_update, sum_cipher, servers.server_vect[server_id+i].key, part_B.keys);
+	// }
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Re-encryption (ms)", t1, t2);
 
-	// dig_t after;
-	// gamal_decrypt(&after, part_B.keys, sum_cipher_update, table);	
-	// std::cout<<"Check after re-encryption: "<<after<<std::endl;
+	// // dig_t after;
+	// // gamal_decrypt(&after, part_B.keys, sum_cipher_update, table);	
+	// // std::cout<<"Check after re-encryption: "<<after<<std::endl;
 
 
 
-	//Tham added 15 Jan, delete query at the server side
-	server1.enc_test_map.clear();
+	// //Tham added 15 Jan, delete query at the server side
+	// server1.enc_test_map.clear();
 
 
 
@@ -427,7 +427,7 @@ int runtime_testing(int argc, char **argv)
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Compute ans L (ms)", t1, t2);
 
-	// threshold = server1.known_vector.size();
+	// threshold = server1.known_record_subset.size();
 	// test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold, percentile_noise);
 	// trackTaskStatus(time_track_list, "Test target L status", test_status);
 
@@ -531,7 +531,7 @@ int runtime_testing(int argc, char **argv)
 		fstream fout;
 		if (strcmp(argv[9], "1") == 0)
 		{
-			fout.open("./results/runtime_honest_party_n1000K_2_check_scalar_multi_with1.csv", ios::out | ios::trunc);
+			fout.open("./results/runtime_honest_party_n800K_new_2.csv", ios::out | ios::trunc);
 			fout << "Iteration, PV Verification";
 			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
@@ -542,7 +542,7 @@ int runtime_testing(int argc, char **argv)
 		}
 		else
 		{
-			fout.open("./results/runtime_honest_party_n1000K_2_check_scalar_multi_with1.csv", ios::out | ios::app);
+			fout.open("./results/runtime_honest_party_n800K_new_2.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file

@@ -58,7 +58,9 @@ void Servers::generateCollKey()
 
 dig_t Servers ::_fusionDecrypt(gamal_ciphertext_t ciphertext, bsgs_table_t table, int serverId)
 {
+    // cout<<"decryption begin "<<endl;
     int server_size = server_vect.size();
+    // cout<<"server_size = "<<server_size <<endl;
     gamal_key_t key_follow[server_size - 1];
 
     int counter = 0;
@@ -72,11 +74,14 @@ dig_t Servers ::_fusionDecrypt(gamal_ciphertext_t ciphertext, bsgs_table_t table
             counter++;
         }
     }
+    // cout<<"counter = "<<counter<<endl;
 
     dig_t res;
     gamal_ciphertext_t ciphertext_update;
 
     gamal_fusion_decrypt(&res, server_size, server_vect[serverId].key, key_follow, ciphertext_update, ciphertext, table);
+
+    // cout<<"decrypted answer = "<<res<<endl;
 
     return res;
 }
@@ -116,9 +121,9 @@ void Servers::fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table)
 bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack, double eta)
 {
     Server server = server_vect[serverId]; // shallow copy
-    const int KNOWN_VECT_SIZE = server.known_vector.size();
+    const int number_known_records = server.known_record_subset.size();
     int v = (int)data_size * pv_ratio;
-    const int LEAST_DOMAIN = server_vect[serverId].generatePVTestCondition(data_size, v, KNOWN_VECT_SIZE, eta);
+    const int req_known_record_found = server_vect[serverId].generatePVTestCondition(data_size, v, number_known_records, eta);
     gamal_ciphertext_t sum, tmp, encrypt_E0;
     gamal_cipher_new(sum);
     gamal_cipher_new(tmp);
@@ -128,85 +133,152 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
 
     int counter = 0;
 
-    gamal_ciphertext_t total_v_decrypt, tmp_v_decrypt;
-    gamal_cipher_new(tmp_v_decrypt);
-    gamal_cipher_new(total_v_decrypt);
-    int count = 0;
+    //========= Checking both the PV size is V of enc(1) or not and the known records >= r0
 
-    for (id_domain_set::iterator itr = server.known_vector.begin(); itr != server.known_vector.end(); itr++)
-    {
-        id_domain_pair domain_pair = *itr;
-        ENC_DOMAIN_MAP::iterator find = enc_domain_map.find(domain_pair);
-        if (find != enc_domain_map.end())
+    // gamal_ciphertext_t total_v, tmp_v;
+    // gamal_cipher_new(tmp_v);
+    // gamal_cipher_new(total_v);
+    // total_v->C1 = encrypt_E0->C1;
+    // total_v->C2 = encrypt_E0->C2;
+    // tmp_v->C1 = total_v->C1;
+    // tmp_v->C2 = total_v->C2;
+    
+    // for (ENC_DOMAIN_MAP::iterator ind = enc_domain_map.begin(); ind != enc_domain_map.end(); ind++)
+    // {
+    //     gamal_add(total_v, tmp_v, ind->second);
+    //     tmp_v->C1 = total_v->C1;
+    //     tmp_v->C2 = total_v->C2;
+    // }
+
+    // dig_t total_v_decrypt = Servers::_fusionDecrypt(total_v, table, serverId);
+    // cout << "Total number of domain encrypted as 1 in PV: " << total_v_decrypt << endl;
+
+    
+    // if (total_v_decrypt != v)
+    // {
+    //     cout << "Fail the verification" << endl;
+    //     return false;
+    // }
+    // else
+    // {
+    //     for (id_domain_set::iterator itr = server.known_record_subset.begin(); itr != server.known_record_subset.end(); itr++)
+    //     {
+    //         id_domain_pair domain_pair = *itr;
+    //         ENC_DOMAIN_MAP::iterator find = enc_domain_map.find(domain_pair);
+    //         if (find != enc_domain_map.end())
+    //         {
+    //             if (counter == 0)
+    //             {
+    //                 sum->C1 = find->second->C1;
+    //                 sum->C2 = find->second->C2;
+    //             }
+    //             else
+    //             {
+    //                 tmp->C1 = sum->C1;
+    //                 tmp->C2 = sum->C2;
+    //                 gamal_add(sum, tmp, find->second);
+    //             }
+
+    //             //======= To find exactly which known rows are in PV 
+
+    //             gamal_ciphertext_t tmp_decrypt;
+    //             gamal_add(tmp_decrypt, find->second, encrypt_E0); // to fix the decryption function
+    //             dig_t domain_decrypt = Servers::_fusionDecrypt(tmp_decrypt, table, serverId);
+    //             if (domain_decrypt > 0)
+    //             {
+    //                  // cout << "Domain decrypt: " << domain_decrypt << endl;
+    //                  server_vect[serverId].save_knownRow_found_in_PV(domain_pair);
+    //             }
+    //             //===========================================================
+
+    //             counter++;
+    //         }
+
+    //     }
+
+    //     dig_t sum_res = Servers::_fusionDecrypt(sum, table, serverId);
+
+    //     if (sum_res >= req_known_record_found)
+    //     {
+    //         cout << "Total known rows found in PV: " << sum_res << endl;
+    //         cout << "Pass the verification" << endl;
+    //         return true;
+    //     }
+    //     else
+    //     {
+    //         cout << "Total known rows found in PV: " << sum_res << endl;
+    //         cout << "Fail the verification" << endl;
+    //         return false;
+    //     }
+
+
+
+    // }
+
+    //============================================
+
+
+    //====== if do not check PV size = V, only check the known records >= r0 ========
+
+    for (id_domain_set::iterator itr = server.known_record_subset.begin(); itr != server.known_record_subset.end(); itr++)
         {
-            if (counter == 0)
+            id_domain_pair domain_pair = *itr;
+            ENC_DOMAIN_MAP::iterator find = enc_domain_map.find(domain_pair);
+            if (find != enc_domain_map.end())
             {
-                sum->C1 = find->second->C1;
-                sum->C2 = find->second->C2;
-            }
-            else
-            {
-                tmp->C1 = sum->C1;
-                tmp->C2 = sum->C2;
-                gamal_add(sum, tmp, find->second);
+                if (counter == 0)
+                {
+                    sum->C1 = find->second->C1;
+                    sum->C2 = find->second->C2;
+                }
+                else
+                {
+                    tmp->C1 = sum->C1;
+                    tmp->C2 = sum->C2;
+                    gamal_add(sum, tmp, find->second);
+                }
+
+                //======= To find exactly which known rows are in PV ====
+                gamal_ciphertext_t tmp_decrypt;
+                gamal_add(tmp_decrypt, find->second, encrypt_E0); // to fix the decryption function
+                dig_t domain_decrypt = Servers::_fusionDecrypt(tmp_decrypt, table, serverId);
+                if (domain_decrypt > 0)
+                {
+                    // cout << "Domain decrypt: " << domain_decrypt << endl;
+                    server_vect[serverId].save_knownRow_found_in_PV(domain_pair);
+                }
+                //===========================================================
+
+                counter++;
             }
 
-            gamal_ciphertext_t tmp_decrypt;
-            gamal_add(tmp_decrypt, find->second, encrypt_E0); // to fix the decryption function
-            dig_t domain_decrypt = Servers::_fusionDecrypt(tmp_decrypt, table, serverId);
-            if (domain_decrypt > 0)
-            {
-                // cout << "Domain decrypt: " << domain_decrypt << endl;
-                server_vect[serverId].save_knownRow_found_in_PV(domain_pair);
-            }
-
-            counter++;
         }
 
-    }
+        dig_t sum_res = Servers::_fusionDecrypt(sum, table, serverId);
 
-    // dig_t total_v = Servers::_fusionDecrypt(total_v_decrypt, table, serverId);
-    // cout << "V - Total number of domain encrypted as 1: " << total_v << endl;
-    // if (total_v == (data_size * 0.01))
-    // {
-    //     cout << "Pass V size verification" << endl;
-    // }
-    // else
-    // {
-    //     cout << "Fail V size verification" << endl;
-    // }
+        if (sum_res >= req_known_record_found)
+        {
+            cout << "Total known rows found in PV: " << sum_res << endl;
+            cout << "Pass the verification" << endl;
+            return true;
+        }
+        else
+        {
+            cout << "Total known rows found in PV: " << sum_res << endl;
+            cout << "Fail the verification" << endl;
+            return false;
+        }
 
-    // cout << "L - TOtal number of known domain ecrypted from partial view: " << counter << endl;
-    // if (counter == server.known_vector.size())
-    // {
-    //     cout << "Pass L size verification" << endl;
-    // }
-    // else
-    // {
-    //     cout << "Fail L size verification" << endl;
-    // }
 
-    // cout << "Total matching domain: " << counter << endl;
-
-    dig_t sum_res = Servers::_fusionDecrypt(sum, table, serverId);
-
-    if (sum_res >= LEAST_DOMAIN)
-    {
-        cout << "Total known rows found in PV: " << sum_res << endl;
-        cout << "Pass the verification" << endl;
-        return true;
-    }
-    else
-    {
-        cout << "Total known rows found in PV: " << sum_res << endl;
-        cout << "Fail the verification" << endl;
-        return false;
-    }
+    //=====================================================
+    
+    
 }
 
 bool Servers::verifyingTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold)
 {
     dig_t decrypt_test_f = Servers::_fusionDecrypt(sum_cipher, table, serverId);
+
     cout << testName << " " << decrypt_test_f << endl;
 
     // float epsilon = 0.1;

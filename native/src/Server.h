@@ -10,7 +10,7 @@ public:
     // static gamal_key_t coll_key;
     gamal_key_t key;
     gamal_ciphertext_t *myPIR_enc;
-    id_domain_set known_vector;
+    id_domain_set known_record_subset;
     ENC_DOMAIN_MAP enc_test_map;
     // ENC_DOMAIN_MAP enc_test_map_pre, enc_test_map_tmp; // for preprare a test funtion
     ENC_DOMAIN_MAP enc_test_map_pre; // for preprare a test funtion
@@ -70,6 +70,9 @@ public:
     void generateTest_Target_Attr_opt(ENC_Stack &pre_enc_stack); 
 
     void generateServerDomain_Test_Target_Attr(ENC_Stack &pre_enc_stack);
+
+    // added by Tham 29 Jan 2020, to check for all rows in the histogram, expected answer is n+noise
+    void generateTest_Target_All_Records(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map);
 
     /**
      * This function is to generate test function, there are many options

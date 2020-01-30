@@ -60,20 +60,83 @@ int phase_3_test(int argc, char **argv)
 	// Setup answer strategy
 	int answer_strategy;
 	int true_fake[] = {1, 0};
-	int fake_freq = 50; //freq of lie
+	int fake_freq = 10; //freq of lie
 	int freq[] = {100 - fake_freq, fake_freq}; //using fake dataset with p2 = 0.1
 
-	float lie_freq = 0.5;//(float)50/100;
-
-
+	float lie_freq = (float)fake_freq/100;
 	int n = sizeof(true_fake)/sizeof(true_fake[0]);
+	int answer_strategy_arr[iterations];
+
+	int no_lied_answer = (int)(lie_freq*iterations);
+
+	int counter = 0;
+	for (int i =0; i< iterations; i++)
+	{
+		answer_strategy_arr[i] =  myRand(true_fake, freq, n);
+		if (answer_strategy_arr[i] ==  0)
+		{
+			counter++;
+		}
+	}
+
+	// for (int i =0; i< iterations; i++)
+	// {
+	// 	// answer_strategy_arr[i] =  myRand(true_fake, freq, n);
+	// 	if (answer_strategy_arr[i] ==  0)
+	// 	{
+	// 		counter++;
+	// 	}
+	// }
+
+	// cout<<"check ok"<<endl;
+	// cout<<"counter before fill = "<<counter<<endl;
+	// for (int i =0; i< iterations; i++)
+	// {
+	// 	cout<<"before fixed: ans ["<<i<<"] = "<<answer_strategy_arr[i]<<endl; 
+	// }
+
+	int i;
+	while (counter < no_lied_answer)
+	{
+	
+		i = rand()%iterations;
+		// cout<<"which one to fix = "<<i<<endl;
+		if (answer_strategy_arr[i] == 1)
+		{
+			answer_strategy_arr[i] = 0;
+			counter++;
+		}
+		// i++;
+		
+	}
+
+	while (counter > no_lied_answer)
+	{
+	
+		i = rand()%iterations;
+		// cout<<"which one to fix = "<<i<<endl;
+		if (answer_strategy_arr[i] == 0)
+		{
+			answer_strategy_arr[i] = 1;
+			counter--;
+		}
+		// i++;
+		
+	}
+	// cout<<"check ok"<<endl;
+	// cout<<"counter after fix = "<<counter<<endl;
+
+	// for (int i =0; i< iterations; i++)
+	// {
+	// 	cout<<"after fixed: ans ["<<i<<"] = "<<answer_strategy_arr[i]<<endl; 
+	// }
 
 	// participant computes epsilon for a query's answer and a test's answer
     float epsilon_q = noise_budget/(num_query+3*num_test);
 	float epsilon_test = 3*epsilon_q;
 
 
-	double num_test_each = (double)num_test/3;
+	double num_test_each = (double)num_test/4; // 4 test function types
 	int num_test_rounded = ceil(num_test_each);
 	cout << "num_test_rounded = "<< num_test_rounded <<endl;
 	// cout << "num_test = " << num_test_each <<endl;
@@ -100,10 +163,10 @@ int phase_3_test(int argc, char **argv)
 	// PARTICIPANT CONVERT DATASET TO HISTOGRAM
 	Participant part_A(UNIQUE_DOMAIN_DIR);
 
-	t1 = high_resolution_clock::now();
+	// t1 = high_resolution_clock::now();
 	part_A.create_OriginalHistogram(datasize_row);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Create Hist (ms)", t1, t2);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Create Hist (ms)", t1, t2);
 
 	// cout << "Total rows: " << part_A.size_dataset << endl;
 	// cout << "Total domains: " << part_A.hashMap.size() << endl;
@@ -111,24 +174,30 @@ int phase_3_test(int argc, char **argv)
 	// part_A.print_hash_map();
 
 	// party generate true histogram
-	t1 = high_resolution_clock::now();
-	t1 = high_resolution_clock::now();
-	part_A.addDummy_TrueHistogram(a);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Add dummy to true Hist (ms)", t1, t2);
+	
+	// t1 = high_resolution_clock::now();
+	part_A.addDummy_to_Histogram(a);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Add dummy to true Hist (ms)", t1, t2);
 
 	int size_dataset = part_A.size_dataset;
 
 
 	//party create fake histogram: keep some true rows
-	float amt_lie = 0.9;
-	int keep_row = int(datasize_row*(1-amt_lie)); //amount of lie
+	//===case 1:
+	// float amt_lie = 1;
+	// int keep_row = int(datasize_row*(1-amt_lie)); //amount of lie
 	// int keep_row = 428027; 
-	t1 = high_resolution_clock::now();
-	part_A.addDummy_FakeHist_random(keep_row, a);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// part_A.addDummy_FakeHist_random(keep_row, a);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 	
+	//==case 2
+	// t1 = high_resolution_clock::now();
+	// part_A.addDummy_all_ones_FakeHistogram(a);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 
 	// SERVER SETUP COLLECTIVE KEY
 	Servers servers(SERVER_SIZE, size_dataset, KNOWN_DOMAIN_DIR);
@@ -177,25 +246,25 @@ int phase_3_test(int argc, char **argv)
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 	// SERVER CREATE PV SAMPLING VECTOR
-	t1 = high_resolution_clock::now();
+	// t1 = high_resolution_clock::now();
 	servers.createPVsamplingVector(pre_enc_stack);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen PV sampling (ms)", t1, t2);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Gen PV sampling (ms)", t1, t2);
 
 	//+++++++++++ PARTY IS HONEST +++++++++++++++//
 
 
 	//Gen PV optimal by pre-compte Enc(0) to all dummy domains at offline
 	//pre process:
-	t1 = high_resolution_clock::now();
+	// t1 = high_resolution_clock::now();
 	part_A.pre_process_generatePV(true);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
 	
-	t1 = high_resolution_clock::now();
+	// t1 = high_resolution_clock::now();
 	part_A.generatePV_opt(servers.s_myPIR_enc, true);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
 	//++++++++++ PARTY IS DISHONEST ++++++++++++//
 
@@ -264,11 +333,11 @@ int phase_3_test(int argc, char **argv)
 	int server_id = 0; // Server 1
 	Server server1 = servers.server_vect[server_id];
 
-	t1 = high_resolution_clock::now();
-	t1 = high_resolution_clock::now();
+	
+	// t1 = high_resolution_clock::now();
 	bool verify_status = servers.verifyingPV(part_A.enc_domain_map, table, server_id, pre_enc_stack, eta);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Verify PV (ms)", t1, t2);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Verify PV (ms)", t1, t2);
 
 
 	bool test_status;
@@ -288,19 +357,21 @@ int phase_3_test(int argc, char **argv)
 	cout<<"Server: maxNoise = "<<servers.maxNoise<<endl;
 
 	part_A.no_lied_answer = (int)(lie_freq*iterations);
-	cout<<"freq of lie = "<<lie_freq<<endl;
-	cout<<"iterations = "<<iterations<<endl;
-	cout<<"no of lies = "<<part_A.no_lied_answer<<endl;
+	// cout<<"freq of lie = "<<lie_freq<<endl;
+	// cout<<"iterations = "<<iterations<<endl;
+	// cout<<"no of lies = "<<part_A.no_lied_answer<<endl;
 
 	
 
+	int index = 0;
 	int itr = 1;
+
 	
 	while (itr <= num_query)
     {
          // // ==== NORMAL QUERY PRE_COMPUTE TO OPTIMIZE RUNTIME ============//
       
-        cout<< "\nQuery: #" <<itr << endl;
+        cout<< "\nQuery: #" << itr << endl;
 		// bool check = server1.enc_test_map.empty();
 		// cout<< "enc_test_map empty? "<<check<<endl;
 		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
@@ -336,20 +407,26 @@ int phase_3_test(int argc, char **argv)
 
 		// //====answer using fake dataset with probability p2
 	
-		answer_strategy = myRand(true_fake, freq, n);
+		// answer_strategy = myRand(true_fake, freq, n);
+		answer_strategy = answer_strategy_arr[index];
 		
 		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
 
-		if (answer_strategy == 0 && count_lied_ans < part_A.no_lied_answer)
+		if (answer_strategy == 0)
 		{
+			// t1 = high_resolution_clock::now();
 			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_q);
+			// t2 = high_resolution_clock::now();
+			// trackTaskPerformance(time_track_list, "Compute ans Query (ms)", t1, t2);
 			count_lied_ans++;
 			
-
 		}
 		else
 		{
+			// t1 = high_resolution_clock::now();
 			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon_q);
+			// t2 = high_resolution_clock::now();
+			// trackTaskPerformance(time_track_list, "Compute ans Query (ms)", t1, t2);
 			
 		}	
 		trackTaskStatus(time_track_list, "Query:Dataset true/false", answer_strategy);
@@ -359,7 +436,7 @@ int phase_3_test(int argc, char **argv)
 
 		// //==== answer L to all questions
 		// gamal_cipher_new(sum_cipher);
-		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_vector.size());
+		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_record_subset.size());
 
 		// //==== answer V to all questions
 		// gamal_cipher_new(sum_cipher);
@@ -374,7 +451,7 @@ int phase_3_test(int argc, char **argv)
 		// if (toss == 0) { //answer L + noise
 		// 	gamal_cipher_new(sum_cipher);
 		// 	int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
-		// 	gamal_encrypt(sum_cipher, servers.coll_key, server1.known_vector.size() + randomNoise);
+		// 	gamal_encrypt(sum_cipher, servers.coll_key, server1.known_record_subset.size() + randomNoise);
 		// }
 		// else
 		// { //answer V + noise
@@ -387,6 +464,7 @@ int phase_3_test(int argc, char **argv)
         server1.enc_test_map.clear();
 		server1.match_query_domain_vect.clear();
         itr++;
+		index++;
     }
 
 	
@@ -394,7 +472,7 @@ int phase_3_test(int argc, char **argv)
     // Pre process
 	
 
-	for (int i = 1; i<=num_test_rounded; i++) 
+	for (int i = 1; i<= num_test_rounded; i++) 
 	{
 		cout<<"\nTest L: #"<<i<<endl;
 		// bool check = server1.enc_test_map.empty();
@@ -429,26 +507,33 @@ int phase_3_test(int argc, char **argv)
 
 		//====answer using fake dataset with probability p2
 	
-		answer_strategy = myRand(true_fake, freq, n);
-		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
-		// answer_strategy = 1;
-
-		if (answer_strategy == 0 && count_lied_ans < part_A.no_lied_answer)
-		{
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_test);
-			count_lied_ans++;
+		// answer_strategy = myRand(true_fake, freq, n);
+		answer_strategy = answer_strategy_arr[index];
 		
+		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
+
+		if (answer_strategy == 0)
+		{
+			// t1 = high_resolution_clock::now();
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_test);
+			// t2 = high_resolution_clock::now();
+			// trackTaskPerformance(time_track_list, "Compute ans L(ms)", t1, t2);
+			count_lied_ans++;
+			
 		}
 		else
 		{
+			// t1 = high_resolution_clock::now();
 			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon_test);
+			// t2 = high_resolution_clock::now();
+			// trackTaskPerformance(time_track_list, "Compute ans L(ms)", t1, t2);
 			
 		}	
 		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
 
 		// //==== answer L to all questions
 		// gamal_cipher_new(sum_cipher);
-		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_vector.size());
+		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_record_subset.size());
 
 		// //==== answer V to all questions
 		// gamal_cipher_new(sum_cipher);
@@ -463,7 +548,7 @@ int phase_3_test(int argc, char **argv)
 		// if (toss == 0) {
 		// 	gamal_cipher_new(sum_cipher);
 		// 	int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
-		// 	gamal_encrypt(sum_cipher, servers.coll_key, server1.known_vector.size() + randomNoise);
+		// 	gamal_encrypt(sum_cipher, servers.coll_key, server1.known_record_subset.size() + randomNoise);
 		// }
 		// else
 		// {
@@ -473,11 +558,11 @@ int phase_3_test(int argc, char **argv)
 		// }
 
 
-		//Tham added 15 Jan, delete test at server side
-		server1.enc_test_map.clear();
+		
 
-		threshold = server1.known_vector.size();
-		// cout<< "Threshold L = " << threshold <<endl;
+		threshold = server1.known_record_subset.size();
+		cout<< "Threshold L = " << threshold <<endl;
+
 		test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold);
 		if (test_status == 0)
 		{
@@ -486,6 +571,10 @@ int phase_3_test(int argc, char **argv)
 		trackTaskStatus(time_track_list, "Test target L status", test_status);
 		// trackTaskStatus(time_track_list, "No of lied ans", count_lied_ans);
 		server1.enc_test_map_pre.clear();
+		//Tham added 15 Jan, delete test at server side
+		server1.enc_test_map.clear();
+		index++;
+		// cout<< "Test L verify done" << endl;
 
 	}
 	
@@ -526,24 +615,35 @@ int phase_3_test(int argc, char **argv)
 
 		//====answer using fake dataset with probability p2
 	
-		answer_strategy = myRand(true_fake, freq, n);
+		// answer_strategy = myRand(true_fake, freq, n);
 		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
 
-		if (answer_strategy == 0 && count_lied_ans < part_A.no_lied_answer)
+		answer_strategy = answer_strategy_arr[index];
+		
+		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
+
+		if (answer_strategy == 0)
 		{
+			// t1 = high_resolution_clock::now();
 			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_test);
+			// t2 = high_resolution_clock::now();
+			// trackTaskPerformance(time_track_list, "Compute ans V (ms)", t1, t2);
 			count_lied_ans++;
+			
 		}
 		else
 		{
+			// t1 = high_resolution_clock::now();
 			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon_test);
+			// t2 = high_resolution_clock::now();
+			// trackTaskPerformance(time_track_list, "Compute ans V (ms)", t1, t2);
 			
 		}	
 		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
 
 		// //==== answer L to all questions
 		// gamal_cipher_new(sum_cipher);
-		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_vector.size());
+		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_record_subset.size());
 		
 
 		// //==== answer V to all questions
@@ -558,7 +658,7 @@ int phase_3_test(int argc, char **argv)
 		// if (toss == 0) {
 		// 	gamal_cipher_new(sum_cipher);
 		// 	int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
-		// 	gamal_encrypt(sum_cipher, servers.coll_key, server1.known_vector.size() + randomNoise);
+		// 	gamal_encrypt(sum_cipher, servers.coll_key, server1.known_record_subset.size() + randomNoise);
 		// }
 		// else
 		// {
@@ -568,8 +668,7 @@ int phase_3_test(int argc, char **argv)
 		// }
 
 
-		//Tham added 15 Jan, delete test at server side
-		server1.enc_test_map.clear();
+		
 
 		threshold = PV_size; //actual PV size = V (not the PV histogram)
 		// cout<<"Threshold V = " << threshold << endl;
@@ -584,6 +683,9 @@ int phase_3_test(int argc, char **argv)
 		
 		
 		server1.enc_test_map_pre.clear();
+		//Tham added 15 Jan, delete test at server side
+		server1.enc_test_map.clear();
+		index++;
 	}
 
 	//===== TEST FUNCTION 3 targeting V - r0 records in PV ====//
@@ -603,9 +705,59 @@ int phase_3_test(int argc, char **argv)
 	// test_status = servers.verifyingTestResult("Test target V - r0 rows found:", sum_cipher, table, server_id, threshold);
 	// trackTaskStatus(time_track_list, "Test target V - r0 status", test_status);
 	
+
+	//===== TEST FUNCTION  targeting all rows in dataset ====//
+
+
+	
+	for (int i=1; i<=num_test_rounded; i++)
+	{
+		
+		cout<<"\nTest all rows: #"<<i<<endl;
+		
+		server1.generateTest_Target_All_Records(pre_enc_stack, part_A.enc_domain_map);
+		gamal_cipher_new(sum_cipher);
+
+		answer_strategy = answer_strategy_arr[index];
+
+		
+		if (answer_strategy == 0)
+		{
+
+
+			// t1 = high_resolution_clock::now();
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_test);
+			// t2 = high_resolution_clock::now();
+			// trackTaskPerformance(time_track_list, "Compute ans all rows (ms)", t1, t2);
+			count_lied_ans++;
+		}
+		else
+		{
+			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon_test);
+		}
+		
+		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
+
+		
+		threshold = size_dataset;
+		test_status = servers.verifyingTestResult("Test target n rows found:", sum_cipher, table, server_id, threshold);
+		trackTaskStatus(time_track_list, "Test target n rows status", test_status);
+
+		
+		if (test_status == 0)
+		{
+			no_lied_detected++;
+		}
+
+		server1.enc_test_map.clear();
+		index++;
+	
+	}
+
 	//====== RUNTIME OPTIMAL TEST FUNCTION 4 targeting specific attributes ==========//
 
-	for (int i=1; i<= num_test - 2*num_test_rounded; i++)
+
+	for (int i=1; i<= num_test - 3*num_test_rounded; i++)
 	{
 		cout<<"\nTest estimate: #"<<i<<endl;
 		// bool check = server1.enc_test_map.empty();
@@ -644,19 +796,28 @@ int phase_3_test(int argc, char **argv)
 		
 		//====answer using fake dataset with probability p2
 	
-		answer_strategy = myRand(true_fake, freq, n);
+		// answer_strategy = myRand(true_fake, freq, n);
 		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
 
-		if (answer_strategy == 0 && count_lied_ans < part_A.no_lied_answer)
+		answer_strategy = answer_strategy_arr[index];
+		
+		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
+
+		if (answer_strategy == 0)
 		{
+			// t1 = high_resolution_clock::now();
 			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_test);
+			// t2 = high_resolution_clock::now();
+			// trackTaskPerformance(time_track_list, "Compute ans Test Attr opt (ms)", t1, t2);
 			count_lied_ans++;
-			
 			
 		}
 		else
 		{
+			// t1 = high_resolution_clock::now();
 			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon_test);
+			// t2 = high_resolution_clock::now();
+			// trackTaskPerformance(time_track_list, "Compute ans Test Attr opt (ms)", t1, t2);
 			
 		}	
 		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
@@ -664,7 +825,7 @@ int phase_3_test(int argc, char **argv)
 
 		// //==== answer L to all questions===//
 		// gamal_cipher_new(sum_cipher);
-		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_vector.size());
+		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_record_subset.size());
 
 		// //==== answer V to all questions====//
 		// gamal_cipher_new(sum_cipher);
@@ -678,7 +839,7 @@ int phase_3_test(int argc, char **argv)
 		// if (toss == 0) {
 		// 	gamal_cipher_new(sum_cipher);
 		// 	int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
-		// 	gamal_encrypt(sum_cipher, servers.coll_key, server1.known_vector.size() + randomNoise);
+		// 	gamal_encrypt(sum_cipher, servers.coll_key, server1.known_record_subset.size() + randomNoise);
 		// }
 		// else
 		// {
@@ -687,8 +848,7 @@ int phase_3_test(int argc, char **argv)
 		// 	gamal_encrypt(sum_cipher, servers.coll_key, PV_size + randomNoise);
 		// }
 
-		//Tham added 15 Jan, delete test at server side
-		server1.enc_test_map.clear();
+		
 
 
 		server1.generateServerDomain_Test_Target_Attr(pre_enc_stack);
@@ -708,56 +868,13 @@ int phase_3_test(int argc, char **argv)
 
 		server1.match_query_domain_vect.clear();
 		server1.enc_test_map_pre.clear();
+		//Tham added 15 Jan, delete test at server side
+		server1.enc_test_map.clear();
+		index++;
 		
 
 	}
 
-	
-
-	// cout<<"DONE: "<<endl;
-	// cout<<"====SERVER memory check=====\n";
-	// bool S_check = server1.enc_test_map.empty();
-	// cout<< "test/query = enc_test_map empty? "<<S_check<<endl;
-
-	// bool S_check2 = server1.known_vector.empty();
-	// cout << "server1.known_vector.empty(); "<<S_check2<<endl;
-
-
-	// bool S_check3 = server1.enc_test_map_pre.empty();
-	// cout << "server1.enc_test_map_pre.empty(); "<<S_check3<<endl;
-
-
-
-	// bool S_check4 = server1.verified_set.empty();
-	// cout << "server1.verified_set.empty(); "<<S_check4<<endl;
-
-	
-	// bool S_check5 = server1.plain_domain_map.empty();
-	// cout << "server1.plain_domain_map.empty(); "<<S_check5<<endl;
-
-
-	// bool S_check6 = server1.match_query_domain_vect.empty();
-	// cout << "server1.match_query_domain_vect.empty(); "<<S_check6<<endl;
-
-	
-	// bool stack_check = pre_enc_stack.isEmpty();
-	// cout <<"pre_enc_stack.isEmpty(); "<<stack_check<<endl;
-
-	// cout<<"====PARTY memory check======\n";
-	// bool P_check = part_A.enc_domain_map.empty();
-	// cout<< "PV = enc_domain_map empty? "<<P_check<<endl;
-
-	// bool P_check2 = part_A.pre_enc_stack_participant.isEmpty();
-	// cout << "pre_enc_stack_participant.isEmpty() "<< P_check2<<endl;
-
-	// bool P_check3 = part_A.hashMap.empty();
-	// cout << "part_A.hashMap.empty() "<<P_check3<<endl;
-
-	// bool P_check4 = part_A.plain_domain_map.empty();
-	// cout <<"part_A.plain_domain_map.empty() "<<P_check4<<endl;
-
-	// bool P_check5 = part_A.fakeHashMap.empty();
-	// cout << "part_A.fakeHashMap.empty(); "<<P_check5<<endl;
    
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -782,6 +899,7 @@ int phase_3_test(int argc, char **argv)
 
 	// cout<<"no of lied ans = "<< count_lied_ans<<endl;
 	// cout<<"no of lied detected = "<< no_lied_detected<<endl;
+	cout<<"index = "<<index<<endl;
 
 
 

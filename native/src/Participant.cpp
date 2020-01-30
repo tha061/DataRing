@@ -155,26 +155,50 @@ string getDummyDomain()
 
     return dummy_domain;
 }
+/*
+    Honest participant adds dummy bins (all zeroes) to the original histogram
+    -> true histogram: n bins "1" from dataset and (a-1)n bins "0" from dummy
+*/
 
-// Participant adds dummy bins to the original histogram -> true histogram
-void Participant::addDummy_TrueHistogram(int factorSize)
+
+void Participant::addDummy_to_Histogram(int factorSize)
 {
     int domain_size = hashMap.size();
     // cout << "Size of original histogram: " << domain_size << endl;
-    int pv_size = factorSize * size_dataset;
+    int Histo_size = factorSize * size_dataset;
 
     int dummy_id = size_dataset;
-    while (hashMap.size() < pv_size)
+    fakeHashMap = hashMap;
+    while (hashMap.size() < Histo_size)
     {
         string dummy_domain = getDummyDomain();
-        hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
+        hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0}); //honest Histogram: dummy are bin 0s
+        fakeHashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 1}); // dummy are bin 1s
         dummy_id++;
     }
 
-    // cout << "Total size of partial view histogram: " << hashMap.size() << endl
-    //      << endl;
+}
 
-    // fakeHashMap = hashMap;
+/*
+    Dishonest participant makes a histogram of a*n bins "1" 
+    Fake histogram = n bins "1" from orig and (a-1)n bins "1" from dummy
+*/
+void Participant::addDummy_all_ones_FakeHistogram(int factorSize)
+{
+    fakeHashMap = hashMap;
+    int domain_size = fakeHashMap.size();
+    // cout << "Size of original histogram: " << domain_size << endl;
+    int Histo_size = factorSize * size_dataset;
+
+    int dummy_id = size_dataset;
+    while (hashMap.size() < Histo_size)
+    {
+        string dummy_domain = getDummyDomain();
+        fakeHashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 1}); // dummy are bin 1s
+        dummy_id++;
+    }
+
+
 }
 
 /*
@@ -194,10 +218,10 @@ void Participant::addDummy_FakeHist(int keepDomainS, int factorSize)
     fakeHashMap = hashMap; // Participant always gen a true histo plus dummy at setup phase
     int domain_size = fakeHashMap.size();
     cout << "Size of original histogram: " << domain_size << endl;
-    int pv_size = factorSize * size_dataset;
+    int Histo_size = factorSize * size_dataset;
 
     int dummy_id = size_dataset;
-    while (fakeHashMap.size() < pv_size)
+    while (fakeHashMap.size() < Histo_size)
     {
         string dummy_domain = getDummyDomain();
         fakeHashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0});
@@ -248,7 +272,7 @@ void Participant::addDummy_FakeHist_random(int keepDomainS, int factorSize)
 
     // // add dummy
     // int dummy_id = size_dataset;
-    // while (hashMap.size() < pv_size)
+    // while (hashMap.size() < Histo_size)
     // {
     //     string dummy_domain = getDummyDomain();
     //     int random_id = _getRandomInRange(0, 1);
@@ -257,15 +281,15 @@ void Participant::addDummy_FakeHist_random(int keepDomainS, int factorSize)
     // }
 
     // fakeHashMap = hashMap;
-    //Participant::addDummy_TrueHistogram(factorSize); //Tham modified: participant always gens a true histogram at setup phase
+    //Participant::addDummy_to_Histogram(factorSize); //Tham modified: participant always gens a true histogram at setup phase
     fakeHashMap = hashMap; //added by Tham
     int replaceDomainS = size_dataset - keepDomainS;
-    int pv_size = factorSize * size_dataset;
+    int Histo_size = factorSize * size_dataset;
 
     int replace_counter = 0;
     while (replace_counter < replaceDomainS)
     {
-        int random_id = _getRandomInRange(size_dataset, pv_size - 1);
+        int random_id = _getRandomInRange(size_dataset, Histo_size - 1);
         // cout<<"random_id_fake_enc1 = "<< random_id <<endl;
         hash_pair_map::iterator find = fakeHashMap.find({to_string(random_id), ""});
         if (find != fakeHashMap.end() && find->second == 0)
@@ -274,7 +298,7 @@ void Participant::addDummy_FakeHist_random(int keepDomainS, int factorSize)
             replace_counter++;
         }
     }
-
+    cout<<"check replace_counter 1 = "<<replace_counter<<endl;
     replace_counter = 0;
     while (replace_counter < replaceDomainS)
     {
@@ -287,6 +311,7 @@ void Participant::addDummy_FakeHist_random(int keepDomainS, int factorSize)
             replace_counter++;
         }
     }
+    cout<<"check replace_counter 2 = "<<replace_counter<<endl;
 
     // cout << "Total size of fake partial view histogram: " << fakeHashMap.size() << endl
     //      << endl;
@@ -308,15 +333,15 @@ void Participant::addDummy_FakeHist_random(int keepDomainS, int factorSize)
 
 void Participant::selfCreateFakePV(int keepDomainS, int factorSize)
 {
-    Participant::addDummy_TrueHistogram(factorSize);
+    Participant::addDummy_to_Histogram(factorSize);
    
     int replaceDomainS = (int)(size_dataset*pv_ratio) - keepDomainS;
-    int pv_size = factorSize * size_dataset;
+    int Histo_size = factorSize * size_dataset;
 
     int replace_counter = 0;
     while (replace_counter < replaceDomainS)
     {
-        int random_id = _getRandomInRange(size_dataset, pv_size - 1);
+        int random_id = _getRandomInRange(size_dataset, Histo_size - 1);
         hash_pair_map::iterator find = fakeHashMap.find({to_string(random_id), ""});
         if (find != fakeHashMap.end() && find->second == 0)
         {
@@ -374,17 +399,19 @@ void Participant::selfCreateFakePV(int keepDomainS, int factorSize)
          << endl;
 }
 
-void Participant::selfCreate_Fake_Historgram(int keepDomainS, int factorSize)
+void Participant::selfCreate_Fake_Historgram(int keepDomainS, int factorSize) // not using this function
 {
    
     fakeHashMap = hashMap;
-    int replaceDomainS = (int)(size_dataset*pv_ratio) - keepDomainS;
-    int pv_size = factorSize * size_dataset;
+    int replaceDomainS = (int)(size_dataset*pv_ratio) - keepDomainS; 
+    int Histo_size = factorSize * size_dataset;
+
+   
 
     int replace_counter = 0;
     while (replace_counter < replaceDomainS)
     {
-        int random_id = _getRandomInRange(size_dataset, pv_size - 1);
+        int random_id = _getRandomInRange(size_dataset, Histo_size - 1);
         hash_pair_map::iterator find = fakeHashMap.find({to_string(random_id), ""});
         if (find != fakeHashMap.end() && find->second == 0)
         {
@@ -392,6 +419,8 @@ void Participant::selfCreate_Fake_Historgram(int keepDomainS, int factorSize)
             replace_counter++;
         }
     }
+
+    
 
     replace_counter = 0;
     int total_replace_actual = size_dataset - keepDomainS;
@@ -405,6 +434,7 @@ void Participant::selfCreate_Fake_Historgram(int keepDomainS, int factorSize)
             replace_counter++;
         }
     }
+
 
 }
 
@@ -704,33 +734,45 @@ void Participant::computeAnswer_opt(ENC_DOMAIN_MAP &enc_test_map, gamal_cipherte
     gamal_ciphertext_t tmp, mul_tmp;
     gamal_cipher_new(tmp);
     gamal_cipher_new(mul_tmp);
-
+    
+    // gamal_encrypt(mul_tmp, coll_key, 0); // added by Tham to deal with 100% fake
+    gamal_encrypt(sum_cipher, coll_key, 0); // added by Tham to deal with 100% fake
+    
+    int count = 0;
     for(hash_pair_map::iterator itr = tmp_hashMap.begin(); itr != tmp_hashMap.end(); itr++)
     {
         id_domain_pair domain_pair = itr->first;
         int value = itr->second;
         ENC_DOMAIN_MAP::iterator find = enc_test_map.find(domain_pair);
+
         if(find != enc_test_map.end() && value > 0)
         {
-            //gamal_mult_opt(mul_tmp, find->second, value);
-
-            if (counter == 0)
-            {
-                sum_cipher->C1 = mul_tmp->C1;
-                sum_cipher->C2 = mul_tmp->C2;
-            }
-            else
+            if(value == 1)
             {
                 tmp->C1 = sum_cipher->C1;
                 tmp->C2 = sum_cipher->C2;
-                gamal_add(sum_cipher, tmp, find->second);
+                gamal_add(sum_cipher, tmp, find->second); 
+                count++;            
+            }
+            else //value >= 2
+            {
+                gamal_mult_opt(mul_tmp, find->second, value);
+                tmp->C1 = sum_cipher->C1;
+                tmp->C2 = sum_cipher->C2;
+                gamal_add(sum_cipher, tmp, mul_tmp);   
             }
 
-            counter++;
+            
         }
+
+           
+                
     }
 
-    // cout << "Counter " << counter << endl;
+    cout<<"\nNumber of bins 1 in histogram = "<<count<<endl;
+
+
+    //noise generation
 
     int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_i);
     // cout << "Random noise: " << randomNoise << endl;
@@ -777,23 +819,27 @@ void Participant::computeAnswer_opt(ENC_DOMAIN_MAP &enc_test_map, gamal_cipherte
     }
 
     cout << "Random noise to enc: " << randomNoise_to_enc << endl;
-
     //randomNoise = 0; //to test
     gamal_ciphertext_t noiseEnc;
     gamal_cipher_new(noiseEnc);
     gamal_encrypt(noiseEnc, coll_key, randomNoise_to_enc);
 
+   
     gamal_cipher_new(tmp);
     tmp->C1 = sum_cipher->C1;
     tmp->C2 = sum_cipher->C2;
-
-    if (randomNoise >= 0)
-    {
-        gamal_add(sum_cipher, tmp, noiseEnc);
-    }
-    else{
-        gamal_subtract(sum_cipher, tmp, noiseEnc); //Tham fixed the issue of negative noise
-    }
+    gamal_add(sum_cipher, tmp, noiseEnc); //28 Jan 2020: Tham fixed the issue of negative ans because sometimes enc(ans) before add noise = enc(0)
+    
+    // if (randomNoise >= 0)
+    // {
+    //     gamal_add(sum_cipher, tmp, noiseEnc);
+    // }
+    // else{
+    //     gamal_subtract(sum_cipher, tmp, noiseEnc); //Tham fixed the issue of negative noise and enc(ans) = enc(0)
+    // }
+    
+    
     
     tmp_hashMap.clear();
+    
 }

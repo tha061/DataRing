@@ -20,8 +20,8 @@ int main(int argc, char **argv)
 	
 	srand(time(NULL));
 	// runtime_testing(argc, argv);
-	phase_3_test(argc, argv);
-	// partialView_verification(argc, argv);
+	// phase_3_test(argc, argv);
+	partialView_verification(argc, argv);
 
 	// test_key_switch_new(3);
 

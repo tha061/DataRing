@@ -82,7 +82,7 @@ int partialView_verification(int argc, char **argv)
 
 	t1 = high_resolution_clock::now();
 	// t1 = high_resolution_clock::now();
-	part_A.addDummy_TrueHistogram(a);
+	part_A.addDummy_to_Histogram(a);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Add dummy to true Hist (ms)", t1, t2);
 
@@ -143,18 +143,13 @@ int partialView_verification(int argc, char **argv)
 	//// Gen PV optimal by pre-compte Enc(0) to all dummy domains at offline
 	//pre process:
 	// t1 = high_resolution_clock::now();
-	// part_A.pre_process_generatePV(true);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
-	////Gen PV optimal by pre-compte Enc(0) to all dummy domains at offline
-	// //pre process:
-	// t1 = high_resolution_clock::now();
-	// part_A.pre_process_generatePV(true);
+	part_A.pre_process_generatePV(true);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
 	
+	
 	// t1 = high_resolution_clock::now();
-	// part_A.generatePV_opt(servers.s_myPIR_enc, true);
+	part_A.generatePV_opt(servers.s_myPIR_enc, true);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
@@ -201,31 +196,31 @@ int partialView_verification(int argc, char **argv)
 
 	//======= strategy 3: participant does not use PV sampling vector from server
 	
-	int true_record_PV = (int)PV_size*1;
-	// int true_record_PV = 2372
-	// t1 = high_resolution_clock::now();
-	part_A.selfCreate_Fake_Historgram(true_record_PV, a);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Part_A keep x rows: ", t1, t2);
-
-	// //pre process:
+	// int true_record_PV = (int)PV_size*1;
+	// // int true_record_PV = 2372
 	// // t1 = high_resolution_clock::now();
-	part_A.pre_process_generatePV(false);
+	// part_A.selfCreate_Fake_Historgram(true_record_PV, a);
 	// // t2 = high_resolution_clock::now();
-	// // trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
+	// // trackTaskPerformance(time_track_list, "Part_A keep x rows: ", t1, t2);
 
-	// // t1 = high_resolution_clock::now();
-	 part_A.selfCreateFakePV_opt(false);
-	// // part_A.selfCreateFakePV_opt(false);
-	// // t2 = high_resolution_clock::now();
-	// // trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
+	// // //pre process:
+	// // // t1 = high_resolution_clock::now();
+	// part_A.pre_process_generatePV(false);
+	// // // t2 = high_resolution_clock::now();
+	// // // trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
+
+	// // // t1 = high_resolution_clock::now();
+	//  part_A.selfCreateFakePV_opt(false);
+	// // // part_A.selfCreateFakePV_opt(false);
+	// // // t2 = high_resolution_clock::now();
+	// // // trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
 
 	//=====SERVER VERIFIES SUBMITTED PV
 	int server_id = 0; // Server 1
 	Server server1 = servers.server_vect[server_id];
 
-	t1 = high_resolution_clock::now();
+	
 	// t1 = high_resolution_clock::now();
 	bool verify_status = servers.verifyingPV(part_A.enc_domain_map, table, server_id, pre_enc_stack, eta);
 	// t2 = high_resolution_clock::now();
@@ -243,7 +238,7 @@ int partialView_verification(int argc, char **argv)
 		fstream fout;
 		if (strcmp(argv[9], "1") == 0)
 		{
-			fout.open("./results/malicious_participant_500K_pv_0005_L_1000_selfPV_vx_010v_new.csv", ios::out | ios::trunc);
+			fout.open("./results/honest_PV_n_1000K_L_1000_pv_0003_eta_095_30runs_2.csv", ios::out | ios::trunc);
 			fout << "Iteration, PV Verification";
 			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
@@ -254,7 +249,7 @@ int partialView_verification(int argc, char **argv)
 		}
 		else
 		{
-			fout.open("./results/malicious_participant_500K_pv_0005_L_1000_selfPV_vx_010v_new.csv", ios::out | ios::app);
+			fout.open("./results/honest_PV_n_1000K_L_1000_pv_0003_eta_095_30runs_2.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file

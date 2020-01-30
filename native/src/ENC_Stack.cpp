@@ -126,7 +126,7 @@ void ENC_Stack::pop_E1(gamal_ciphertext_t ciphertext)
 {
     if (top_E1 <= 0)
     {
-        cout << "Stack E1 Underflow\n";
+        // cout << "Stack E1 Underflow\n";
         ENC_Stack::reFillStack_E1(1);
         gamal_cipher_new(ciphertext);
         ciphertext->C1 = myPIR_enc1[top_E1]->C1;

@@ -82,14 +82,14 @@ int *hist_gen(int histogr[], int arr[], int freq[], int datasize, int scale_up)
 
 int *pir_gen(int *myPIR_arr, int arr[], int freq[], int datasize, double pv_ratio)
 {
-    int pv_size = (int)datasize*pv_ratio; 
+    int PV_size = (int)datasize*pv_ratio; 
     int n = sizeof(arr) / sizeof(arr[0]);  
     int count_1 = 0;
     int i;
 
     for (i = 0; i < datasize; i++)
     {
-        if (count_1 >= pv_size) // if total number of E(1) > threshold
+        if (count_1 >= PV_size) // if total number of E(1) > threshold
         {
             myPIR_arr[i] = 0;
         }
@@ -102,7 +102,7 @@ int *pir_gen(int *myPIR_arr, int arr[], int freq[], int datasize, double pv_rati
 
         //i++;
     }
-    if (count_1 < pv_size)
+    if (count_1 < PV_size)
     {
         for (int i = datasize - 1; i >= 0; i--)
         {
@@ -113,7 +113,7 @@ int *pir_gen(int *myPIR_arr, int arr[], int freq[], int datasize, double pv_rati
             }
             i--;
             i--;
-            if (count_1 >= pv_size)
+            if (count_1 >= PV_size)
             {
                 //printf("second break when i = %d\n", i--);
                 break;

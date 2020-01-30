@@ -46,8 +46,8 @@ void Server::importFile(string file_url)
         getline(iss, id, ',');
         getline(iss, name, ',');
         string id_domain = id + " " + name;
-        known_vector.insert(make_pair(id, name));
-        // known_vector_new.push_back(make_pair(id, name));
+        known_record_subset.insert(make_pair(id, name));
+        // known_record_subset_new.push_back(make_pair(id, name));
     }
 }
 
@@ -143,7 +143,7 @@ void Server::generateTestKnownRecords_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_M
     {
         id_domain_pair domain = itr->first;
 
-        if (known_vector.find(domain) != known_vector.end())
+        if (known_record_subset.find(domain) != known_record_subset.end())
         {
 
             gamal_add(itr->second, itr->second, encrypt_1);
@@ -159,7 +159,7 @@ void Server::generateTestKnownRecords(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP e
     {
         id_domain_pair domain = itr->first;
         gamal_ciphertext_t *mul_enc_ciphertext = new gamal_ciphertext_t[1];
-        if (known_vector.find(domain) != known_vector.end())
+        if (known_record_subset.find(domain) != known_record_subset.end())
         {
             pre_enc_stack.pop_E1(mul_enc_ciphertext[0]);
         }
@@ -370,6 +370,24 @@ void Server::generateTest_Target_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP e
 
     // cout << "Total match row in attribute test func: " << counter << endl;
 }
+
+
+void Server::generateTest_Target_All_Records(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
+{
+    enc_test_map.clear();
+    int count = 0;
+    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
+    {
+        id_domain_pair domain = itr->first;
+        gamal_ciphertext_t *ciphertext = new gamal_ciphertext_t[1];
+        
+        pre_enc_stack.pop_E1(ciphertext[0]);
+        enc_test_map.insert({domain,ciphertext[0]});
+        count++;
+    }
+    cout<<"\nnumber of enc(1) in the test target all rows: "<<count<<endl;
+}
+
 
 void Server::save_knownRow_found_in_PV(id_domain_pair verified_domain_pair)
 {
