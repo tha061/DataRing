@@ -229,36 +229,73 @@ void Server::generateTestHashMap_3(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_
     }
 }
 
-void _importQuery(map<int, string> &cols_map)
+//updated by Tham to use separate file directory for normal query and test function (6 Feb 2020)
+void _importQuery(map<int, string> &cols_map, bool test_or_query)
 {
     string QUERY_DIR = "./data/query_data.csv";
+    string TEST_DIR = "./data/test_estimate_sql.csv";
 
-    std::ifstream data(QUERY_DIR);
-    if (!data.is_open())
-    {
-        cout << "Query File is not defined" << endl;
-        std::exit(EXIT_FAILURE);
-    }
-    std::string str;
-    std::getline(data, str); // skip the first line
-    while (!data.eof())
-    {
-        getline(data, str);
-        if (str.empty())
+    if (test_or_query == 1) { //gen test estimation function
+        std::ifstream data(TEST_DIR);
+        if (!data.is_open())
         {
-            continue;
+            cout << "Test File is not defined" << endl;
+            std::exit(EXIT_FAILURE);
+        }
+        std::string str;
+        std::getline(data, str); // skip the first line
+        while (!data.eof())
+        {
+            getline(data, str);
+            if (str.empty())
+            {
+                continue;
+            }
+
+            string value;
+            int col_id;
+
+            istringstream iss(str);
+            getline(iss, value, ',');
+            iss >> col_id;
+
+            // cout << col_id << " " << value << endl;
+            cols_map.insert({col_id, value});
         }
 
-        string value;
-        int col_id;
-
-        istringstream iss(str);
-        getline(iss, value, ',');
-        iss >> col_id;
-
-        // cout << col_id << " " << value << endl;
-        cols_map.insert({col_id, value});
     }
+    else
+    {
+        std::ifstream data(QUERY_DIR); //gen query function
+        if (!data.is_open())
+        {
+            cout << "Query File is not defined" << endl;
+            std::exit(EXIT_FAILURE);
+        }
+        std::string str;
+        std::getline(data, str); // skip the first line
+        while (!data.eof())
+        {
+            getline(data, str);
+            if (str.empty())
+            {
+                continue;
+            }
+
+            string value;
+            int col_id;
+
+            istringstream iss(str);
+            getline(iss, value, ',');
+            iss >> col_id;
+
+            // cout << col_id << " " << value << endl;
+            cols_map.insert({col_id, value});
+        }
+    }
+    
+
+    
 }
 
 //generate clear test attribute for server to query the submitted partial view
@@ -320,7 +357,7 @@ void Server::generateTest_Target_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP e
     enc_test_map.clear();
 
     map<int, string> columns_map;
-    _importQuery(columns_map);
+    _importQuery(columns_map, 1); // test_or_query = 1 to generate test estimation function
     const int COLUMN_SIZE = 10;
     int counter = 0;
     int plain;
@@ -394,10 +431,11 @@ void Server::save_knownRow_found_in_PV(id_domain_pair verified_domain_pair)
     verified_set.insert(verified_domain_pair);
 }
 
-void Server::generateMatchDomain()
+//updated by Tham to use separate file directory for normal query and test function (6 Feb 2020)
+void Server::generateMatchDomain(bool test_or_query)
 {
     map<int, string> columns_map;
-    _importQuery(columns_map);
+    _importQuery(columns_map,test_or_query);
 
     match_query_domain_vect.clear();
     int counter = 0;
@@ -467,7 +505,7 @@ void Server::generateNormalQuery(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_do
     enc_test_map.clear();
 
     map<int, string> columns_map;
-    _importQuery(columns_map);
+    _importQuery(columns_map, 0); //test_or_query = 1 to gen normal query
     const int COLUMN_SIZE = 10;
     int counter = 0;
 

@@ -100,6 +100,9 @@ jbyteArray Java_ch_ethz_dsg_ecelgamal_ECElGamal_generateKey(JNIEnv *env, jobject
     return res;
 }
 
+
+
+
 jbyteArray Java_ch_ethz_dsg_ecelgamal_ECElGamal_encrypt(JNIEnv *env,
                                         jobject javaThis, jlong value,
                                         jbyteArray key_oct) {
@@ -123,6 +126,64 @@ jbyteArray Java_ch_ethz_dsg_ecelgamal_ECElGamal_encrypt(JNIEnv *env,
     return res;
 }
 
+// Added by Tham 4 Feb 2020
+jbyteArray Java_ch_ethz_dsg_ecelgamal_ECElGamal_encryptth(JNIEnv *env,
+                                        jobject javaThis, jlong value,
+                                        jbyteArray key_oct) {
+    gamal_key_t key;
+    gamal_ciphertext_t ciphertext;
+    unsigned char *buffer;
+    size_t cipher_size;
+    jbyteArray res;
+
+    get_key(env, key, key_oct);
+    gamal_encrypt(ciphertext, key, (dig_t) value);
+
+    cipher_size = get_encoded_ciphertext_size(ciphertext);
+    buffer = (unsigned char *) malloc(cipher_size);
+    encode_ciphertext(buffer, (int) cipher_size, ciphertext);
+    res = as_byte_array(env, buffer, (int) cipher_size);
+
+    free(buffer);
+    gamal_key_clear(key);
+    gamal_cipher_clear(ciphertext);
+    return res;
+}
+
+
+//Added by Tham Feb 4, 2020
+jbyteArray Java_ch_ethz_dsg_ecelgamal_ECElGamal_REencrypt(JNIEnv *env,
+                                        jobject javaThis, jbyteArray old_cipher_oct,
+                                        jbyteArray old_key_oct, jbyteArray new_key_oct) {
+    gamal_key_t old_key, new_key;
+    gamal_ciphertext_t ciphertext_old, ciphertext_new;
+    unsigned char *buffer;
+    size_t cipher_size;
+    jbyteArray res;
+
+    get_key(env, old_key, old_key_oct);
+    get_key(env, new_key, new_key_oct);
+
+
+    get_cipher(env, ciphertext_old, old_cipher_oct);    
+
+    gamal_re_encrypt(ciphertext_new, ciphertext_old, old_key, new_key);
+
+    cipher_size = get_encoded_ciphertext_size(ciphertext_new);
+    buffer = (unsigned char *) malloc(cipher_size);
+    encode_ciphertext(buffer, (int) cipher_size, ciphertext_new);
+    res = as_byte_array(env, buffer, (int) cipher_size);
+
+    free(buffer);
+    gamal_key_clear(old_key);
+    gamal_key_clear(new_key);
+    gamal_cipher_clear(ciphertext_old);
+    gamal_cipher_clear(ciphertext_new);
+    return res;
+}
+
+
+
 jlong Java_ch_ethz_dsg_ecelgamal_ECElGamal_decrypt(JNIEnv *env, jobject javaThis, jbyteArray ciphertext_oct,
                                    jbyteArray key_oct, jboolean use_bsgs) {
     gamal_key_t key;
@@ -141,6 +202,8 @@ jlong Java_ch_ethz_dsg_ecelgamal_ECElGamal_decrypt(JNIEnv *env, jobject javaThis
         if(gamal_decrypt(&value, key, ciphertext, *table)) {
             (*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/Exception"), "Error on decryption");
         }
+
+
     } else {
         if(gamal_decrypt(&value, key, ciphertext, NULL)) {
             (*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/Exception"), "Error on decryption");

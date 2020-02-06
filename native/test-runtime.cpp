@@ -326,7 +326,7 @@ int runtime_testing(int argc, char **argv)
 	trackTaskPerformance(time_track_list, "Preprare Test (ms)", t1, t2);
 
 	t1 = high_resolution_clock::now();
-	server1.generateMatchDomain();
+	server1.generateMatchDomain(1);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Matching Domain (ms)", t1, t2);
 
@@ -369,7 +369,7 @@ int runtime_testing(int argc, char **argv)
 
 
 	// t1 = high_resolution_clock::now();
-	// server1.generateMatchDomain();
+	// server1.generateMatchDomain(0);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Gen Match Domain (ms)", t1, t2);
 

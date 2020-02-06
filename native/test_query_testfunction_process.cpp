@@ -60,7 +60,7 @@ int phase_3_test(int argc, char **argv)
 	// Setup answer strategy
 	int answer_strategy;
 	int true_fake[] = {1, 0};
-	int fake_freq = 10; //freq of lie
+	int fake_freq = 20; //freq of lie
 	int freq[] = {100 - fake_freq, fake_freq}; //using fake dataset with p2 = 0.1
 
 	float lie_freq = (float)fake_freq/100;
@@ -173,36 +173,40 @@ int phase_3_test(int argc, char **argv)
 
 	// part_A.print_hash_map();
 
-	// party generate true histogram
+	//===== party generate true histogram =====
 	
 	// t1 = high_resolution_clock::now();
-	part_A.addDummy_to_Histogram(a);
+	part_A.addDummy_to_Histogram(a); 
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Add dummy to true Hist (ms)", t1, t2);
 
 	int size_dataset = part_A.size_dataset;
 
 
-	//party create fake histogram: keep some true rows
-	//===case 1:
-	// float amt_lie = 1;
+	//party create fake histogram: 
+
+	//===case 1 ======
+
+	// float amt_lie = 0.01; 
 	// int keep_row = int(datasize_row*(1-amt_lie)); //amount of lie
-	// int keep_row = 428027; 
-	// t1 = high_resolution_clock::now();
+	// // t1 = high_resolution_clock::now();
 	// part_A.addDummy_FakeHist_random(keep_row, a);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
+	// // t2 = high_resolution_clock::now();
+	// // trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 	
-	//==case 2
+	// //==case 2
+	float adding_ones = 1;
 	// t1 = high_resolution_clock::now();
-	// part_A.addDummy_all_ones_FakeHistogram(a);
+	part_A.addDummy_ones_FakeHistogram(a, adding_ones);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 
+	
 	// SERVER SETUP COLLECTIVE KEY
 	Servers servers(SERVER_SIZE, size_dataset, KNOWN_DOMAIN_DIR);
 
 	servers.generateCollKey();
+
 	servers.pv_ratio = pv_ratio;
 
 	// INITIALIZE CIPHERTEXT STACK FOR PARTY
@@ -376,7 +380,7 @@ int phase_3_test(int argc, char **argv)
 		// cout<< "enc_test_map empty? "<<check<<endl;
 		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
        
-        server1.generateMatchDomain();
+        server1.generateMatchDomain(0);
       
         // t1 = high_resolution_clock::now();
 		server1.generateNormalQuery_opt(pre_enc_stack);
@@ -392,18 +396,6 @@ int phase_3_test(int argc, char **argv)
 		// trackTaskPerformance(time_track_list, "Compute ans Query (ms)", t1, t2);
 
 
-		// //=====party answer using true/fake dataset at random
-		// int toss = rand()%2;
-		// cout<<"toss = "<<toss<<endl;
-		// if (toss == 0)
-		// {
-		// 	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
-		// }
-		// else
-		// {
-		// 	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
-		// }
-		// trackTaskStatus(time_track_list, "Query:Dataset true/false", toss);
 
 		// //====answer using fake dataset with probability p2
 	
@@ -436,13 +428,18 @@ int phase_3_test(int argc, char **argv)
 
 		// //==== answer L to all questions
 		// gamal_cipher_new(sum_cipher);
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_q);
 		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_record_subset.size());
 
 		// //==== answer V to all questions
 		// gamal_cipher_new(sum_cipher);
-		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_q);
 		// gamal_encrypt(sum_cipher, servers.coll_key, PV_size + randomNoise);
 
+		// //==== answer n to all questions
+		// gamal_cipher_new(sum_cipher);
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_q);
+		// gamal_encrypt(sum_cipher, servers.coll_key, size_dataset + randomNoise);
 
 		// //====answer L or V at random
 
@@ -492,22 +489,10 @@ int phase_3_test(int argc, char **argv)
 		// t2 = high_resolution_clock::now();
 		// trackTaskPerformance(time_track_list, "Compute ans L(ms)", t1, t2);
 		
-		// //=====party answer using true/fake dataset at random
-		// int toss = rand()%2;
-		// cout<<"toss = "<<toss<<endl;
-		// if (toss == 0)
-		// {
-		// 	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
-		// }
-		// else
-		// {
-		// 	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
-		// }
-		// trackTaskStatus(time_track_list, "Test:Dataset true/false", toss);
-
+		
 		//====answer using fake dataset with probability p2
 	
-		// answer_strategy = myRand(true_fake, freq, n);
+		// // answer_strategy = myRand(true_fake, freq, n);
 		answer_strategy = answer_strategy_arr[index];
 		
 		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
@@ -531,14 +516,49 @@ int phase_3_test(int argc, char **argv)
 		}	
 		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
 
+		
 		// //==== answer L to all questions
 		// gamal_cipher_new(sum_cipher);
-		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_record_subset.size());
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_test);
+		// if (randomNoise < part_A.minNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.minNoise_test);                
+        // }
+        // else if (randomNoise > part_A.maxNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.maxNoise_test);  
+    
+        // }
+		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_record_subset.size() + randomNoise);
+		
 
 		// //==== answer V to all questions
 		// gamal_cipher_new(sum_cipher);
-		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_test);
+		// if (randomNoise < part_A.minNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.minNoise_test);                
+        // }
+        // else if (randomNoise > part_A.maxNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.maxNoise_test);  
+    
+        // }
 		// gamal_encrypt(sum_cipher, servers.coll_key, PV_size + randomNoise);
+
+		// //==== answer n to all questions
+		// gamal_cipher_new(sum_cipher);
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_test);
+		// if (randomNoise < part_A.minNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.minNoise_test);                
+        // }
+        // else if (randomNoise > part_A.maxNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.maxNoise_test);  
+    
+        // }
+		// gamal_encrypt(sum_cipher, servers.coll_key, size_dataset + randomNoise);
 
 
 		// //====answer L or V at random
@@ -600,23 +620,11 @@ int phase_3_test(int argc, char **argv)
 		// t2 = high_resolution_clock::now();
 		// trackTaskPerformance(time_track_list, "Compute ans V (ms)", t1, t2);
 
-		// //=====party answer using true/fake dataset at random
-		// int toss = rand()%2;
-		// cout<<"toss = "<<toss<<endl;
-		// if (toss == 0)
-		// {
-		// 	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
-		// }
-		// else
-		// {
-		// 	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
-		// }
-		// trackTaskStatus(time_track_list, "Test:Dataset true/false", toss);
-
+		
 		//====answer using fake dataset with probability p2
 	
-		// answer_strategy = myRand(true_fake, freq, n);
-		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
+		// // answer_strategy = myRand(true_fake, freq, n);
+		// // cout<<	"answer_strategy = " <<answer_strategy<<endl;
 
 		answer_strategy = answer_strategy_arr[index];
 		
@@ -643,13 +651,47 @@ int phase_3_test(int argc, char **argv)
 
 		// //==== answer L to all questions
 		// gamal_cipher_new(sum_cipher);
-		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_record_subset.size());
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_test);
+		// if (randomNoise < part_A.minNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.minNoise_test);                
+        // }
+        // else if (randomNoise > part_A.maxNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.maxNoise_test);  
+    
+        // }
+		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_record_subset.size() + randomNoise);
 		
 
-		// //==== answer V to all questions
+		// // //==== answer V to all questions
 		// gamal_cipher_new(sum_cipher);
-		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_test);
+		// if (randomNoise < part_A.minNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.minNoise_test);                
+        // }
+        // else if (randomNoise > part_A.maxNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.maxNoise_test);  
+    
+        // }
 		// gamal_encrypt(sum_cipher, servers.coll_key, PV_size + randomNoise);
+
+		// //==== answer n to all questions
+		// gamal_cipher_new(sum_cipher);
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_test);
+		// if (randomNoise < part_A.minNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.minNoise_test);                
+        // }
+        // else if (randomNoise > part_A.maxNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.maxNoise_test);  
+    
+        // }
+		// gamal_encrypt(sum_cipher, servers.coll_key, size_dataset + randomNoise);
+
 
 		// //====answer L or V at random
 
@@ -718,6 +760,8 @@ int phase_3_test(int argc, char **argv)
 		server1.generateTest_Target_All_Records(pre_enc_stack, part_A.enc_domain_map);
 		gamal_cipher_new(sum_cipher);
 
+		//===== Party answer truth or lie at random p2
+
 		answer_strategy = answer_strategy_arr[index];
 
 		
@@ -737,6 +781,51 @@ int phase_3_test(int argc, char **argv)
 		}
 		
 		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
+
+
+		
+		// //==== answer L to all questions
+		// gamal_cipher_new(sum_cipher);
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_test);
+		// if (randomNoise < part_A.minNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.minNoise_test);                
+        // }
+        // else if (randomNoise > part_A.maxNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.maxNoise_test);  
+    
+        // }
+		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_record_subset.size() + randomNoise);
+		
+
+		// // //==== answer V to all questions
+		// gamal_cipher_new(sum_cipher);
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_test);
+		// if (randomNoise < part_A.minNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.minNoise_test);                
+        // }
+        // else if (randomNoise > part_A.maxNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.maxNoise_test);  
+    
+        // }
+		// gamal_encrypt(sum_cipher, servers.coll_key, PV_size + randomNoise);
+
+		// //==== answer n to all questions
+		// gamal_cipher_new(sum_cipher);
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_test);
+		// if (randomNoise < part_A.minNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.minNoise_test);                
+        // }
+        // else if (randomNoise > part_A.maxNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.maxNoise_test);  
+    
+        // }
+		// gamal_encrypt(sum_cipher, servers.coll_key, size_dataset + randomNoise);
 
 		
 		threshold = size_dataset;
@@ -764,7 +853,7 @@ int phase_3_test(int argc, char **argv)
 		// cout<< "enc_test_map empty? "<<check<<endl;
 		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
 
-		server1.generateMatchDomain();
+		server1.generateMatchDomain(1);
 		
 
 		// t1 = high_resolution_clock::now();
@@ -780,19 +869,6 @@ int phase_3_test(int argc, char **argv)
 		// t2 = high_resolution_clock::now();
 		// trackTaskPerformance(time_track_list, "Compute ans Test Attr opt (ms)", t1, t2);
 
-
-		// //=====party answer using true/fake dataset at random
-		// int toss = rand()%2;
-		// cout<<"toss = "<<toss<<endl;
-		// if (toss == 0)
-		// {
-		// 	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key);
-		// }
-		// else
-		// {
-		// 	part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key);
-		// }
-		// trackTaskStatus(time_track_list, "Test:Dataset true/false", toss);
 		
 		//====answer using fake dataset with probability p2
 	
@@ -823,14 +899,50 @@ int phase_3_test(int argc, char **argv)
 		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
 
 
-		// //==== answer L to all questions===//
+		
+		// //==== answer L to all questions
 		// gamal_cipher_new(sum_cipher);
-		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_record_subset.size());
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_test);
+		// if (randomNoise < part_A.minNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.minNoise_test);                
+        // }
+        // else if (randomNoise > part_A.maxNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.maxNoise_test);  
+    
+        // }
+		// gamal_encrypt(sum_cipher, servers.coll_key, server1.known_record_subset.size() + randomNoise);
+		
 
-		// //==== answer V to all questions====//
+		// //==== answer V to all questions
 		// gamal_cipher_new(sum_cipher);
-		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_test);
+		// if (randomNoise < part_A.minNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.minNoise_test);                
+        // }
+        // else if (randomNoise > part_A.maxNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.maxNoise_test);  
+    
+        // }
 		// gamal_encrypt(sum_cipher, servers.coll_key, PV_size + randomNoise);
+
+		// //==== answer n to all questions
+		// gamal_cipher_new(sum_cipher);
+		// int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_test);
+		// if (randomNoise < part_A.minNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.minNoise_test);                
+        // }
+        // else if (randomNoise > part_A.maxNoise_test)
+        // {
+        //     randomNoise = (int)(part_A.maxNoise_test);  
+    
+        // }
+		// gamal_encrypt(sum_cipher, servers.coll_key, size_dataset + randomNoise);
+
 
 		// //====answer L or V at random===//
 

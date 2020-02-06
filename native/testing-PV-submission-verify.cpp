@@ -238,7 +238,7 @@ int partialView_verification(int argc, char **argv)
 		fstream fout;
 		if (strcmp(argv[9], "1") == 0)
 		{
-			fout.open("./results/honest_PV_n_1000K_L_1000_pv_0003_eta_095_30runs_2.csv", ios::out | ios::trunc);
+			fout.open("./results/honest_PV_n_1000K_L_1000_pv_0015_eta_095_20runs_2.csv", ios::out | ios::trunc);
 			fout << "Iteration, PV Verification";
 			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
@@ -249,7 +249,7 @@ int partialView_verification(int argc, char **argv)
 		}
 		else
 		{
-			fout.open("./results/honest_PV_n_1000K_L_1000_pv_0003_eta_095_30runs_2.csv", ios::out | ios::app);
+			fout.open("./results/honest_PV_n_1000K_L_1000_pv_0015_eta_095_20runs_2.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file

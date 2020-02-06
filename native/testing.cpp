@@ -11,6 +11,7 @@
 #include "testing-PV-submission-verify.cpp"
 #include "test-runtime.cpp"
 #include "test_query_testfunction_process.cpp"
+#include "testFunction_estimation.cpp"
 
 
 
@@ -21,9 +22,10 @@ int main(int argc, char **argv)
 	srand(time(NULL));
 	// runtime_testing(argc, argv);
 	// phase_3_test(argc, argv);
-	partialView_verification(argc, argv);
+	// partialView_verification(argc, argv);
 
 	// test_key_switch_new(3);
+	test_estimation(argc, argv);
 
 
 	return 0;

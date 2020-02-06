@@ -28,7 +28,7 @@ public:
     void importFile(string file_url);
 
     // function is resposiblle for find matching domain from query
-    void generateMatchDomain();
+    void generateMatchDomain(bool test_or_query);
 
     
     // this function is to determine mininum number of known rows needs to be found in PV

@@ -82,7 +82,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, boo
 		fstream fout;
 		if (strcmp(argv[11], "1") == 0)
 		{
-			fout.open("./results/phase3_n_100K_L_500_honestPV_lied_answer_fake_Histo_all_ones_freq_lied_10.csv", ios::out | ios::trunc);
+			fout.open("./results/phase3_n_300K_L_1000_honestPV_lied_answer_omega_1_10q_freq_test_05_freq_lie_20.csv", ios::out | ios::trunc);
 			fout << "Iteration, PV Verification";
 			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
@@ -93,7 +93,7 @@ void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, boo
 		}
 		else
 		{
-			fout.open("./results/phase3_n_100K_L_500_honestPV_lied_answer_fake_Histo_all_ones_freq_lied_10.csv", ios::out | ios::app);
+			fout.open("./results/phase3_n_300K_L_1000_honestPV_lied_answer_omega_1_10q_freq_test_05_freq_lie_20.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file

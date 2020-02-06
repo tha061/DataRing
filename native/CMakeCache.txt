@@ -386,7 +386,7 @@ CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding JNI
 FIND_PACKAGE_MESSAGE_DETAILS_JNI:INTERNAL=[/usr/lib/jvm/default-java/lib/libjawt.so][/usr/lib/jvm/default-java/lib/server/libjvm.so][/usr/lib/jvm/default-java/include][/usr/lib/jvm/default-java/include/linux][/usr/lib/jvm/default-java/include][v()]
 //Details about finding Java
-FIND_PACKAGE_MESSAGE_DETAILS_Java:INTERNAL=[/usr/bin/java][/usr/bin/jar][/usr/bin/javac][/usr/bin/javadoc][v11.0.5()]
+FIND_PACKAGE_MESSAGE_DETAILS_Java:INTERNAL=[/usr/bin/java][/usr/bin/jar][/usr/bin/javac][/usr/bin/javadoc][v11.0.6()]
 //Details about finding OpenSSL
 FIND_PACKAGE_MESSAGE_DETAILS_OpenSSL:INTERNAL=[/usr/lib/x86_64-linux-gnu/libcrypto.so][/usr/include][v1.1.1()]
 //ADVANCED property for variable: JAVA_AWT_INCLUDE_PATH

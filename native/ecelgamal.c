@@ -511,6 +511,53 @@ int gamal_encrypt(gamal_ciphertext_t ciphertext, gamal_key_t key, dig_t plaintex
 }
 
 /**
+ * Added by Tham in 4 Feb 2020
+ * Re-encrypt a ciphertext under a server's public key to a ciphertext under a new public key
+ */
+int gamal_re_encrypt(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys, gamal_key_t keysNew)
+{
+    
+    BIGNUM *ord, *rand1;
+    BN_CTX *ctx = BN_CTX_new();
+    //gamal_ciphertext_t temp;
+    EC_POINT *M1, *temp1; // *temp;
+    gamal_ciphertext_t temp;
+
+    //bn_plain = BN_new();
+    ord = BN_new();
+    rand1 = BN_new();
+    
+    new_cipher->C1 = EC_POINT_new(init_group); //nothing
+    new_cipher->C2 = EC_POINT_new(init_group);
+    temp->C1 = EC_POINT_new(init_group);
+
+    //printf("key switch Test OK\n");
+    temp->C1 = multiply_generator(rand1, init_group);
+    EC_POINT_add(init_group, new_cipher->C1, new_cipher->C1, temp->C1, ctx); //v_1*B = C1_new
+    //printf("key switch Test OK1\n");
+    M1 = multiply_constant(cipher->C1, keys->secret, init_group); //rB*k_1
+    //printf("key switch Test OK2\n");
+    EC_POINT_invert(init_group, M1, ctx); // -rB*k_1
+    //printf("key switch Test OK3\n");
+    EC_POINT_add(init_group, new_cipher->C2, cipher->C2, M1, ctx); //C2 - rB*k_1
+    //printf("key switch Test OK4\n");
+    temp1 = multiply_constant(keysNew->Y, rand1, init_group); //v_1 * Knew
+    //printf("key switch Test OK5\n");
+    EC_POINT_add(init_group, new_cipher->C2, new_cipher->C2, temp1, ctx); //C2 - rB*k_1 + v_1 * K_new = x + v1*K_new = C2_new
+    //printf("key switch Test OK6\n");
+
+    BN_clear_free(rand1);
+    
+    BN_free(ord);
+    BN_CTX_free(ctx);
+    EC_POINT_clear_free(M1);
+    EC_POINT_clear_free(temp1);
+
+    return 0;
+}
+
+
+/**
  * added by Tham for re-encrypt a ciphertext by a new public key, 
  * switching from collective public key of 3 servers
  * Need to improve, adapt to many servers

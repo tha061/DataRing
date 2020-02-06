@@ -168,37 +168,51 @@ void Participant::addDummy_to_Histogram(int factorSize)
     int Histo_size = factorSize * size_dataset;
 
     int dummy_id = size_dataset;
-    fakeHashMap = hashMap;
+    // fakeHashMap = hashMap;
     while (hashMap.size() < Histo_size)
     {
         string dummy_domain = getDummyDomain();
         hashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 0}); //honest Histogram: dummy are bin 0s
-        fakeHashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 1}); // dummy are bin 1s
+        // fakeHashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 1}); // dummy are bin 1s
         dummy_id++;
     }
 
 }
 
 /*
-    Dishonest participant makes a histogram of a*n bins "1" 
-    Fake histogram = n bins "1" from orig and (a-1)n bins "1" from dummy
+    Dishonest participant makes a histogram of (1+scaled_up)*n bins "1" 
+    Fake histogram = n bins "1" from orig and scaled_up*n bins "1" from dummy
+    NOtE: not be able to make the domain names similar with the true histogram
 */
-void Participant::addDummy_all_ones_FakeHistogram(int factorSize)
+void Participant::addDummy_ones_FakeHistogram(int factorSize, float adding_ones)
 {
-    fakeHashMap = hashMap;
-    int domain_size = fakeHashMap.size();
-    // cout << "Size of original histogram: " << domain_size << endl;
+
+    fakeHashMap = hashMap; 
+    
     int Histo_size = factorSize * size_dataset;
 
-    int dummy_id = size_dataset;
-    while (hashMap.size() < Histo_size)
+    int replace_counter = 0;
+    int adding_ones_num = int(adding_ones*size_dataset);
+
+    cout<<"num_scaled_up = "<<adding_ones_num<<endl;
+
+
+    int random_id = size_dataset;
+    while(replace_counter < adding_ones_num)
     {
-        string dummy_domain = getDummyDomain();
-        fakeHashMap.insert({make_pair(to_string(dummy_id), dummy_domain), 1}); // dummy are bin 1s
-        dummy_id++;
+        hash_pair_map::iterator find = fakeHashMap.find({to_string(random_id), ""});
+        if (find != fakeHashMap.end() && find->second == 0)
+        {
+            find->second = 1;
+            replace_counter++;
+            random_id++;
+        }
     }
-
-
+        
+         
+    cout<<"check replace_counter = "<<replace_counter<<endl;
+   
+    
 }
 
 /*
