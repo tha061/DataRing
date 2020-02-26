@@ -138,6 +138,8 @@ int partialView_verification(int argc, char **argv)
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Gen PV sampling (ms)", t1, t2);
 
+
+
 	//+++++++++++ PARTY IS HONEST +++++++++++++++//
 
 	//// Gen PV optimal by pre-compte Enc(0) to all dummy domains at offline
@@ -155,15 +157,18 @@ int partialView_verification(int argc, char **argv)
 
 	//++++++++++ PARTY IS DISHONEST ++++++++++++//
 
-	//====== strategy 1
+	
 
-	// int keep_row = int(datasize_row*0.9); //lie about 50% rows
+	//====== strategy 2: participant generate fake histogram randomly
+	
+	// int keep_row = int(datasize_row*0.85); //lie about 50% rows
+	// int keep_row = 428027; 
 	// t1 = high_resolution_clock::now();
-	// part_A.addDummy_FakeHist(keep_row, a);
+	// part_A.addDummy_FakeHist_random(keep_row, a);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 
-	// //pre process for reduce runtime
+	//pre process:
 	// t1 = high_resolution_clock::now();
 	// part_A.pre_process_generatePV(false);
 	// t2 = high_resolution_clock::now();
@@ -174,44 +179,24 @@ int partialView_verification(int argc, char **argv)
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
-	//====== strategy 2: participant generate fake histogram randomly
-	
-	// int keep_row = int(datasize_row*1); //lie about 50% rows
-	// // int keep_row = 428027; 
-	// // t1 = high_resolution_clock::now();
-	// part_A.addDummy_FakeHist_random(keep_row, a);
-	// // t2 = high_resolution_clock::now();
-	// // trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
-
-	// //pre process:
-	// // t1 = high_resolution_clock::now();
-	// part_A.pre_process_generatePV(false);
-	// // t2 = high_resolution_clock::now();
-	// // trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
-
-	// // t1 = high_resolution_clock::now();
-	// part_A.generatePV_opt(servers.s_myPIR_enc, false);
-	// // t2 = high_resolution_clock::now();
-	// // trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
-
 	//======= strategy 3: participant does not use PV sampling vector from server
 	
-	// int true_record_PV = (int)PV_size*1;
-	// // int true_record_PV = 2372
-	// // t1 = high_resolution_clock::now();
+	// int true_record_PV = (int)PV_size*0.2;
+	// // // int true_record_PV = 2372
+	// // // t1 = high_resolution_clock::now();
 	// part_A.selfCreate_Fake_Historgram(true_record_PV, a);
-	// // t2 = high_resolution_clock::now();
-	// // trackTaskPerformance(time_track_list, "Part_A keep x rows: ", t1, t2);
-
-	// // //pre process:
-	// // // t1 = high_resolution_clock::now();
-	// part_A.pre_process_generatePV(false);
 	// // // t2 = high_resolution_clock::now();
-	// // // trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
+	// // // trackTaskPerformance(time_track_list, "Part_A keep x rows: ", t1, t2);
 
-	// // // t1 = high_resolution_clock::now();
-	//  part_A.selfCreateFakePV_opt(false);
-	// // // part_A.selfCreateFakePV_opt(false);
+	// // // //pre process:
+	// // // // t1 = high_resolution_clock::now();
+	// part_A.pre_process_generatePV(false);
+	// // // // t2 = high_resolution_clock::now();
+	// // // // trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
+
+	// // // // t1 = high_resolution_clock::now();
+	// part_A.selfCreateFakePV_opt(false);
+	// // // // part_A.selfCreateFakePV_opt(false);
 	// // // t2 = high_resolution_clock::now();
 	// // // trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
@@ -226,9 +211,8 @@ int partialView_verification(int argc, char **argv)
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Verify PV (ms)", t1, t2);
 
-	bool test_status;
-	int threshold;
-	gamal_ciphertext_t sum_cipher;
+	
+	if (verify_status) servers.open_true_PV( part_A.enc_domain_map, table, server_id, pre_enc_stack);
 
 	
 	// storeTimeEvaluation(argc, argv, time_track_list, verify_status);
@@ -238,7 +222,7 @@ int partialView_verification(int argc, char **argv)
 		fstream fout;
 		if (strcmp(argv[9], "1") == 0)
 		{
-			fout.open("./results/honest_PV_n_1000K_L_1000_pv_0015_eta_095_20runs_2.csv", ios::out | ios::trunc);
+			fout.open("./results/Dishonest_PV_n_500K_seflCreat_keep_50pc_eta_095_ratio_003pc_2.csv", ios::out | ios::trunc);
 			fout << "Iteration, PV Verification";
 			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
@@ -249,7 +233,7 @@ int partialView_verification(int argc, char **argv)
 		}
 		else
 		{
-			fout.open("./results/honest_PV_n_1000K_L_1000_pv_0015_eta_095_20runs_2.csv", ios::out | ios::app);
+			fout.open("./results/Dishonest_PV_n_500K_seflCreat_keep_50pc_eta_095_ratio_003pc_2.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file

@@ -97,6 +97,8 @@ void Participant::create_OriginalHistogram(int datasize_row)
     {
         size_dataset += itr->second;
     }
+
+    original_hashMap = hashMap; //added by Tham 12 Feb 2020 for improving the compute answer for honest participant
 }
 
 // initialize ciphertext stack for participant
@@ -177,6 +179,8 @@ void Participant::addDummy_to_Histogram(int factorSize)
         dummy_id++;
     }
 
+    // after this function: hashMap size is a*n; orig_hashMap size is still n
+
 }
 
 /*
@@ -194,7 +198,7 @@ void Participant::addDummy_ones_FakeHistogram(int factorSize, float adding_ones)
     int replace_counter = 0;
     int adding_ones_num = int(adding_ones*size_dataset);
 
-    cout<<"num_scaled_up = "<<adding_ones_num<<endl;
+    // cout<<"num_scaled_up = "<<adding_ones_num<<endl;
 
 
     int random_id = size_dataset;
@@ -210,7 +214,7 @@ void Participant::addDummy_ones_FakeHistogram(int factorSize, float adding_ones)
     }
         
          
-    cout<<"check replace_counter = "<<replace_counter<<endl;
+    // cout<<"check replace_counter = "<<replace_counter<<endl;
    
     
 }
@@ -312,7 +316,7 @@ void Participant::addDummy_FakeHist_random(int keepDomainS, int factorSize)
             replace_counter++;
         }
     }
-    cout<<"check replace_counter 1 = "<<replace_counter<<endl;
+    // cout<<"check replace_counter 1 = "<<replace_counter<<endl;
     replace_counter = 0;
     while (replace_counter < replaceDomainS)
     {
@@ -325,7 +329,7 @@ void Participant::addDummy_FakeHist_random(int keepDomainS, int factorSize)
             replace_counter++;
         }
     }
-    cout<<"check replace_counter 2 = "<<replace_counter<<endl;
+    // cout<<"check replace_counter 2 = "<<replace_counter<<endl;
 
     // cout << "Total size of fake partial view histogram: " << fakeHashMap.size() << endl
     //      << endl;
@@ -405,12 +409,12 @@ void Participant::selfCreateFakePV(int keepDomainS, int factorSize)
         plain_domain_map.insert({domain, decypt_cip});
     }
 
-    cout << "Counter row " << counter_row << endl;
+    // cout << "Counter row " << counter_row << endl;
 
-    cout << "Total size of fake partial view histogram: " << fakeHashMap.size() << endl
-         << endl;
-    cout << "Total size of original partial view histogram: " << hashMap.size() << endl
-         << endl;
+    // cout << "Total size of fake partial view histogram: " << fakeHashMap.size() << endl
+        //  << endl;
+    // cout << "Total size of original partial view histogram: " << hashMap.size() << endl
+        //  << endl;
 }
 
 void Participant::selfCreate_Fake_Historgram(int keepDomainS, int factorSize) // not using this function
@@ -537,7 +541,7 @@ void Participant::pre_process_generatePV(bool useTruth)
         }
         
     }
-    cout << "Number of enc(0) is pre processed: " << count << endl;
+    // cout << "Number of enc(0) is pre processed: " << count << endl;
 
     tmp_hashMap.clear();
 }
@@ -783,7 +787,7 @@ void Participant::computeAnswer_opt(ENC_DOMAIN_MAP &enc_test_map, gamal_cipherte
                 
     }
 
-    cout<<"\nNumber of bins 1 in histogram = "<<count<<endl;
+    // cout<<"\nNumber of bins 1 in histogram = "<<count<<endl;
 
 
     //noise generation
@@ -832,7 +836,368 @@ void Participant::computeAnswer_opt(ENC_DOMAIN_MAP &enc_test_map, gamal_cipherte
         randomNoise_to_enc = randomNoise;
     }
 
-    cout << "Random noise to enc: " << randomNoise_to_enc << endl;
+    // cout << "Random noise to enc: " << randomNoise_to_enc << endl;
+    //randomNoise = 0; //to test
+    gamal_ciphertext_t noiseEnc;
+    gamal_cipher_new(noiseEnc);
+    gamal_encrypt(noiseEnc, coll_key, randomNoise_to_enc);
+
+   
+    gamal_cipher_new(tmp);
+    tmp->C1 = sum_cipher->C1;
+    tmp->C2 = sum_cipher->C2;
+    gamal_add(sum_cipher, tmp, noiseEnc); //28 Jan 2020: Tham fixed the issue of negative ans because sometimes enc(ans) before add noise = enc(0)
+    
+    // if (randomNoise >= 0)
+    // {
+    //     gamal_add(sum_cipher, tmp, noiseEnc);
+    // }
+    // else{
+    //     gamal_subtract(sum_cipher, tmp, noiseEnc); //Tham fixed the issue of negative noise and enc(ans) = enc(0)
+    // }
+    
+    
+    
+    tmp_hashMap.clear();
+    
+}
+
+//Tham - compute answer for sum query
+
+void Participant::computeAnswer_sum(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key, float epsilon_i, int attr_to_sum)
+{
+    //generatePV_opt
+    hash_pair_map tmp_hashMap = useTruth ? hashMap : fakeHashMap;
+
+    int counter = 0;
+
+    gamal_ciphertext_t tmp, mul_tmp, tmp_mult_attr;
+    gamal_cipher_new(tmp);
+    gamal_cipher_new(mul_tmp);
+    gamal_cipher_new(tmp_mult_attr);
+    
+   
+    gamal_encrypt(sum_cipher, coll_key, 0); // added by Tham to deal with 100% fake
+    
+    int count = 0;
+    int attr_to_sum_value;
+    for(hash_pair_map::iterator itr = tmp_hashMap.begin(); itr != tmp_hashMap.end(); itr++)
+    {
+
+        vector<string> col_arr;
+        id_domain_pair domain_pair = itr->first;
+        string domain = domain_pair.second;
+        char delim = ' ';
+        stringstream ss(domain);
+        // cout<<"domain ="<<domain<<endl;
+        string token;
+        while (getline(ss, token, delim))
+        {
+            col_arr.push_back(token);
+        }
+
+        attr_to_sum_value = stoi(col_arr[attr_to_sum]);
+        // cout<<"attr_to_sum_value = "<<attr_to_sum_value<<endl;
+
+        int value = itr->second;
+        ENC_DOMAIN_MAP::iterator find = enc_test_map.find(domain_pair);
+
+        if(find != enc_test_map.end() && value > 0)
+        {
+            if(value == 1)
+            {
+                tmp->C1 = sum_cipher->C1;
+                tmp->C2 = sum_cipher->C2;
+                gamal_mult_opt(tmp_mult_attr, find->second, attr_to_sum_value);
+                gamal_add(sum_cipher, tmp, tmp_mult_attr); 
+                count++;            
+            }
+            else //value >= 2
+            {
+                gamal_mult_opt(mul_tmp, find->second, value);
+                gamal_mult_opt(find->second, find->second, attr_to_sum_value);
+                tmp->C1 = sum_cipher->C1;
+                tmp->C2 = sum_cipher->C2;
+                gamal_add(sum_cipher, tmp, mul_tmp);   
+            }
+
+        }
+
+           
+                
+    }
+
+
+
+    //noise generation
+
+    int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_i);
+    // cout << "Random noise: " << randomNoise << endl;
+    int randomNoise_to_enc;
+    
+
+    if (epsilon_i == epsilon_test) 
+    {
+        if (randomNoise < minNoise_test)
+        {
+            randomNoise = (int)(minNoise_test);                
+        }
+        else if (randomNoise > maxNoise_test)
+        {
+            randomNoise = (int)(maxNoise_test);  
+    
+        }
+        
+    }
+    else
+    {
+        if (randomNoise < minNoise_q)
+        {
+            randomNoise = (int)(minNoise_q);                
+        }
+         else if (randomNoise > maxNoise_test)
+        {
+            randomNoise = (int)(maxNoise_test);  
+    
+        }
+        
+    }
+    
+
+    if(randomNoise < 0)
+    {
+        randomNoise_to_enc = -randomNoise;
+    }
+    else {
+        randomNoise_to_enc = randomNoise;
+    }
+
+    
+    gamal_ciphertext_t noiseEnc;
+    gamal_cipher_new(noiseEnc);
+    gamal_encrypt(noiseEnc, coll_key, randomNoise_to_enc);
+
+   
+    gamal_cipher_new(tmp);
+    tmp->C1 = sum_cipher->C1;
+    tmp->C2 = sum_cipher->C2;
+    gamal_add(sum_cipher, tmp, noiseEnc); //28 Jan 2020: Tham fixed the issue of negative ans because sometimes enc(ans) before add noise = enc(0)
+    
+    
+    tmp_hashMap.clear();
+    
+}
+
+
+
+void Participant::computeAnswer_use_orig_hashMap(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key, float epsilon_i)
+{
+    //generatePV_opt
+    hash_pair_map tmp_hashMap = useTruth ? original_hashMap : fakeHashMap;
+
+    // const int size_test_map = enc_test_map.size();
+    // gamal_ciphertext_t *enc_list = new gamal_ciphertext_t[size_test_map];
+
+    int counter = 0;
+
+    gamal_ciphertext_t tmp, mul_tmp;
+    gamal_cipher_new(tmp);
+    gamal_cipher_new(mul_tmp);
+    
+    // gamal_encrypt(mul_tmp, coll_key, 0); // added by Tham to deal with 100% fake
+    gamal_encrypt(sum_cipher, coll_key, 0); // added by Tham to deal with 100% fake
+    
+    int count = 0;
+    for(hash_pair_map::iterator itr = tmp_hashMap.begin(); itr != tmp_hashMap.end(); itr++)
+    {
+        id_domain_pair domain_pair = itr->first;
+        int value = itr->second;
+        ENC_DOMAIN_MAP::iterator find = enc_test_map.find(domain_pair);
+
+        if(find != enc_test_map.end() && value > 0)
+        {
+            if(value == 1)
+            {
+                tmp->C1 = sum_cipher->C1;
+                tmp->C2 = sum_cipher->C2;
+                gamal_add(sum_cipher, tmp, find->second); 
+                count++;            
+            }
+            else //value >= 2
+            {
+                gamal_mult_opt(mul_tmp, find->second, value);
+                tmp->C1 = sum_cipher->C1;
+                tmp->C2 = sum_cipher->C2;
+                gamal_add(sum_cipher, tmp, mul_tmp);   
+            }
+
+            
+        }
+
+           
+                
+    }
+
+
+    int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_i);
+    // cout << "Random noise: " << randomNoise << endl;
+    int randomNoise_to_enc;
+   
+
+    if (epsilon_i == epsilon_test) 
+    {
+        if (randomNoise < minNoise_test)
+        {
+            randomNoise = (int)(minNoise_test);                
+        }
+        else if (randomNoise > maxNoise_test)
+        {
+            randomNoise = (int)(maxNoise_test);  
+    
+        }
+        
+    }
+    else
+    {
+        if (randomNoise < minNoise_q)
+        {
+            randomNoise = (int)(minNoise_q);                
+        }
+         else if (randomNoise > maxNoise_test)
+        {
+            randomNoise = (int)(maxNoise_test);  
+    
+        }
+        
+    }
+    
+    
+    // cout << "Random noise: " << randomNoise << endl;
+
+    if(randomNoise < 0)
+    {
+        randomNoise_to_enc = -randomNoise;
+    }
+    else {
+        randomNoise_to_enc = randomNoise;
+    }
+
+    // cout << "Random noise to enc: " << randomNoise_to_enc << endl;
+    //randomNoise = 0; //to test
+    gamal_ciphertext_t noiseEnc;
+    gamal_cipher_new(noiseEnc);
+    gamal_encrypt(noiseEnc, coll_key, randomNoise_to_enc);
+
+   
+    gamal_cipher_new(tmp);
+    tmp->C1 = sum_cipher->C1;
+    tmp->C2 = sum_cipher->C2;
+    gamal_add(sum_cipher, tmp, noiseEnc); //28 Jan 2020: Tham fixed the issue of negative ans because sometimes enc(ans) before add noise = enc(0)
+    
+    
+    
+    
+    tmp_hashMap.clear();
+    
+}
+
+void Participant::computeAnswer_scaled_up_answer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, int scale_up_answer, bool useTruth, gamal_key_t &coll_key, float epsilon_i)
+{
+    
+    hash_pair_map tmp_hashMap = useTruth ? hashMap : fakeHashMap;
+
+   
+
+    int counter = 0;
+
+    gamal_ciphertext_t tmp, mul_tmp;
+    gamal_cipher_new(tmp);
+    gamal_cipher_new(mul_tmp);
+    
+    gamal_encrypt(sum_cipher, coll_key, 0); // added by Tham to deal with 100% fake
+    
+    int count = 0;
+    for(hash_pair_map::iterator itr = tmp_hashMap.begin(); itr != tmp_hashMap.end(); itr++)
+    {
+        id_domain_pair domain_pair = itr->first;
+        int value = itr->second;
+        ENC_DOMAIN_MAP::iterator find = enc_test_map.find(domain_pair);
+
+        if(find != enc_test_map.end() && value > 0)
+        {
+            if(value == 1)
+            {
+                tmp->C1 = sum_cipher->C1;
+                tmp->C2 = sum_cipher->C2;
+                gamal_add(sum_cipher, tmp, find->second); 
+                count++;            
+            }
+            else //value >= 2
+            {
+                gamal_mult_opt(mul_tmp, find->second, value);
+                tmp->C1 = sum_cipher->C1;
+                tmp->C2 = sum_cipher->C2;
+                gamal_add(sum_cipher, tmp, mul_tmp);   
+            }
+
+            
+        }          
+    }
+    tmp->C1 = sum_cipher->C1;
+    tmp->C2 = sum_cipher->C2;
+    gamal_mult_opt(sum_cipher, tmp, scale_up_answer);
+
+
+    // cout<<"\nNumber of bins 1 in histogram = "<<count<<endl;
+
+
+    //noise generation
+
+    int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon_i);
+    // cout << "Random noise: " << randomNoise << endl;
+    int randomNoise_to_enc;
+    // cout << "Party: max noise: " << maxNoise_test << endl;
+    // cout << "Party: min noise: " << minNoise_test << endl;
+
+    if (epsilon_i == epsilon_test) 
+    {
+        if (randomNoise < minNoise_test)
+        {
+            randomNoise = (int)(minNoise_test);                
+        }
+        else if (randomNoise > maxNoise_test)
+        {
+            randomNoise = (int)(maxNoise_test);  
+    
+        }
+        
+    }
+    else
+    {
+        if (randomNoise < minNoise_q)
+        {
+            randomNoise = (int)(minNoise_q);                
+        }
+         else if (randomNoise > maxNoise_test)
+        {
+            randomNoise = (int)(maxNoise_test);  
+    
+        }
+        
+    }
+    
+    
+    // cout << "Random noise: " << randomNoise << endl;
+
+    if(randomNoise < 0)
+    {
+        randomNoise_to_enc = -randomNoise;
+    }
+    else {
+        randomNoise_to_enc = randomNoise;
+    }
+
+    // cout << "Random noise to enc: " << randomNoise_to_enc << endl;
     //randomNoise = 0; //to test
     gamal_ciphertext_t noiseEnc;
     gamal_cipher_new(noiseEnc);

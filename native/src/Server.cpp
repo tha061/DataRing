@@ -170,6 +170,32 @@ void Server::generateTestKnownRecords(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP e
         enc_test_map.insert({domain, mul_enc_ciphertext[0]});
     }
 }
+
+
+//Tham: test L + rows opened in PV
+void Server::generateTest_known_records_after_phase2(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, id_domain_set known_rows_after_phase2)
+{
+    enc_test_map = enc_test_map_pre;
+    gamal_ciphertext_t encrypt_1;
+    gamal_cipher_new(encrypt_1);
+    pre_enc_stack.pop_E1(encrypt_1);
+
+    for (ENC_DOMAIN_MAP::iterator itr = enc_test_map.begin(); itr != enc_test_map.end(); itr++)
+    {
+        id_domain_pair domain = itr->first;
+
+        if (known_rows_after_phase2.find(domain) != known_rows_after_phase2.end())
+        {
+
+            gamal_add(itr->second, itr->second, encrypt_1);
+        }
+    }
+   
+}
+
+
+
+
 //test target V
 void Server::generateTestBasedPartialView(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
 {
@@ -190,7 +216,7 @@ void Server::generateTestBasedPartialView(ENC_Stack &pre_enc_stack, ENC_DOMAIN_M
 void Server::generateTestBasedPartialView_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
 {
     enc_test_map.clear();
-    enc_test_map = enc_domain_map;
+    // enc_test_map = enc_domain_map;
     gamal_ciphertext_t encrypt_0;
     gamal_cipher_new(encrypt_0);
     pre_enc_stack.pop_E0(encrypt_0);
@@ -200,10 +226,15 @@ void Server::generateTestBasedPartialView_opt(ENC_Stack &pre_enc_stack, ENC_DOMA
         id_domain_pair domain = itr->first;
         gamal_ciphertext_t *add_enc_ciphertext = new gamal_ciphertext_t[1];
         gamal_add(add_enc_ciphertext[0], itr->second, encrypt_0);
-        enc_test_map.insert({domain, add_enc_ciphertext[0]});
+        itr->second = add_enc_ciphertext[0];
+        // enc_test_map.insert({domain, add_enc_ciphertext[0]});
         itr++; //only process for half of the domains to save time
     }
+
+    enc_test_map = enc_domain_map;
 }
+
+
 
 //test target V - r0
 void Server::generateTestHashMap_3(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
@@ -266,6 +297,7 @@ void _importQuery(map<int, string> &cols_map, bool test_or_query)
     }
     else
     {
+        // cout<<"check normal query bool"<<endl;
         std::ifstream data(QUERY_DIR); //gen query function
         if (!data.is_open())
         {
@@ -294,9 +326,34 @@ void _importQuery(map<int, string> &cols_map, bool test_or_query)
         }
     }
     
-
-    
 }
+
+
+//Added by Tham 17 Feb 2020 for releasing phase
+void Server::generateNormalQuery_Clear(ENC_Stack &pre_enc_stack)
+{
+    for (ENC_DOMAIN_MAP::iterator itr = enc_test_map_pre.begin(); itr != enc_test_map_pre.end(); itr++)
+    {
+        id_domain_pair domain_pair = itr->first;
+        plain_domain_map.insert({domain_pair, 0});
+    }
+
+
+    int counter = 0;
+    for (int i = 0; i < match_query_domain_vect.size(); i++)
+    {
+        id_domain_pair match_domain = match_query_domain_vect[i];
+        hash_pair_map::iterator find = plain_domain_map.find(match_domain);
+        if (find != plain_domain_map.end() && find->second == 0)
+        {
+            counter++;
+            find->second = 1;
+        }
+    }
+
+    // cout << "Total match plain domain: " << counter << endl;
+}
+
 
 //generate clear test attribute for server to query the submitted partial view
 void Server::generateServerDomain_Test_Target_Attr(ENC_Stack &pre_enc_stack)
@@ -320,7 +377,7 @@ void Server::generateServerDomain_Test_Target_Attr(ENC_Stack &pre_enc_stack)
         }
     }
 
-    cout << "Total match plain domain: " << counter << endl;
+    // cout << "Total match plain domain: " << counter << endl;
 }
 
 //added by Tham in 14 Dec 18 to optimize runtime
@@ -422,7 +479,7 @@ void Server::generateTest_Target_All_Records(ENC_Stack &pre_enc_stack, ENC_DOMAI
         enc_test_map.insert({domain,ciphertext[0]});
         count++;
     }
-    cout<<"\nnumber of enc(1) in the test target all rows: "<<count<<endl;
+    // cout<<"\nnumber of enc(1) in the test target all rows: "<<count<<endl;
 }
 
 
@@ -431,7 +488,25 @@ void Server::save_knownRow_found_in_PV(id_domain_pair verified_domain_pair)
     verified_set.insert(verified_domain_pair);
 }
 
-//updated by Tham to use separate file directory for normal query and test function (6 Feb 2020)
+
+//Tham
+void Server::save_opened_rows(id_domain_pair opened_rows)
+{
+    opened_rows_set.insert(opened_rows);
+}
+
+//Tham: open the true PV for v bins to find more records and save to the known-records-set for testing
+
+void Server::save_knownRow_after_phase2(id_domain_pair domain_pair)
+{
+    known_rows_after_phase2.insert(domain_pair);
+}
+
+
+
+
+//updated by Tham to use separate file directory for normal query and test function (6 Feb 2020) and
+// for making range query
 void Server::generateMatchDomain(bool test_or_query)
 {
     map<int, string> columns_map;
@@ -457,22 +532,56 @@ void Server::generateMatchDomain(bool test_or_query)
 
         for (map<int, string>::iterator colItr = columns_map.begin(); colItr != columns_map.end(); colItr++)
         {
+            
+            vector<string> query_arr;
+            
+            string query = colItr->second;
+            char delim = ' ';
+            stringstream ss(query);
+            string token;
+            while (getline(ss, token, delim))
+            {
+                query_arr.push_back(token);
+            }
+            
+            
             int col_index = colItr->first;
-            string col_value = colItr->second;
-            string o_col_value = col_arr[col_index];
 
-            if (o_col_value != col_value)
+            // string col_value_min = query_arr[0];
+            // string col_value_max = query_arr[1];
+            // string o_col_value = col_arr[col_index];
+
+            // int col_value_int_min = stoi(col_value_min);
+            // int col_value_int_max = stoi(col_value_max);
+            // int o_col_value_int = stoi(o_col_value);
+
+
+            int col_value_int_min = stoi(query_arr[0]);
+            int col_value_int_max = stoi(query_arr[1]);
+            int o_col_value_int = stoi(col_arr[col_index]);
+
+            //matched when in a range 
+            if (o_col_value_int < col_value_int_min || o_col_value_int > col_value_int_max)
             {
                 match = false;
+                break; // Tham fixed Feb 2020 
             }
         }
+
+        
 
         if (match)
         {
             match_query_domain_vect.push_back(domain_pair);
+            counter++;
         }
     }
+
+    // cout<<"\nNo. of matched rows: "<<counter<<endl;
 }
+
+
+
 
 //added by Tham 14 Dec 19 to optimize runtime
 void Server::generateNormalQuery_opt(ENC_Stack &pre_enc_stack)
@@ -496,6 +605,36 @@ void Server::generateNormalQuery_opt(ENC_Stack &pre_enc_stack)
             gamal_add(find->second, find->second, encrypt_1);
         }
     }
+
+    // cout << "Total match domains in query: " << counter << endl;
+}
+
+//Tha
+//added by Tham for sum query
+int Server::generateNormalQuery_sum(ENC_Stack &pre_enc_stack, int index_attr_to_sum)
+{
+    enc_test_map.clear();
+    enc_test_map = enc_test_map_pre;
+
+    gamal_ciphertext_t encrypt_1;
+    gamal_cipher_new(encrypt_1);
+    pre_enc_stack.pop_E1(encrypt_1);
+
+    int counter = 0;
+
+    for (int i = 0; i < match_query_domain_vect.size(); i++)
+    {
+        id_domain_pair match_domain = match_query_domain_vect[i];
+        ENC_DOMAIN_MAP::iterator find = enc_test_map.find(match_domain);
+        if (find != enc_test_map.end())
+        {
+            counter++;
+            gamal_add(find->second, find->second, encrypt_1);
+        }
+    }
+
+    index_attr_sum = index_attr_to_sum;
+    return index_attr_sum;
 
     // cout << "Total match domains in query: " << counter << endl;
 }
@@ -560,6 +699,7 @@ float Server::generatePVTestCondition(int dataset, int PV, int known_records, do
     return result;
 }
 
+//Get test answer from PV
 void Server::getTestResult_fromPV(ENC_DOMAIN_MAP enc_domain_map, gamal_ciphertext_t enc_PV_answer)
 {
     int counter = 0;
@@ -607,6 +747,64 @@ void Server::getTestResult_fromPV(ENC_DOMAIN_MAP enc_domain_map, gamal_ciphertex
                 tmp->C1 = enc_PV_answer->C1;
                 tmp->C2 = enc_PV_answer->C2;
                 gamal_add(enc_PV_answer, tmp, mul_tmp);
+            }
+
+            counter++;
+        }
+    }
+
+    plain_domain_map.clear();
+}
+
+
+//Get Query answer from PV
+void Server::getQueryResult_fromPV(ENC_DOMAIN_MAP enc_domain_map, gamal_ciphertext_t enc_PV_query_answer)
+{
+    int counter = 0;
+
+    gamal_ciphertext_t tmp, mul_tmp;
+    gamal_cipher_new(tmp);
+    gamal_cipher_new(mul_tmp);
+
+    // cout << "Start multiply and add " << endl;
+    int i = 0;
+    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
+    {
+        string key = itr->first.first;
+        string domain = itr->first.second;
+
+        int value = plain_domain_map[{key, domain}];
+        if (value == 1)
+        {
+             if (counter == 0)
+            {
+                enc_PV_query_answer->C1 = tmp->C1;
+                enc_PV_query_answer->C2 = tmp->C2;
+            }
+            else
+            {
+                tmp->C1 = enc_PV_query_answer->C1;
+                tmp->C2 = enc_PV_query_answer->C2;
+                gamal_add(enc_PV_query_answer, tmp, itr->second);
+            }
+
+            counter++;
+        
+        }
+        else if (value > 1)
+        {
+            gamal_mult_opt(mul_tmp, itr->second, value);
+
+            if (counter == 0)
+            {
+                enc_PV_query_answer->C1 = mul_tmp->C1;
+                enc_PV_query_answer->C2 = mul_tmp->C2;
+            }
+            else
+            {
+                tmp->C1 = enc_PV_query_answer->C1;
+                tmp->C2 = enc_PV_query_answer->C2;
+                gamal_add(enc_PV_query_answer, tmp, mul_tmp);
             }
 
             counter++;

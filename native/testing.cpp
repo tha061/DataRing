@@ -12,6 +12,10 @@
 #include "test-runtime.cpp"
 #include "test_query_testfunction_process.cpp"
 #include "testFunction_estimation.cpp"
+#include "fakePV_fakeResponse_test.cpp"
+#include "runtime_comparison.cpp"
+#include "varying_params.cpp"
+#include "release_answer.cpp"
 
 
 
@@ -21,13 +25,16 @@ int main(int argc, char **argv)
 	
 	srand(time(NULL));
 	// runtime_testing(argc, argv);
-	// phase_3_test(argc, argv);
+	phase_3_test(argc, argv);
 	// partialView_verification(argc, argv);
 
 	// test_key_switch_new(3);
-	test_estimation(argc, argv);
+	// test_estimation(argc, argv);
+	// fakePV_fakeResponse_test(argc, argv);
+	// runtime_comparison(argc, argv);
+	// varying_params(argc, argv);
 
-
+	// release_answer(argc, argv);
 	return 0;
 }
 

@@ -12,7 +12,7 @@ public:
     string DATA_DIR;
     ENC_Stack pre_enc_stack_participant;
     ENC_DOMAIN_MAP enc_domain_map; //partial view encrypted
-    hash_pair_map hashMap, plain_domain_map, fakeHashMap;
+    hash_pair_map hashMap, plain_domain_map, fakeHashMap, original_hashMap;
     gamal_key_t keys; //added by Tham 21 Jan
     int size_dataset;
     double pv_ratio;
@@ -24,6 +24,7 @@ public:
     double maxNoise_test;
     double minNoise_test;
     int no_lied_answer; 
+    int scale_up_answer;
 
     Participant();
     Participant(string data_dir);
@@ -58,6 +59,11 @@ public:
     // adding a function to generate Laplace noise and then add this noise to the computed answer
     void computeAnswer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key);
     void computeAnswer_opt(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key, float epsilon_i);
+    void computeAnswer_scaled_up_answer(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, int scale_up_answer, bool useTruth, gamal_key_t &coll_key, float epsilon_i);
+    void computeAnswer_use_orig_hashMap(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key, float epsilon_i);
+
+    //Tham
+    void computeAnswer_sum(ENC_DOMAIN_MAP &enc_test_map, gamal_ciphertext_t sum_cipher, bool useTruth, gamal_key_t &coll_key, float epsilon_i, int attr_to_sum);
 };
 
 #endif

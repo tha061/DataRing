@@ -21,6 +21,13 @@ public:
 
     // Servers();
     Servers(int server_size, int data_size, string known_domain_dir);
+    //Tham added
+    id_domain_set known_rows_after_phase2, verified_set, opened_rows_set, known_record_set, rows_set_in_opened_PV;
+    void save_knownRow_found_in_PV(id_domain_pair verified_domain_pair);
+    void save_opened_rows(id_domain_pair opened_rows);
+    void save_knownRow_after_phase2(id_domain_pair domain_pair);
+
+
     void generateCollKey();
     dig_t _fusionDecrypt(gamal_ciphertext_t ciphertext, bsgs_table_t table, int serverId);
     void fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table);
@@ -30,6 +37,7 @@ public:
     // add a function to determine LEAST DOMAIN = r0 from hypergeometric distribution, using eta value = 0.9
     // as the percentile_noise in the quantile function at the moment.
     bool verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack, double eta);
+    void open_true_PV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack);
 
     // UPDATE THIS FUNCTION
     // adding an indication for choosing the verification for

@@ -60,7 +60,7 @@ int phase_3_test(int argc, char **argv)
 	// Setup answer strategy
 	int answer_strategy;
 	int true_fake[] = {1, 0};
-	int fake_freq = 20; //freq of lie
+	int fake_freq = 50; //freq of lie
 	int freq[] = {100 - fake_freq, fake_freq}; //using fake dataset with p2 = 0.1
 
 	float lie_freq = (float)fake_freq/100;
@@ -162,6 +162,7 @@ int phase_3_test(int argc, char **argv)
 
 	// PARTICIPANT CONVERT DATASET TO HISTOGRAM
 	Participant part_A(UNIQUE_DOMAIN_DIR);
+	Participant part_B;
 
 	// t1 = high_resolution_clock::now();
 	part_A.create_OriginalHistogram(datasize_row);
@@ -187,17 +188,17 @@ int phase_3_test(int argc, char **argv)
 
 	//===case 1 ======
 
-	// float amt_lie = 0.01; 
-	// int keep_row = int(datasize_row*(1-amt_lie)); //amount of lie
+	float amt_lie = 0.1; 
+	int keep_row = int(datasize_row*(1-amt_lie)); //amount of lie
 	// // t1 = high_resolution_clock::now();
-	// part_A.addDummy_FakeHist_random(keep_row, a);
+	part_A.addDummy_FakeHist_random(keep_row, a);
 	// // t2 = high_resolution_clock::now();
 	// // trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 	
 	// //==case 2
-	float adding_ones = 1;
+	// float adding_ones = 1;
 	// t1 = high_resolution_clock::now();
-	part_A.addDummy_ones_FakeHistogram(a, adding_ones);
+	// part_A.addDummy_ones_FakeHistogram(a, adding_ones);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 
@@ -370,12 +371,12 @@ int phase_3_test(int argc, char **argv)
 	int index = 0;
 	int itr = 1;
 
-	
+	t1 = high_resolution_clock::now();
 	while (itr <= num_query)
     {
          // // ==== NORMAL QUERY PRE_COMPUTE TO OPTIMIZE RUNTIME ============//
       
-        cout<< "\nQuery: #" << itr << endl;
+        // cout<< "\nQuery: #" << itr << endl;
 		// bool check = server1.enc_test_map.empty();
 		// cout<< "enc_test_map empty? "<<check<<endl;
 		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
@@ -462,16 +463,32 @@ int phase_3_test(int argc, char **argv)
 		server1.match_query_domain_vect.clear();
         itr++;
 		index++;
-    }
+
+
+		//======Re-encrypt query answer to participant B's public key
+
+		gamal_ciphertext_t sum_cipher_update;
+
+		gamal_generate_keys(part_B.keys); //part_B keys pair   
+
+		
+		gama_key_switch_lead(sum_cipher_update, sum_cipher, server1.key, part_B.keys);
+
+		for (int i=1; i< SERVER_SIZE; i++)
+		{
+			gama_key_switch_follow(sum_cipher_update, sum_cipher, servers.server_vect[server_id+i].key, part_B.keys);
+		}
+		
+	}
 
 	
 	// //====TEST FUNCTION KNOWN RECORDS NEW USING PRE_COMPUTE TEST FUCTION =====//
     // Pre process
 	
-
+    // num_test_rounded =1;
 	for (int i = 1; i<= num_test_rounded; i++) 
 	{
-		cout<<"\nTest L: #"<<i<<endl;
+		// cout<<"\nTest L: #"<<i<<endl;
 		// bool check = server1.enc_test_map.empty();
 		// cout<< "enc_test_map empty? "<<check<<endl;
 		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
@@ -581,7 +598,7 @@ int phase_3_test(int argc, char **argv)
 		
 
 		threshold = server1.known_record_subset.size();
-		cout<< "Threshold L = " << threshold <<endl;
+		// cout<< "Threshold L = " << threshold <<endl;
 
 		test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold);
 		if (test_status == 0)
@@ -603,7 +620,7 @@ int phase_3_test(int argc, char **argv)
 	
 	for (int i=1; i<=num_test_rounded; i++)
 	{
-		cout<<"\nTest V: #"<<i<<endl;
+		// cout<<"\nTest V: #"<<i<<endl;
 		// bool check = server1.enc_test_map.empty();
 		// cout<< "enc_test_map empty? "<<check<<endl;
 		
@@ -755,7 +772,7 @@ int phase_3_test(int argc, char **argv)
 	for (int i=1; i<=num_test_rounded; i++)
 	{
 		
-		cout<<"\nTest all rows: #"<<i<<endl;
+		// cout<<"\nTest all rows: #"<<i<<endl;
 		
 		server1.generateTest_Target_All_Records(pre_enc_stack, part_A.enc_domain_map);
 		gamal_cipher_new(sum_cipher);
@@ -847,8 +864,9 @@ int phase_3_test(int argc, char **argv)
 
 
 	for (int i=1; i<= num_test - 3*num_test_rounded; i++)
+	// for (int i=1; i<= num_test_rounded +1; i++)
 	{
-		cout<<"\nTest estimate: #"<<i<<endl;
+		// cout<<"\nTest estimate: #"<<i<<endl;
 		// bool check = server1.enc_test_map.empty();
 		// cout<< "enc_test_map empty? "<<check<<endl;
 		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
@@ -987,6 +1005,10 @@ int phase_3_test(int argc, char **argv)
 
 	}
 
+
+	  t2 = high_resolution_clock::now();
+
+	  trackTaskPerformance(time_track_list, "E2E delay", t1, t2);
    
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//

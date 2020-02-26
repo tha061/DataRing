@@ -10,17 +10,19 @@ public:
     // static gamal_key_t coll_key;
     gamal_key_t key;
     gamal_ciphertext_t *myPIR_enc;
-    id_domain_set known_record_subset;
+    id_domain_set known_record_subset, known_rows_after_phase2, verified_set, opened_rows_set, known_record_set, rows_set_in_opened_PV;
     ENC_DOMAIN_MAP enc_test_map;
     // ENC_DOMAIN_MAP enc_test_map_pre, enc_test_map_tmp; // for preprare a test funtion
     ENC_DOMAIN_MAP enc_test_map_pre; // for preprare a test funtion
-    id_domain_set verified_set;
+    // id_domain_set verified_set, known_rows_after_phase2;
 
     hash_pair_map plain_domain_map;
     id_domain_vector match_query_domain_vect;    
 
     int *plain_track_list;
     int size_dataset;
+
+    int index_attr_sum; //for sum query
 
     Server();
     Server(int size, string known_domain_dir);
@@ -49,8 +51,8 @@ public:
     // number of known records is from [1 .. L] records
     void generateTestKnownRecords_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map);
   
-    
-    
+    //Tham
+    void generateTest_known_records_after_phase2(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, id_domain_set known_rows_after_phase2);
     
     // test func() L domains
     void generateTestKnownRecords(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map); // test the existence of L known domains
@@ -85,12 +87,20 @@ public:
     void generateTestFunction(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, int type);
 
     void save_knownRow_found_in_PV(id_domain_pair verified_domain_pair);
+    //Tham
+    void save_knownRow_after_phase2(id_domain_pair domain_pair);
+    //Tham
+    void save_opened_rows(id_domain_pair opened_rows);
 
 
     //added by Tham in 14 Dec 19 to optimize runtime
     void generateNormalQuery_opt(ENC_Stack &pre_enc_stack); 
 
+    //Tham
+    int generateNormalQuery_sum(ENC_Stack &pre_enc_stack, int index_attr_to_sum);
+
     void generateNormalQuery(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map);
+    void generateNormalQuery_Clear(ENC_Stack &pre_enc_stack); //Added by Tham 17 Feb 2020 for releasing phase
 
     /**
      * this function is to get test result from the encrypted PV
@@ -100,6 +110,7 @@ public:
      * servers use this decrypted result as the input of function estimate_conf_interval()
      */ 
     void getTestResult_fromPV(ENC_DOMAIN_MAP enc_domain_map, gamal_ciphertext_t enc_PV_answer); 
+    void getQueryResult_fromPV(ENC_DOMAIN_MAP enc_domain_map, gamal_ciphertext_t enc_PV_query_answer); 
 };
 
 #endif

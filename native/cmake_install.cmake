@@ -1,4 +1,4 @@
-# Install script for directory: /home/tham/Desktop/dataring_implementation/native
+# Install script for directory: /home/tham/Desktop/DATARING_evaluation/dataring_implementation/native
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/tham/Desktop/dataring_implementation/native/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/tham/Desktop/DATARING_evaluation/dataring_implementation/native/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

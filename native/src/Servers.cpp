@@ -123,7 +123,7 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
     Server server = server_vect[serverId]; // shallow copy
     const int number_known_records = server.known_record_subset.size();
     int v = (int)data_size * pv_ratio;
-    const int req_known_record_found = server_vect[serverId].generatePVTestCondition(data_size, v, number_known_records, eta);
+    const int req_known_record_found = server.generatePVTestCondition(data_size, v, number_known_records, eta);
     gamal_ciphertext_t sum, tmp, encrypt_E0;
     gamal_cipher_new(sum);
     gamal_cipher_new(tmp);
@@ -132,6 +132,7 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
     pre_enc_stack.pop_E0(encrypt_E0);
 
     int counter = 0;
+   
 
     //========= Checking both the PV size is V of enc(1) or not and the known records >= r0
 
@@ -210,9 +211,6 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
     //         cout << "Fail the verification" << endl;
     //         return false;
     //     }
-
-
-
     // }
 
     //============================================
@@ -245,7 +243,9 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
                 if (domain_decrypt > 0)
                 {
                     // cout << "Domain decrypt: " << domain_decrypt << endl;
-                    server_vect[serverId].save_knownRow_found_in_PV(domain_pair);
+                    // server.save_knownRow_found_in_PV(domain_pair);
+                    save_knownRow_found_in_PV(domain_pair);
+                    
                 }
                 //===========================================================
 
@@ -254,25 +254,77 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
 
         }
 
-        dig_t sum_res = Servers::_fusionDecrypt(sum, table, serverId);
+    dig_t sum_res = Servers::_fusionDecrypt(sum, table, serverId);
 
-        if (sum_res >= req_known_record_found)
-        {
-            cout << "Total known rows found in PV: " << sum_res << endl;
-            cout << "Pass the verification" << endl;
-            return true;
-        }
-        else
-        {
-            cout << "Total known rows found in PV: " << sum_res << endl;
-            cout << "Fail the verification" << endl;
-            return false;
-        }
+    if (sum_res >= req_known_record_found)
+    {
+        // cout << "Total known rows found in PV: " << sum_res << endl;
+        cout << "Pass the verification" << endl;
+        return true;
+    }
+    else
+    {
+        // cout << "Total known rows found in PV: " << sum_res << endl;
+        cout << "Fail the verification" << endl;
+        return false;
+    }
 
 
     //=====================================================
     
     
+}
+//Tham
+void Servers::open_true_PV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack)
+{
+    Server server = server_vect[serverId]; // shallow copy
+
+    // id_domain_set found_rows_set_in_verifed_PV = server.verified_set;
+    
+    int v = (int)data_size * pv_ratio;
+
+    gamal_ciphertext_t encrypt_E0;
+    gamal_cipher_new(encrypt_E0);
+    pre_enc_stack.pop_E0(encrypt_E0);
+
+    int counter = 0;
+    int counter_rows_PV = 0;
+    ENC_DOMAIN_MAP::iterator itr =enc_domain_map.begin();
+
+    known_rows_after_phase2 = server.known_record_subset;
+    // server.known_rows_after_phase2 = server.known_record_subset;
+    while (counter <= v)
+    {
+    
+        //======= To find exactly which known rows are in PV ====
+        id_domain_pair domain_pair = itr->first;
+        
+        gamal_ciphertext_t tmp_decrypt;
+        gamal_add(tmp_decrypt, itr->second, encrypt_E0); // to fix the decryption function
+        dig_t domain_decrypt = Servers::_fusionDecrypt(tmp_decrypt, table, serverId);
+        if (domain_decrypt > 0)
+        {
+            // cout << "Domain decrypt: " << domain_decrypt << endl;
+            // server.save_opened_rows(domain_pair);
+            save_opened_rows(domain_pair);
+            known_rows_after_phase2.insert(domain_pair);
+            // server.known_rows_after_phase2.insert(domain_pair);
+            counter_rows_PV++;
+        }
+        //===========================================================
+
+        itr++;        
+    
+        counter++;
+    }
+      
+    // cout<<"number of opened domains in PV = "<<counter_rows_PV<<endl;
+    // cout<<"counter = "<<counter<<endl;
+
+    // const int number_known_records_updated = known_rows_after_phase2.size();
+
+    // cout<<"number_known_records_after_phase2 = "<<number_known_records_updated<<endl;
+
 }
 
 bool Servers::verifyingTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold)
@@ -338,4 +390,24 @@ vector<double> Servers::estimate_conf_interval(double alpha, int PV_answer, int 
     // cout << "min answer= " << min_answer << "; max answer = " << max_answer << endl;
     vector<double> answers = {min_answer, max_answer};
     return answers;
+}
+
+//Tham
+void Servers::save_knownRow_found_in_PV(id_domain_pair verified_domain_pair)
+{
+    verified_set.insert(verified_domain_pair);
+}
+
+
+//Tham
+void Servers::save_opened_rows(id_domain_pair opened_rows)
+{
+    opened_rows_set.insert(opened_rows);
+}
+
+//Tham: open the true PV for v bins to find more records and save to the known-records-set for testing
+
+void Servers::save_knownRow_after_phase2(id_domain_pair domain_pair)
+{
+    known_rows_after_phase2.insert(domain_pair);
 }
