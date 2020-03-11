@@ -461,9 +461,7 @@ int runtime_comparison(int argc, char **argv)
 
 	storeTimeEvaluation(argc, argv, time_track_list, verify_status);
 
-
-
-
+	
 	return 0;
 }
 

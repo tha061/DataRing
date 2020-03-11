@@ -302,6 +302,7 @@ void Participant::addDummy_FakeHist_random(int keepDomainS, int factorSize)
     //Participant::addDummy_to_Histogram(factorSize); //Tham modified: participant always gens a true histogram at setup phase
     fakeHashMap = hashMap; //added by Tham
     int replaceDomainS = size_dataset - keepDomainS;
+    // cout<<"replaceDomainS = "<<replaceDomainS<<endl;
     int Histo_size = factorSize * size_dataset;
 
     int replace_counter = 0;
@@ -871,13 +872,18 @@ void Participant::computeAnswer_sum(ENC_DOMAIN_MAP &enc_test_map, gamal_cipherte
 
     int counter = 0;
 
-    gamal_ciphertext_t tmp, mul_tmp, tmp_mult_attr;
+    gamal_ciphertext_t tmp, mul_tmp, tmp_mult_attr, cipher_0, cipher_1, mul_tmp2;
     gamal_cipher_new(tmp);
     gamal_cipher_new(mul_tmp);
+    gamal_cipher_new(mul_tmp2);
     gamal_cipher_new(tmp_mult_attr);
+    gamal_cipher_new(cipher_0);
+    gamal_cipher_new(cipher_1);
     
    
     gamal_encrypt(sum_cipher, coll_key, 0); // added by Tham to deal with 100% fake
+    gamal_encrypt(cipher_0, coll_key, 0);
+    gamal_encrypt(cipher_1, coll_key, 1);
     
     int count = 0;
     int attr_to_sum_value;
@@ -897,7 +903,11 @@ void Participant::computeAnswer_sum(ENC_DOMAIN_MAP &enc_test_map, gamal_cipherte
         }
 
         attr_to_sum_value = stoi(col_arr[attr_to_sum]);
-        // cout<<"attr_to_sum_value = "<<attr_to_sum_value<<endl;
+        if (attr_to_sum_value == 0 || attr_to_sum_value == 1) 
+        {
+            cout<<"attr_to_sum_value = "<<attr_to_sum_value<<endl;
+        }
+        
 
         int value = itr->second;
         ENC_DOMAIN_MAP::iterator find = enc_test_map.find(domain_pair);
@@ -908,17 +918,45 @@ void Participant::computeAnswer_sum(ENC_DOMAIN_MAP &enc_test_map, gamal_cipherte
             {
                 tmp->C1 = sum_cipher->C1;
                 tmp->C2 = sum_cipher->C2;
-                gamal_mult_opt(tmp_mult_attr, find->second, attr_to_sum_value);
-                gamal_add(sum_cipher, tmp, tmp_mult_attr); 
+                if (attr_to_sum_value == 0)
+                {
+                    gamal_add(sum_cipher, tmp, cipher_0);
+                }
+                else if (attr_to_sum_value == 1)
+                {
+                    gamal_add(sum_cipher, tmp, cipher_1);
+                }
+                else
+                {
+                    gamal_mult_opt(tmp_mult_attr, find->second, attr_to_sum_value);
+                    gamal_add(sum_cipher, tmp, tmp_mult_attr); 
+                }
+                
+               
                 count++;            
             }
+            
             else //value >= 2
             {
-                gamal_mult_opt(mul_tmp, find->second, value);
-                gamal_mult_opt(find->second, find->second, attr_to_sum_value);
                 tmp->C1 = sum_cipher->C1;
                 tmp->C2 = sum_cipher->C2;
-                gamal_add(sum_cipher, tmp, mul_tmp);   
+                if (attr_to_sum_value == 0)
+                {
+                    gamal_add(sum_cipher, tmp, cipher_0);
+                }
+                else if (attr_to_sum_value == 1)
+                {
+                    gamal_mult_opt(mul_tmp2, find->second, value); //attr_to_sum_value = 1
+                    gamal_add(sum_cipher, tmp, mul_tmp2);
+                }
+                else
+                {
+                
+                    gamal_mult_opt(mul_tmp, find->second, value);
+                    gamal_mult_opt(find->second, find->second, attr_to_sum_value);
+                    
+                    gamal_add(sum_cipher, tmp, mul_tmp);  
+                } 
             }
 
         }

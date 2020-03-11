@@ -60,7 +60,7 @@ int phase_3_test(int argc, char **argv)
 	// Setup answer strategy
 	int answer_strategy;
 	int true_fake[] = {1, 0};
-	int fake_freq = 50; //freq of lie
+	int fake_freq = 15; //freq of lie
 	int freq[] = {100 - fake_freq, fake_freq}; //using fake dataset with p2 = 0.1
 
 	float lie_freq = (float)fake_freq/100;
@@ -188,15 +188,15 @@ int phase_3_test(int argc, char **argv)
 
 	//===case 1 ======
 
-	float amt_lie = 0.1; 
+	float amt_lie = 0.2; 
 	int keep_row = int(datasize_row*(1-amt_lie)); //amount of lie
-	// // t1 = high_resolution_clock::now();
+	// // // t1 = high_resolution_clock::now();
 	part_A.addDummy_FakeHist_random(keep_row, a);
-	// // t2 = high_resolution_clock::now();
-	// // trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
+	// // // t2 = high_resolution_clock::now();
+	// // // trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 	
 	// //==case 2
-	// float adding_ones = 1;
+	// float adding_ones = 1; //omega = 1
 	// t1 = high_resolution_clock::now();
 	// part_A.addDummy_ones_FakeHistogram(a, adding_ones);
 	// t2 = high_resolution_clock::now();
@@ -371,6 +371,8 @@ int phase_3_test(int argc, char **argv)
 	int index = 0;
 	int itr = 1;
 
+	// cout<<"test ok"<<endl;
+
 	t1 = high_resolution_clock::now();
 	while (itr <= num_query)
     {
@@ -380,8 +382,10 @@ int phase_3_test(int argc, char **argv)
 		// bool check = server1.enc_test_map.empty();
 		// cout<< "enc_test_map empty? "<<check<<endl;
 		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
+		// cout<<"test ok"<<endl;
        
         server1.generateMatchDomain(0);
+		// cout<<"test ok"<<endl;
       
         // t1 = high_resolution_clock::now();
 		server1.generateNormalQuery_opt(pre_enc_stack);
@@ -1041,90 +1045,40 @@ int phase_3_test(int argc, char **argv)
 	trackTestAccu(time_track_list, "No. of lied detected", no_lied_detected);
 
 
-	storeTimeEvaluation(argc, argv, time_track_list, verify_status);
+	// storeTimeEvaluation(argc, argv, time_track_list, verify_status);
 
 
-	// // void storeTimeEvaluation(int argc, char **argv, TRACK_LIST &time_track_list, bool verify_status)
-	// // {
+	if (argc > 1)
+	{
+		fstream fout;
+		if (strcmp(argv[11], "1") == 0)
+		{
+			fout.open("./results/cheating_10Q_10T_lie_20pc_100K_L_500_freqLie_15_40runs.csv", ios::out | ios::trunc);
+			// fout.open("./results/phase3_n_100K_L_500_fakePV_seflCreateFakeHisto_keep20pc_fakeResponse_scaled_upPV_10q_testFreq_05_lieFreq_100.csv", ios::out | ios::trunc);
+			fout << "Iteration, PV Verification";
+			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
+			{
+				string column = itr->first;
+				fout << ", " << column;
+			}
+			fout << "\n";
+		}
+		else
+		{
+			fout.open("./results/cheating_10Q_10T_lie_20pc_100K_L_500_freqLie_15_40runs.csv", ios::out | ios::app);
+			// fout.open("./results/phase3_n_100K_L_500_fakePV_seflCreateFakeHisto_keep20pc_fakeResponse_scaled_upPV_10q_testFreq_05_lieFreq_100.csv", ios::out | ios::app);
+		}
 
-		// if (argc > 1)
-		// {
-			
-		// 	fstream fout;
-		// 	if (strcmp(argv[11], "1") == 0)
-		// 	{
-		// 		fout.open("./results/phase3_honestPV_malicious_answer_300K_pv_001_L_1000_5query_5test_answer_fakeHist_01.csv", ios::out | ios::trunc);
-		// 		// fout << "Iteration, PV Verification";
-				
-		// 		fout << "Iteration" << ", "<<argv[11] <<", ";
-		// 		fout<<"\n";
-		// 		fout <<"\n";
-		// 		fout << "PV Verification"<<", "<<verify_status<<", ";
-		// 		fout<<"\n";
-		// 		for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
-		// 		{
-		// 			string column = itr->first;
-		// 			string time_diff = itr->second;
-		// 			// fout << ", " << column << ","<<time_diff;
-		// 			fout << column << ","<<time_diff << ", ";
-		// 			fout << "\n";
-		// 		}
-		// 		 fout << ", ";
-		// 	}
-		// 	else
-		// 	{
-				
-		// 		fout.open("./results/phase3_honestPV_malicious_answer_300K_pv_001_L_1000_5query_5test_answer_fakeHist_01.csv", ios::out | ios::app);
-		// 		// Insert the data to file
-		// 		fout << argv[11];
-		// 		fout << "\n";
-		// 		fout << verify_status;
-		// 		fout << "\n";
-		// 		for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
-		// 		{
-		// 			string time_diff = itr->second;
-		// 			fout << time_diff;
-		// 			fout << "\n";
-		// 		}
-		// 	}
-
-			
-		// 	fout << ", ";
-		// 	// fout << ",";
-		// 	fout.close();
-		// }
-	// // }
-
-	// if (argc > 1)
-	// {
-	// 	fstream fout;
-	// 	if (strcmp(argv[11], "1") == 0)
-	// 	{
-	// 		fout.open("./results/phase3_honestPV_malicious_answer_100K_pv_001_L_500_10query_freq_test_05_freq_lie_03_fake_07.csv", ios::out | ios::trunc);
-	// 		fout << "Iteration, PV Verification";
-	// 		for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
-	// 		{
-	// 			string column = itr->first;
-	// 			fout << ", " << column;
-	// 		}
-	// 		fout << "\n";
-	// 	}
-	// 	else
-	// 	{
-	// 		fout.open("./results/phase3_honestPV_malicious_answer_100K_pv_001_L_500_10query_freq_test_05_freq_lie_03_fake_07.csv", ios::out | ios::app);
-	// 	}
-
-	// 	// Insert the data to file
-	// 	fout << argv[11] << ", " << verify_status;
-	// 	for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
-	// 	{
-	// 		string time_diff = itr->second;
-	// 		fout << ", " << time_diff;
-	// 	}
-	// 	fout << "\n";
-	// 	fout.close();
-	// }
-
+		// Insert the data to file
+		fout << argv[11] << ", " << verify_status;
+		for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
+		{
+			string time_diff = itr->second;
+			fout << ", " << time_diff;
+		}
+		fout << "\n";
+		fout.close();
+	}
 
 	return 0;
 }
