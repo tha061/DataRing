@@ -19,6 +19,7 @@ int phase_3_test(int argc, char **argv)
 	double pv_ratio = 0.01;
     int num_query;
     double test_frequency;
+	int fre_lie;
 	
 	string UNIQUE_DOMAIN_DIR, KNOWN_DOMAIN_DIR;
 	if (argc > 1)
@@ -35,6 +36,8 @@ int phase_3_test(int argc, char **argv)
 			alpha = stod(argv[8]);
             num_query = stoi(argv[9]);
             test_frequency = stod(argv[10]);
+			fre_lie = stoi(argv[11]);
+			
 
 		}
 		else
@@ -60,7 +63,7 @@ int phase_3_test(int argc, char **argv)
 	// Setup answer strategy
 	int answer_strategy;
 	int true_fake[] = {1, 0};
-	int fake_freq = 15; //freq of lie
+	int fake_freq = fre_lie*5;//25; //freq of lie
 	int freq[] = {100 - fake_freq, fake_freq}; //using fake dataset with p2 = 0.1
 
 	float lie_freq = (float)fake_freq/100;
@@ -68,6 +71,7 @@ int phase_3_test(int argc, char **argv)
 	int answer_strategy_arr[iterations];
 
 	int no_lied_answer = (int)(lie_freq*iterations);
+	cout<<"no_lied_answer = "<<no_lied_answer<<endl;
 
 	int counter = 0;
 	for (int i =0; i< iterations; i++)
@@ -188,7 +192,7 @@ int phase_3_test(int argc, char **argv)
 
 	//===case 1 ======
 
-	float amt_lie = 0.2; 
+	float amt_lie = 0.1; 
 	int keep_row = int(datasize_row*(1-amt_lie)); //amount of lie
 	// // // t1 = high_resolution_clock::now();
 	part_A.addDummy_FakeHist_random(keep_row, a);
@@ -1051,10 +1055,18 @@ int phase_3_test(int argc, char **argv)
 	if (argc > 1)
 	{
 		fstream fout;
-		if (strcmp(argv[11], "1") == 0)
+		// std::ofstream fout;
+
+		string filename = "./results/lie_dectection_";
+	
+		stringstream ss;
+	
+		if (strcmp(argv[12], "1") == 0)
 		{
-			fout.open("./results/cheating_10Q_10T_lie_20pc_100K_L_500_freqLie_15_40runs.csv", ios::out | ios::trunc);
-			// fout.open("./results/phase3_n_100K_L_500_fakePV_seflCreateFakeHisto_keep20pc_fakeResponse_scaled_upPV_10q_testFreq_05_lieFreq_100.csv", ios::out | ios::trunc);
+			
+			ss << filename <<"dataset_"<<datasize_row <<"_"<<num_query<<"_query_"<<num_test<<"_test_"<<"30runs_freq_lie_"<< fake_freq << ".csv"; // add your stuff to the stream
+			fout.open(ss.str().c_str(),ios::out | ios::trunc);
+		
 			fout << "Iteration, PV Verification";
 			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
@@ -1065,12 +1077,15 @@ int phase_3_test(int argc, char **argv)
 		}
 		else
 		{
-			fout.open("./results/cheating_10Q_10T_lie_20pc_100K_L_500_freqLie_15_40runs.csv", ios::out | ios::app);
-			// fout.open("./results/phase3_n_100K_L_500_fakePV_seflCreateFakeHisto_keep20pc_fakeResponse_scaled_upPV_10q_testFreq_05_lieFreq_100.csv", ios::out | ios::app);
+			
+			ss << filename <<"dataset_"<<datasize_row <<"_"<<num_query<<"_query_"<<num_test<<"_test_"<<"30runs_freq_lie_"<< fake_freq << ".csv";
+			 
+			fout.open(ss.str().c_str(),ios::out | ios::app);
+			
 		}
 
 		// Insert the data to file
-		fout << argv[11] << ", " << verify_status;
+		fout << argv[12] << ", " << verify_status;
 		for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 		{
 			string time_diff = itr->second;
