@@ -8,26 +8,26 @@
 
 int partialView_verification(int argc, char **argv)
 {
-	int datasize_row = 500000; //make it an argument to use to determine dataset_size
-	int SERVER_SIZE = 3;	   //make it an argument use to setup number of servers
+	int dataset_size = 500000; //make it an argument to use to determine dataset_size
+	int number_servers = 3;	   //make it an argument use to setup number of servers
 	int a = 2;				   //make it an argument to scale up the histogram for adding dummy
 	double eta;				   //make it an argument use to determine r0
 	double alpha = 0.05;
 	double pv_ratio = 0.01;
 	
-	string UNIQUE_DOMAIN_DIR, KNOWN_DOMAIN_DIR;
+	string dataset_directory, background_knowledge_directory;
 	if (argc > 1)
 	{
 		if (strstr(argv[1], ".csv") != NULL && strstr(argv[2], ".csv") != NULL)
 		{
-			UNIQUE_DOMAIN_DIR = argv[1];
-			KNOWN_DOMAIN_DIR = argv[2];
-			datasize_row = stoi(argv[3]); //size of dataset
+			dataset_directory = argv[1];
+			background_knowledge_directory = argv[2];
+			dataset_size = stoi(argv[3]); //size of dataset
 			pv_ratio = stod(argv[4]); // pv sample rate
-			SERVER_SIZE = stoi(argv[5]);
+			number_servers = stoi(argv[5]);
 			a = stoi(argv[6]);
 			eta = stod(argv[7]); //make it an argument use to determine r0
-			alpha = stod(argv[8]);
+			alpha = stod(argv[8]); 
 		}
 		else
 		{
@@ -44,7 +44,7 @@ int partialView_verification(int argc, char **argv)
 	double percentile_noise = 0.95;			   //use to determine Laplace max_noise
 	float noise_budget = 0.5;
 	float sensitivity = 1.0;
-	int PV_size = (int)datasize_row*pv_ratio; // actual V, not the PV histogram form
+	int PV_size = (int)dataset_size*pv_ratio; // actual V, not the PV histogram form
 
 	float epsilon_q = noise_budget; //only for test PV, noise is not a matter
 	float epsilon_test = epsilon_q; //only for test PV, noise is not a matter
@@ -68,17 +68,17 @@ int partialView_verification(int argc, char **argv)
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 	// PARTICIPANT CONVERT DATASET TO HISTOGRAM
-	Participant part_A(UNIQUE_DOMAIN_DIR);
+	Participant part_A(dataset_directory);
 
 	// t1 = high_resolution_clock::now();
-	part_A.create_OriginalHistogram(datasize_row);
+	part_A.create_OriginalHistogram(dataset_size);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Create Hist (ms)", t1, t2);
 
 	// cout << "Total rows: " << part_A.size_dataset << endl;
-	// cout << "Total domains: " << part_A.hashMap.size() << endl;
+	// cout << "Total domains: " << part_A.histogram.size() << endl;
 
-	// part_A.print_hash_map();
+	// part_A.print_Histogram();
 
 	t1 = high_resolution_clock::now();
 	// t1 = high_resolution_clock::now();
@@ -91,13 +91,13 @@ int partialView_verification(int argc, char **argv)
 	
 
 	// SERVER SETUP COLLECTIVE KEY
-	Servers servers(SERVER_SIZE, size_dataset, KNOWN_DOMAIN_DIR);
+	Servers servers(number_servers, size_dataset, background_knowledge_directory, a); //modified to size aN
 
 	servers.generateCollKey();
 	servers.pv_ratio = pv_ratio;
 
 	// INITIALIZE CIPHERTEXT STACK FOR PARTY
-	part_A.initializePreStack(servers.coll_key);
+	// part_A.initializePreStack(servers.coll_key);
 
 
 
@@ -110,7 +110,9 @@ int partialView_verification(int argc, char **argv)
 
 	part_A.sensitivity = sensitivity;
 	part_A.pv_ratio = pv_ratio;
-	// INITIALIZE CIPHERTEXT STACK FOR SERVERS
+
+
+	// INITIALIZE CIPHERTEXT STACK FOR SERVERS: pre-computing enc(0) and enc(1)
 	ENC_Stack pre_enc_stack(size_dataset, servers.coll_key);
 
 	// t1 = high_resolution_clock::now();
@@ -133,10 +135,12 @@ int partialView_verification(int argc, char **argv)
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 	// SERVER CREATE PV SAMPLING VECTOR
-	// t1 = high_resolution_clock::now();
-	servers.createPVsamplingVector(pre_enc_stack);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Gen PV sampling (ms)", t1, t2);
+	t1 = high_resolution_clock::now();
+	// servers.createPVsamplingVector(pre_enc_stack);
+	servers.createPVsamplingVector_size_N_plus_1(pre_enc_stack);
+	// cout<<"test ok1\n";
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_list, "Gen PV sampling (ms)", t1, t2);
 
 
 
@@ -150,10 +154,12 @@ int partialView_verification(int argc, char **argv)
 	// trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
 	
 	
-	// t1 = high_resolution_clock::now();
-	// part_A.generatePV_opt(servers.s_myPIR_enc, true);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
+	t1 = high_resolution_clock::now();
+	// // part_A.generatePV_opt(servers.s_myPIR_enc, true);
+	part_A.generatePV_fixed_scheme(servers.s_myPIR_enc, part_A.histogram, part_A.size_dataset);
+	// // cout<<"test ok1\n";
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
 	//++++++++++ PARTY IS DISHONEST ++++++++++++//
 
@@ -161,30 +167,28 @@ int partialView_verification(int argc, char **argv)
 
 	//====== strategy 2: participant generate fake histogram randomly
 	
-	int keep_row = int(datasize_row*0.8); //lie about 50% rows
-	// int keep_row = 428027; 
-	// t1 = high_resolution_clock::now();
-	part_A.addDummy_FakeHist_random(keep_row, a);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
+	// // int keep_row = int(dataset_size*0.2); //lie about 50% rows
+	// int keep_row = 487742; 
+	// // t1 = high_resolution_clock::now();
+	// part_A.addDummy_FakeHist_random(keep_row, a);
+	// // t2 = high_resolution_clock::now();
+	// // trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 
-	//pre process:
-	// t1 = high_resolution_clock::now();
-	part_A.pre_process_generatePV(false);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
+
 
 	// t1 = high_resolution_clock::now();
-	part_A.generatePV_opt(servers.s_myPIR_enc, false);
+	// part_A.generatePV_opt(servers.s_myPIR_enc, true);
+	// part_A.generatePV_fixed_scheme(servers.s_myPIR_enc, part_A.fake_histogram, part_A.size_dataset);
+	// cout<<"test ok1\n";
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
 	//======= strategy 3: participant does not use PV sampling vector from server
 	
 	// int true_record_PV = (int)PV_size*0.9;
-	// // // int true_record_PV = 2372
+	// int true_record_PV = 3997;
 	// // // t1 = high_resolution_clock::now();
-	// part_A.selfCreate_Fake_Historgram(true_record_PV, a);
+	// part_A.self_create_PV_prepare(true_record_PV, a);
 	// // // t2 = high_resolution_clock::now();
 	// // // trackTaskPerformance(time_track_list, "Part_A keep x rows: ", t1, t2);
 
@@ -206,10 +210,11 @@ int partialView_verification(int argc, char **argv)
 	Server server1 = servers.server_vect[server_id];
 
 	
-	// t1 = high_resolution_clock::now();
+	t1 = high_resolution_clock::now();
 	bool verify_status = servers.verifyingPV(part_A.enc_domain_map, table, server_id, pre_enc_stack, eta);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Verify PV (ms)", t1, t2);
+	// cout<<"test ok1\n";
+	t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_list, "Verify PV (ms)", t1, t2);
 
 	
 	// if (verify_status) servers.open_true_PV( part_A.enc_domain_map, table, server_id, pre_enc_stack);
@@ -222,7 +227,7 @@ int partialView_verification(int argc, char **argv)
 		fstream fout;
 		if (strcmp(argv[9], "1") == 0)
 		{
-			fout.open("./results/Dishonest_PV_n_500K_FakeHisto_keep_80pc_eta_095_ratio_003pc_50runs_3.csv", ios::out | ios::trunc);
+			fout.open("./results/test_passing_rate_Ph_500K_pvrate_1pc_eta_01_new3.csv", ios::out | ios::trunc);
 			fout << "Iteration, PV Verification";
 			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
@@ -233,7 +238,7 @@ int partialView_verification(int argc, char **argv)
 		}
 		else
 		{
-			fout.open("./results/Dishonest_PV_n_500K_FakeHisto_keep_80pc_eta_095_ratio_003pc_50runs_3.csv", ios::out | ios::app);
+			fout.open("./results/test_passing_rate_Ph_500K_pvrate_1pc_eta_01_new3.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file

@@ -1,4 +1,5 @@
 #include "include/public_header.h"
+#include "public_func.h"
 
 
 void bench_elgamal(int num_entries, int tablebits)
@@ -491,8 +492,8 @@ void test_mult_opt(int num_entries, dig_t big_value)
 {
 	//std::cout<<"BEGIN"<<std::endl;
 	gamal_key_t key;
-	gamal_ciphertext_t cipher1, res_mult_cipher; //, temp_ciph;
-	dig_t res_mult, pt, plain;
+	gamal_ciphertext_t cipher1, cipher0, cipher10,res_mult_cipher1, res_mult_cipher0,res_mult_cipher_scalar, res_add0; //, temp_ciph;
+	dig_t res_mult1, res_mult0, res_mult_scalar, plain, res_add0_pt, pt;
 	bsgs_table_t table;
 	srand(time(NULL));
 	double avg_mult = 0; //, avg_dec = 0;
@@ -500,47 +501,106 @@ void test_mult_opt(int num_entries, dig_t big_value)
 
 	gamal_init(DEFAULT_CURVE); //(CURVE_256_SEC);
 	gamal_generate_keys(key);
-	gamal_init_bsgs_table(table, (dig_t)1L << 16);
+	gamal_init_bsgs_table(table, (dig_t)1L << 16); //lookup table size  2^16
 
 	//pt = ((dig_t) rand())% (((dig_t)1L) << 32);
 	//pt = 1000;//exp2(33);
-	std::cout << "plaintext = " << pt << std::endl;
+	// std::cout << "plaintext = " << pt << std::endl;
 	//std::cout<<"Test OK"<<std::endl;
-	plain = 1;
-	gamal_encrypt(cipher1, key, plain);
 
-	for (int iter = 0; iter < num_entries; iter++)
+	// plain = (((dig_t) rand()) % (((dig_t)1L) << 32)-1) % (((dig_t)1L) <<32); 
+	plain = 100;
+
+	cout<<"original plaintext: "<<plain<<endl;
+	// gamal_encrypt(cipher1, key, plain);
+	// gamal_encrypt(cipher10, key, plain);
+	gamal_encrypt(cipher0, key, plain);
+
+
+	cout<<"original ciphertext: \n"<<endl;
+	printCiphertext(cipher0);
+
+	for (int iter = 1; iter <= num_entries; iter++)
 	{
 
-		//pt = ((dig_t) rand()) * iter % (((dig_t)1L) << 32); //what happens here, why core dumped
-		high_resolution_clock::time_point t1 = high_resolution_clock::now();
+		// pt = (((dig_t) rand()) * iter % (((dig_t)1L) << 32)-1) % (((dig_t)1L) <<32); 
+		// pt = ((((dig_t)1L) << 32) - 1) % (((dig_t)1L) <<32);
 
-		high_resolution_clock::time_point t2 = high_resolution_clock::now();
+		pt = (((dig_t)1L) << 32)-1;
+
+		cout<<"random scalar = "<<pt<<endl;
+
+
+		// high_resolution_clock::time_point t1 = high_resolution_clock::now();
+
+		// high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
 		//printf("DEBUG OK1\n");
-		pt = ((dig_t)rand()) % big_value + 1;
+		// pt = ((dig_t)rand()) % big_value + 1;
 
-		t1 = high_resolution_clock::now();
-		gamal_mult_opt(res_mult_cipher, cipher1, pt);
-		t2 = high_resolution_clock::now();
-		auto mult_time = duration_cast<nanoseconds>(t2 - t1).count();
+		// int pt1 = 1;
+		// int pt0 = 0;
+		// int pt10 = 10;
+
+		// t1 = high_resolution_clock::now();
+		// gamal_mult_opt(res_mult_cipher1, cipher1, pt1);
+		// cout<<"print cipher 1: \n";
+		// printCiphertext(res_mult_cipher1);
+
+		// gamal_mult_opt(res_mult_cipher0, cipher0, pt0);
+		// cout<<"print cipher 0: \n";
+		// printCiphertext(res_mult_cipher0);
+
+
+
+		
+		gamal_mult_opt(res_mult_cipher_scalar, cipher0, pt);
+		cout<<"after scalar: new cipher: \n";
+		printCiphertext(res_mult_cipher_scalar);
+
+		// gamal_add(res_add0,res_mult_cipher_scalar, res_mult_cipher0);
+		// cout<<"print cipher 0 add 10: \n";
+		// printCiphertext(res_add0);
+
+
+		// t2 = high_resolution_clock::now();
+		// auto mult_time = duration_cast<nanoseconds>(t2 - t1).count();
 
 		//std::cout<<"multi cipher: "<<res_mult_cipher<<std::endl;
 		//printf("DEBUG OK2\n");
 
-		avg_mult += mult_time;
+		// avg_mult += mult_time;
 
-		//gamal_decrypt(&res_mult, key, res_mult_cipher, table);
+		gamal_decrypt(&res_mult_scalar, key, res_mult_cipher_scalar, table);
 
-		//printf("DEBUG OK3\n");
-		//std::cout<<"after= "<<res_mult<<std::endl;
+		cout<<"Decryted: "<<endl;
+		std::cout<<"before = "<<plain<<"; after mult scalar = "<<res_mult_scalar<<std::endl;
+		if (res_mult_scalar != (plain * pt))
+		std::cout << "ERROR" << std::endl;
+		
 
-		// if (res_mult != (plain * pt))
-		//   std::cout << "ERROR" << std::endl;
+		// gamal_decrypt(&res_mult0, key, res_mult_cipher0, table);
+
+		// // cout<<"DEBUG OK3"<<endl;
+		// std::cout<<"before = "<<plain<<"; after mult 0= "<<res_mult0<<std::endl;
+
+		// gamal_decrypt(&res_add0_pt, key, res_add0, table);
+
+		// // cout<<"DEBUG OK3"<<endl;
+		// std::cout<<"before = "<<10<<"; after add 0 and 10= "<<res_add0<<std::endl;
+
+
+		// gamal_decrypt(&res_mult_scalar, key, res_mult_cipher_scalar, table);
+
+		// // cout<<"DEBUG OK3"<<endl;
+		// std::cout<<"before = "<<plain<<"; after mult 10 = "<<res_mult_scalar<<std::endl;
+
+		// if (res_mult_scalar != (plain * pt10))
+		// std::cout << "ERROR" << std::endl;
 	}
 
-	avg_mult = avg_mult;
-	std::cout << "MULT Time: " << avg_mult / (1000000000.0 * 60) << " min" << std::endl;
+	// avg_mult = avg_mult;
+	// std::cout << "MULT Time: " << avg_mult / (1000000000.0) << " sec" << std::endl;
 }
 
 void test_COUNT_query_computation(int num_entries)

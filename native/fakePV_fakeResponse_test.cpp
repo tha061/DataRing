@@ -8,8 +8,8 @@
 
 int fakePV_fakeResponse_test(int argc, char **argv)
 {
-	int datasize_row = 500000; //make it an argument to use to determine dataset_size
-	int SERVER_SIZE = 3;	   //make it an argument use to setup number of servers
+	int dataset_size = 500000; //make it an argument to use to determine dataset_size
+	int number_servers = 3;	   //make it an argument use to setup number of servers
 	int a = 2;				   //make it an argument to scale up the histogram for adding dummy
 	double eta;				   //make it an argument use to determine r0
 	double alpha = 0.05;
@@ -17,16 +17,16 @@ int fakePV_fakeResponse_test(int argc, char **argv)
     int num_query;
     double test_frequency;
 	
-	string UNIQUE_DOMAIN_DIR, KNOWN_DOMAIN_DIR;
+	string dataset_directory, background_knowledge_directory;
 	if (argc > 1)
 	{
 		if (strstr(argv[1], ".csv") != NULL && strstr(argv[2], ".csv") != NULL)
 		{
-			UNIQUE_DOMAIN_DIR = argv[1];
-			KNOWN_DOMAIN_DIR = argv[2];
-			datasize_row = stoi(argv[3]); //size of dataset
+			dataset_directory = argv[1];
+			background_knowledge_directory = argv[2];
+			dataset_size = stoi(argv[3]); //size of dataset
 			pv_ratio = stod(argv[4]); // pv sample rate
-			SERVER_SIZE = stoi(argv[5]);
+			number_servers = stoi(argv[5]);
 			a = stoi(argv[6]);
 			eta = stod(argv[7]); //make it an argument use to determine r0
 			alpha = stod(argv[8]);
@@ -49,7 +49,7 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 	double percentile_noise = 0.95;			   //use to determine Laplace max_noise
 	float noise_budget = 1;
 	float sensitivity = 1.0;
-	int PV_size = (int)datasize_row*pv_ratio; // actual V, not the PV histogram form
+	int PV_size = (int)dataset_size*pv_ratio; // actual V, not the PV histogram form
 
     int num_test = (int)(num_query*test_frequency/(1-test_frequency));
     int iterations = num_query + num_test;
@@ -135,9 +135,9 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 	// PARTICIPANT CONVERT DATASET TO HISTOGRAM
-	Participant part_A(UNIQUE_DOMAIN_DIR);
+	Participant part_A(dataset_directory);
 
-	part_A.create_OriginalHistogram(datasize_row);
+	part_A.create_OriginalHistogram(dataset_size);
 	
 	part_A.addDummy_to_Histogram(a);
 	
@@ -145,7 +145,7 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 
 
 	// SERVER SETUP COLLECTIVE KEY
-	Servers servers(SERVER_SIZE, size_dataset, KNOWN_DOMAIN_DIR);
+	Servers servers(number_servers, size_dataset, background_knowledge_directory, a); //modified to size aN
 
 	servers.generateCollKey();
 	servers.pv_ratio = pv_ratio;
@@ -187,7 +187,7 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 
 	//====== strategy 2: participant generate fake histogram randomly
 	
-	int keep_row = int(datasize_row*1); //lie about 50% rows
+	int keep_row = int(dataset_size*1); //lie about 50% rows
 	
 	part_A.addDummy_FakeHist_random(keep_row, a);
 	
@@ -202,7 +202,7 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 	
 	// int true_record_PV = (int)PV_size*0.2;
 
-	// part_A.selfCreate_Fake_Historgram(true_record_PV, a);
+	// part_A.self_create_PV_prepare(true_record_PV, a);
 	
 	// // //pre process:
 	
@@ -266,8 +266,8 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 		if (answer_strategy == 0)
 		{
 			
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_q);
-            // part_A.computeAnswer_scaled_up_answer(server1.enc_test_map, sum_cipher, part_A.scale_up_answer, false, servers.coll_key, epsilon_q);
+			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon_q);
+            // part_A.computeAnswer_scaled_up_answer(server1.enc_question_map, sum_cipher, part_A.scale_up_answer, false, servers.coll_key, epsilon_q);
 			
 			count_lied_ans++;
 			
@@ -275,14 +275,14 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 		else
 		{
 			
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon_q);
+			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon_q);
 			
 			
 		}	
 		trackTaskStatus(time_track_list, "Query:Dataset true/false", answer_strategy);
 		
         //Tham added 15 Jan, delete query at the server side
-        server1.enc_test_map.clear();
+        server1.enc_question_map.clear();
 		server1.match_query_domain_vect.clear();
         itr++;
 		index++;
@@ -308,8 +308,8 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 		if (answer_strategy == 0)
 		{
 			
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_test);
-            // part_A.computeAnswer_scaled_up_answer(server1.enc_test_map, sum_cipher, part_A.scale_up_answer, false, servers.coll_key, epsilon_q);
+			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon_test);
+            // part_A.computeAnswer_scaled_up_answer(server1.enc_question_map, sum_cipher, part_A.scale_up_answer, false, servers.coll_key, epsilon_q);
 			
 			count_lied_ans++;
 			
@@ -317,7 +317,7 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 		else
 		{
 			
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon_test);
+			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon_test);
 			
 			
 		}	
@@ -333,9 +333,9 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 		}
 		trackTaskStatus(time_track_list, "Test target L status", test_status);
 		
-		server1.enc_test_map_pre.clear();
+		server1.enc_question_map_pre.clear();
 		
-		server1.enc_test_map.clear();
+		server1.enc_question_map.clear();
 		index++;
 		
 
@@ -357,15 +357,15 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 		if (answer_strategy == 0)
 		{
 			
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_test);
-            // part_A.computeAnswer_scaled_up_answer(server1.enc_test_map, sum_cipher, part_A.scale_up_answer, false, servers.coll_key, epsilon_q);
+			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon_test);
+            // part_A.computeAnswer_scaled_up_answer(server1.enc_question_map, sum_cipher, part_A.scale_up_answer, false, servers.coll_key, epsilon_q);
 			count_lied_ans++;
 			
 		}
 		else
 		{
 		
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon_test);
+			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon_test);
 			
 		}	
 		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
@@ -381,9 +381,9 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 		}
 		
 		
-		server1.enc_test_map_pre.clear();
+		server1.enc_question_map_pre.clear();
 		//Tham added 15 Jan, delete test at server side
-		server1.enc_test_map.clear();
+		server1.enc_question_map.clear();
 		index++;
 	}
 
@@ -405,14 +405,14 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 		if (answer_strategy == 0)
 		{
 
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_test);
-            // part_A.computeAnswer_scaled_up_answer(server1.enc_test_map, sum_cipher, part_A.scale_up_answer, false, servers.coll_key, epsilon_q);
+			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon_test);
+            // part_A.computeAnswer_scaled_up_answer(server1.enc_question_map, sum_cipher, part_A.scale_up_answer, false, servers.coll_key, epsilon_q);
 	
 			count_lied_ans++;
 		}
 		else
 		{
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon_test);
+			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon_test);
 		}
 		
 		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
@@ -428,7 +428,7 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 			no_lied_detected++;
 		}
 
-		server1.enc_test_map.clear();
+		server1.enc_question_map.clear();
 		index++;
 	
 	}
@@ -453,8 +453,8 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 		if (answer_strategy == 0)
 		{
 			
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, false, servers.coll_key, epsilon_test);
-            // part_A.computeAnswer_scaled_up_answer(server1.enc_test_map, sum_cipher, part_A.scale_up_answer, false, servers.coll_key, epsilon_q);
+			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon_test);
+            // part_A.computeAnswer_scaled_up_answer(server1.enc_question_map, sum_cipher, part_A.scale_up_answer, false, servers.coll_key, epsilon_q);
 			
 			count_lied_ans++;
 			
@@ -462,7 +462,7 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 		else
 		{
 		
-			part_A.computeAnswer_opt(server1.enc_test_map, sum_cipher, true, servers.coll_key, epsilon_test);
+			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon_test);
 		
 			
 		}	
@@ -485,9 +485,9 @@ int fakePV_fakeResponse_test(int argc, char **argv)
 		}
 
 		server1.match_query_domain_vect.clear();
-		server1.enc_test_map_pre.clear();
+		server1.enc_question_map_pre.clear();
 		//Tham added 15 Jan, delete test at server side
-		server1.enc_test_map.clear();
+		server1.enc_question_map.clear();
 		index++;
 		
 

@@ -1,7 +1,26 @@
 #include "Servers.h"
 #include "process_noise.h"
 
-Servers::Servers(int server_size, int data_size, string known_domain_dir)
+// Servers::Servers(int server_size, int data_size, string known_domain_dir)
+// {
+//     gamal_generate_keys(coll_key);
+//     for (int i = 0; i < server_size; i++)
+//     {
+//         Server server(data_size, known_domain_dir);
+//         server_vect.push_back(server);
+//     }
+
+    
+
+//     Servers::server_size = server_size;
+//     Servers::data_size = data_size;
+    
+
+//     s_myPIR_enc = new gamal_ciphertext_t[data_size];
+//     s_plain_track_list = new int[data_size];
+// }
+
+Servers::Servers(int server_size, int data_size, string known_domain_dir, int scale_up_factor)
 {
     gamal_generate_keys(coll_key);
     for (int i = 0; i < server_size; i++)
@@ -10,11 +29,14 @@ Servers::Servers(int server_size, int data_size, string known_domain_dir)
         server_vect.push_back(server);
     }
 
-    s_myPIR_enc = new gamal_ciphertext_t[data_size];
-    s_plain_track_list = new int[data_size];
+    
 
     Servers::server_size = server_size;
     Servers::data_size = data_size;
+    Servers::domain_size = data_size*scale_up_factor; //aN
+
+    s_myPIR_enc = new gamal_ciphertext_t[domain_size];
+    s_plain_track_list = new int[domain_size];
 }
 
 void Servers::createPVsamplingVector(ENC_Stack &pre_enc_stack)
@@ -41,6 +63,42 @@ void Servers::createPVsamplingVector(ENC_Stack &pre_enc_stack)
         }
     }
 }
+
+void Servers::createPVsamplingVector_size_N_plus_1(ENC_Stack &pre_enc_stack)
+{
+    int enc_types[] = {1, 0};
+    int up_freq = (int)(1 / pv_ratio - 1);
+    int freq[] = {1, up_freq};
+    // int pv_ratio = 50; // V = 2% of n
+
+    pir_gen(s_plain_track_list, enc_types, freq, data_size, pv_ratio); // function that server place 1 or 0 randomly
+
+    //========== Encrypt the vector =============== //
+    int plain1 = 1, plain0 = 0;
+    //among N elements: V elements of enc(1) and N-V elements of enc(0)
+    for (int i = 0; i < data_size; i++)
+    {
+        if (s_plain_track_list[i] == 1)
+        {
+            pre_enc_stack.pop_E1(s_myPIR_enc[i]);
+        }
+        else
+        {
+            pre_enc_stack.pop_E0(s_myPIR_enc[i]);
+        }
+    }
+
+    pre_enc_stack.pop_E0(s_myPIR_enc[data_size]); //element (N+1)th = 0
+
+    // for (int i = data_size; i < domain_size; i++)
+    // {
+       
+    //     pre_enc_stack.pop_E0(s_myPIR_enc[i]);
+    
+    // }
+}
+
+
 
 void Servers::generateCollKey()
 {
@@ -112,6 +170,8 @@ void Servers::fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table)
 
     // cout << "Total domain encrypted as 1: " << count << endl;
 }
+
+
 /**
  * to verify the PV
  * @paras: eta is the probability s.t the honest participant will pass the test at eta
@@ -120,7 +180,7 @@ void Servers::fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table)
  */
 bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack, double eta)
 {
-    Server server = server_vect[serverId]; // shallow copy
+    Server server = server_vect[serverId]; // shallow copy to specify the first server initiate the verification
     const int number_known_records = server.known_record_subset.size();
     int v = (int)data_size * pv_ratio;
     const int req_known_record_found = server.generatePVTestCondition(data_size, v, number_known_records, eta);
@@ -134,7 +194,7 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
     int counter = 0;
    
 
-    //========= Checking both the PV size is V of enc(1) or not and the known records >= r0
+    //========= Checking both the PV size is V of enc(1), and the known records >= r0
 
     // gamal_ciphertext_t total_v, tmp_v;
     // gamal_cipher_new(tmp_v);
@@ -237,6 +297,7 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
                 }
 
                 //======= To find exactly which known rows are in PV ====
+                //To open each bin with label matching label of known records
                 gamal_ciphertext_t tmp_decrypt;
                 gamal_add(tmp_decrypt, find->second, encrypt_E0); // to fix the decryption function
                 dig_t domain_decrypt = Servers::_fusionDecrypt(tmp_decrypt, table, serverId);
@@ -253,8 +314,8 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
             }
 
         }
-
-    dig_t sum_res = Servers::_fusionDecrypt(sum, table, serverId);
+    //decrypt the sum of all encryptions with matched label
+    dig_t sum_res = Servers::_fusionDecrypt(sum, table, serverId); //serverId to specify the first server initiate the decryption
 
     if (sum_res >= req_known_record_found)
     {
@@ -274,6 +335,8 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
     
     
 }
+
+
 //Tham
 void Servers::open_true_PV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack)
 {
@@ -318,12 +381,12 @@ void Servers::open_true_PV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, in
         counter++;
     }
       
-    // cout<<"number of opened domains in PV = "<<counter_rows_PV<<endl;
-    // cout<<"counter = "<<counter<<endl;
+    cout<<"number of opened domains in PV = "<<counter_rows_PV<<endl;
+    cout<<"counter = "<<counter<<endl;
 
-    // const int number_known_records_updated = known_rows_after_phase2.size();
+    const int number_known_records_updated = known_rows_after_phase2.size();
 
-    // cout<<"number_known_records_after_phase2 = "<<number_known_records_updated<<endl;
+    cout<<"number_known_records_after_phase2 = "<<number_known_records_updated<<endl;
 
 }
 
@@ -337,7 +400,7 @@ bool Servers::verifyingTestResult(string testName, gamal_ciphertext_t sum_cipher
     // float sensitivity = 1.0;
 
     // int maxNoise = (int)(getLaplaceNoiseRange(sensitivity, epsilon, prob));
-    // cout << "Max noise: " << maxNoise << endl;
+    cout << "Max noise: " << maxNoise << endl;
 
     if (decrypt_test_f >= (threshold - maxNoise) && decrypt_test_f <= (threshold + maxNoise))
     {

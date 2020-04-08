@@ -410,79 +410,6 @@ int gamal_generate_keys(gamal_key_t keys)
     return 0;
 }
 
-// added by Nam: generate collective key with only public keys input
-int gamal_collective_publickey_gen(gamal_key_t coll_keys, EC_POINT **p_key_list, int size_key_list)
-{
-    gamal_init(CURVE_256_SEC);
-
-    BN_CTX *ctx = BN_CTX_new();
-    BIGNUM *ord, *secret_key;
-
-    ord = BN_new();
-    secret_key = BN_new(); //coll secret key
-    coll_keys->Y = EC_POINT_new(init_group);
-    EC_GROUP_get_order(init_group, ord, ctx);
-
-    coll_keys->is_public = 0;
-
-    EC_POINT *tmp;
-    for (int i = 0; i < size_key_list; i++)
-    {
-        if (i == 0)
-        {
-            coll_keys->Y = p_key_list[i];
-        }
-        else
-        {
-            tmp = coll_keys->Y;
-            EC_POINT_add(init_group, coll_keys->Y, tmp, p_key_list[i], ctx); //added up all public keys
-        }
-    }
-    coll_keys->secret = secret_key;
-
-    BN_CTX_free(ctx);
-    return 0;
-}
-
-//added by Tham for generate collective key => need to improve so that only public keys are the input of the function
-int gamal_collective_key_gen(gamal_key_t coll_keys, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3)
-{
-    //gamal_key_t gamal_collective_key_gen(int party) {
-    //party = 2;
-    //gamal_key_t coll_keys;
-    //gamal_key_t key1, key2, key3;//, key3;
-
-    gamal_init(CURVE_256_SEC);
-    //gamal_generate_keys(key1);
-    //gamal_generate_keys(key2);
-    //gamal_generate_keys(key3);
-
-    BN_CTX *ctx = BN_CTX_new();
-    BIGNUM *ord, *coll_key;
-
-    ord = BN_new();
-    //coll_key = BN_new(); //coll secret key
-    coll_keys->Y = EC_POINT_new(init_group);
-    EC_GROUP_get_order(init_group, ord, ctx);
-
-    coll_keys->is_public = 0;
-
-    //EC_POINT_add(const EC_GROUP *group, EC_POINT *r, const EC_POINT *a, const EC_POINT *b, BN_CTX *ctx); //in ec.h
-
-    EC_POINT_add(init_group, coll_keys->Y, keys2->Y, keys1->Y, ctx);     //added up all public keys
-    EC_POINT_add(init_group, coll_keys->Y, coll_keys->Y, keys3->Y, ctx); //added up all public keys
-
-    //int BN_add(BIGNUM *r, const BIGNUM *a, const BIGNUM *b); //in bn.h
-
-    //BN_add(coll_key, keys1->secret, keys2->secret);
-    //coll_keys->secret = coll_key;
-    //BN_add(coll_key, coll_keys->secret, key3->secret);
-    //coll_keys->secret = coll_key;
-
-    //BN_free(ord);
-    BN_CTX_free(ctx);
-    return 0;
-}
 
 // Encryption
 int gamal_encrypt(gamal_ciphertext_t ciphertext, gamal_key_t key, dig_t plaintext)
@@ -493,6 +420,7 @@ int gamal_encrypt(gamal_ciphertext_t ciphertext, gamal_key_t key, dig_t plaintex
     bn_plain = BN_new();
     ord = BN_new();
     rand = BN_new();
+    // printf("ElGamal encryption: rand = %d \n", rand);
     ciphertext->C2 = EC_POINT_new(init_group);
 
     EC_GROUP_get_order(init_group, ord, ctx);
@@ -510,217 +438,7 @@ int gamal_encrypt(gamal_ciphertext_t ciphertext, gamal_key_t key, dig_t plaintex
     return 0;
 }
 
-/**
- * Added by Tham in 4 Feb 2020
- * Re-encrypt a ciphertext under a server's public key to a ciphertext under a new public key
- */
-int gamal_re_encrypt(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys, gamal_key_t keysNew)
-{
-    
-    BIGNUM *ord, *rand1;
-    BN_CTX *ctx = BN_CTX_new();
-    //gamal_ciphertext_t temp;
-    EC_POINT *M1, *temp1; // *temp;
-    gamal_ciphertext_t temp;
 
-    //bn_plain = BN_new();
-    ord = BN_new();
-    rand1 = BN_new();
-    
-    new_cipher->C1 = EC_POINT_new(init_group); //nothing
-    new_cipher->C2 = EC_POINT_new(init_group);
-    temp->C1 = EC_POINT_new(init_group);
-
-    //printf("key switch Test OK\n");
-    temp->C1 = multiply_generator(rand1, init_group);
-    EC_POINT_add(init_group, new_cipher->C1, new_cipher->C1, temp->C1, ctx); //v_1*B = C1_new
-    //printf("key switch Test OK1\n");
-    M1 = multiply_constant(cipher->C1, keys->secret, init_group); //rB*k_1
-    //printf("key switch Test OK2\n");
-    EC_POINT_invert(init_group, M1, ctx); // -rB*k_1
-    //printf("key switch Test OK3\n");
-    EC_POINT_add(init_group, new_cipher->C2, cipher->C2, M1, ctx); //C2 - rB*k_1
-    //printf("key switch Test OK4\n");
-    temp1 = multiply_constant(keysNew->Y, rand1, init_group); //v_1 * Knew
-    //printf("key switch Test OK5\n");
-    EC_POINT_add(init_group, new_cipher->C2, new_cipher->C2, temp1, ctx); //C2 - rB*k_1 + v_1 * K_new = x + v1*K_new = C2_new
-    //printf("key switch Test OK6\n");
-
-    BN_clear_free(rand1);
-    
-    BN_free(ord);
-    BN_CTX_free(ctx);
-    EC_POINT_clear_free(M1);
-    EC_POINT_clear_free(temp1);
-
-    return 0;
-}
-
-
-/**
- * added by Tham for re-encrypt a ciphertext by a new public key, 
- * switching from collective public key of 3 servers
- * Need to improve, adapt to many servers
- */
-
-int gamal_key_switching(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_key_t keysNew)
-{
-    // (C1, C2) = (r*B, x + r*(K1 + K2)) => (C1, C2) = (v*B, x + v*Knew)
-    //K1 = k_1*B; K2 = k_2*B
-    //Knew = k_new*B
-    //printf("key switch Test begin\n");
-    BIGNUM *ord, *rand1, *rand2, *rand3;
-    BN_CTX *ctx = BN_CTX_new();
-    //gamal_ciphertext_t temp;
-    EC_POINT *M1, *M2, *M3, *temp1, *temp2, *temp3; // *temp;
-    gamal_ciphertext_t temp;
-
-    //bn_plain = BN_new();
-    ord = BN_new();
-    rand1 = BN_new();
-    rand2 = BN_new();
-    rand3 = BN_new();
-    new_cipher->C1 = EC_POINT_new(init_group); //nothing
-    new_cipher->C2 = EC_POINT_new(init_group);
-    temp->C1 = EC_POINT_new(init_group);
-
-    //server 1 modifies the tuple:
-    //printf("key switch Test OK\n");
-    temp->C1 = multiply_generator(rand1, init_group);
-    EC_POINT_add(init_group, new_cipher->C1, new_cipher->C1, temp->C1, ctx); //v_1*B
-    //printf("key switch Test OK1\n");
-    M1 = multiply_constant(cipher->C1, keys1->secret, init_group); //rB*k_1
-    //printf("key switch Test OK2\n");
-    EC_POINT_invert(init_group, M1, ctx); // -rB*k_1
-    //printf("key switch Test OK3\n");
-    EC_POINT_add(init_group, new_cipher->C2, cipher->C2, M1, ctx); //C2 - rB*k_1
-    //printf("key switch Test OK4\n");
-    temp1 = multiply_constant(keysNew->Y, rand1, init_group); //v_1 * Knew
-    //printf("key switch Test OK5\n");
-    EC_POINT_add(init_group, new_cipher->C2, new_cipher->C2, temp1, ctx); //c2 - rB*k_1 + v_1 * K_new
-    //printf("key switch Test OK6\n");
-
-    //server 2 modifies the tuple:
-    temp->C1 = multiply_generator(rand2, init_group);
-    EC_POINT_add(init_group, new_cipher->C1, new_cipher->C1, temp->C1, ctx); //v_1*B + v_2*B
-    //printf("key switch Test OK7\n");
-    M2 = multiply_constant(cipher->C1, keys2->secret, init_group); //rB*k_2
-    //printf("key switch Test OK8\n");
-    EC_POINT_invert(init_group, M2, ctx); // -rB*k_2
-    //printf("key switch Test OK9\n");
-    EC_POINT_add(init_group, new_cipher->C2, new_cipher->C2, M2, ctx); //C2 - rB*k_1 + v_1*B - rB*k_2
-    //printf("key switch Test OK10\n");
-    temp2 = multiply_constant(keysNew->Y, rand2, init_group);             //v_2 * Knew
-    EC_POINT_add(init_group, new_cipher->C2, new_cipher->C2, temp2, ctx); //C2 - rB*k_1 + v_1*Knew - rB*k_2 + v_2*Knew = x + (v_1 + v_2)*Knew
-    //printf("key switch Test OK11\n");
-
-    //#if 0 // server 3 modifies the tuple
-    temp->C1 = multiply_generator(rand3, init_group);
-    EC_POINT_add(init_group, new_cipher->C1, new_cipher->C1, temp->C1, ctx); //v_1*B + v_2*B + v_3*B
-    //printf("key switch Test OK7\n");
-    M3 = multiply_constant(cipher->C1, keys3->secret, init_group); //rB*k_3
-    //printf("key switch Test OK8\n");
-    EC_POINT_invert(init_group, M3, ctx); // -rB*k_3
-    //printf("key switch Test OK9\n");
-    EC_POINT_add(init_group, new_cipher->C2, new_cipher->C2, M3, ctx); //C2 - rB*k_1 + v_1*B - rB*k_2 + v_2*Knew - rB*k_3
-    //printf("key switch Test OK10\n");
-    temp3 = multiply_constant(keysNew->Y, rand3, init_group);             //v_3 * Knew
-    EC_POINT_add(init_group, new_cipher->C2, new_cipher->C2, temp3, ctx); //C2 - rB*k_1 + v_1*Knew - rB*k_2 + v_2*Knew - rB*k_3 + v3*Knew
-    //printf("key switch Test OK11\n");
-    //#endif
-    BN_clear_free(rand1);
-    BN_clear_free(rand2);
-    BN_clear_free(rand3);
-    BN_free(ord);
-    BN_CTX_free(ctx);
-    EC_POINT_clear_free(M1);
-    EC_POINT_clear_free(M2);
-    EC_POINT_clear_free(M3);
-    EC_POINT_clear_free(temp1);
-    EC_POINT_clear_free(temp2);
-    EC_POINT_clear_free(temp3);
-    //printf("key switch Test OK12\n");
-
-    return 0;
-}
-
-/** added by Tham 7 Dec 2019
- * This piece of code for re-encryption (key switching) from PK_Ss to PK_B
- * idea: one server will take lead the key switching
- * other servers will partially switching collective public key to target's public key
- * 
- */ 
-
-int gama_key_switch_lead(gamal_ciphertext_t cipher_update, gamal_ciphertext_t cipher, gamal_key_t keys_lead, gamal_key_t keysNew)
-{
-    
-    BIGNUM *ord, *rand1;
-    BN_CTX *ctx = BN_CTX_new();
-    EC_POINT *M1, *temp1; 
-    gamal_ciphertext_t temp;
-
-    ord = BN_new();
-    rand1 = BN_new();
-    cipher_update->C1 = EC_POINT_new(init_group); 
-    cipher_update->C2 = EC_POINT_new(init_group);
-    temp->C1 = EC_POINT_new(init_group);
-
-
-    temp->C1 = multiply_generator(rand1, init_group);
-    EC_POINT_add(init_group, cipher_update->C1, cipher_update->C1, temp->C1, ctx); //v_1*B
-    
-    M1 = multiply_constant(cipher->C1, keys_lead->secret, init_group); //rB*k_1
-    
-    EC_POINT_invert(init_group, M1, ctx); // -rB*k_1
-   
-    EC_POINT_add(init_group, cipher_update->C2, cipher->C2, M1, ctx); //C2 - rB*k_1
-    
-    temp1 = multiply_constant(keysNew->Y, rand1, init_group); //v_1 * Knew
-   
-    EC_POINT_add(init_group, cipher_update->C2, cipher_update->C2, temp1, ctx); //c2 - rB*k_1 + v_1 * K_new
-    
-
-    BN_clear_free(rand1);
-    BN_free(ord);
-    BN_CTX_free(ctx);
-    EC_POINT_clear_free(M1);
-    
-    EC_POINT_clear_free(temp1);
-    
-    return 0;
-}
-//added by Tham 7 Dec 2019
-int gama_key_switch_follow(gamal_ciphertext_t cipher_update, gamal_ciphertext_t cipher, gamal_key_t keys_follow, gamal_key_t keysNew)
-{
-    BIGNUM *ord,  *rand2;
-    BN_CTX *ctx = BN_CTX_new();
-    EC_POINT *M2, *temp2; 
-    gamal_ciphertext_t temp;
-
-    ord = BN_new();
-   
-    rand2 = BN_new();
-    temp->C1 = EC_POINT_new(init_group);
-
-    temp->C1 = multiply_generator(rand2, init_group);
-    EC_POINT_add(init_group, cipher_update->C1, cipher_update->C1, temp->C1, ctx); //v_1*B + v_2*B
-    
-    M2 = multiply_constant(cipher->C1, keys_follow->secret, init_group); //rB*k_2
-    
-    EC_POINT_invert(init_group, M2, ctx); // -rB*k_2
-   
-    EC_POINT_add(init_group, cipher_update->C2, cipher_update->C2, M2, ctx); //C2 - rB*k_1 + v_1*B - rB*k_2
-   
-    temp2 = multiply_constant(keysNew->Y, rand2, init_group);             //v_2 * Knew
-    EC_POINT_add(init_group, cipher_update->C2, cipher_update->C2, temp2, ctx); //C2 - rB*k_1 + v_1*Knew - rB*k_2 + v_2*Knew = x + (v_1 + v_2)*Knew
-       
-    BN_clear_free(rand2);
-    BN_free(ord);
-    BN_CTX_free(ctx);
-    EC_POINT_clear_free(M2);
-    EC_POINT_clear_free(temp2);
-    return 0;
-}
 
 
 // if table == NULL use bruteforce
@@ -738,6 +456,7 @@ int gamal_decrypt(dig_t *res, gamal_key_t key, gamal_ciphertext_t ciphertext, bs
 
     if (table != NULL)
     {
+            
         solve_ecdlp_bsgs(table, &plaintext, M, 1L << MAX_BITS);
     }
     else
@@ -751,98 +470,7 @@ int gamal_decrypt(dig_t *res, gamal_key_t key, gamal_ciphertext_t ciphertext, bs
     return 0;
 }
 
-/*----added by Tham for Threshold Decryption by multiple servers ---------------------------------------*/
-int gamal_coll_decrypt(dig_t *res, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_ciphertext_t ciphertext, bsgs_table_t table)
-{
-    EC_POINT *M1, *M2, *M3;
-    uint64_t plaintext;
-    BN_CTX *ctx = BN_CTX_new();
 
-    M1 = multiply_constant(ciphertext->C1, keys1->secret, init_group); //rB*sk1
-    M2 = multiply_constant(ciphertext->C1, keys2->secret, init_group); //rB*sk2
-    M3 = multiply_constant(ciphertext->C1, keys3->secret, init_group); //rB*sk3
-    //EC_POINT_add(init_group, M2, ciphertext->C1, M1, ctx); //rB*k1 + rB*k2 = r(K1 + K2)
-    EC_POINT_add(init_group, M2, M2, M1, ctx);             //rB*k1 + rB*k2 = r(K1 + K2)
-    EC_POINT_add(init_group, M3, M3, M2, ctx);             //rB*k1 + rB*k2 + rB*k3= r(K1 + K2 + K3)
-    EC_POINT_invert(init_group, M3, ctx);                  // -r(K1 + K2 + K3) = -rK
-    EC_POINT_add(init_group, M3, ciphertext->C2, M3, ctx); // m + rK - r(K1+K2+K3) = m +rK - rK = m
-
-    if (table != NULL)
-    {
-        solve_ecdlp_bsgs(table, &plaintext, M3, 1L << MAX_BITS);
-    }
-    else
-    {
-        solve_dlog_brute(init_group, M3, &plaintext, 1L << MAX_BITS);
-    }
-    *res = (dig_t)plaintext;
-
-    BN_CTX_free(ctx);
-    EC_POINT_clear_free(M1);
-    EC_POINT_clear_free(M2);
-    EC_POINT_clear_free(M3);
-    return 0;
-}
-
-//added by Tham: this is for a server who takes lead the decryption
-int gamal_coll_decrypt_lead(gamal_ciphertext_t ciphertext_update, gamal_key_t keys, gamal_ciphertext_t ciphertext, bsgs_table_t table)
-{
-
-    ciphertext_update->C1 = multiply_constant(ciphertext->C1, keys->secret, init_group); //rB*sk1
-    return 0;
-}
-//added by Tham: function for other server partially decrypt the ciphertext
-int gamal_coll_decrypt_follow(gamal_ciphertext_t ciphertext_update, gamal_key_t keys, gamal_ciphertext_t ciphertext, bsgs_table_t table)
-{
-    EC_POINT *M;
-    //uint64_t plaintext;
-    BN_CTX *ctx = BN_CTX_new();
-
-    M = multiply_constant(ciphertext->C1, keys->secret, init_group); //rB*sk1
-    EC_POINT_add(init_group, ciphertext_update->C1, ciphertext_update->C1, M, ctx);
-    // printf("Testdecrypt_follow OK\n");
-
-    BN_CTX_free(ctx);
-    EC_POINT_clear_free(M);
-
-    //EC_POINT_clear_free(M3);
-    return 0;
-}
-//added by Tham: function for fusion all partially decryption to get plaintext
-int gamal_fusion_decrypt(dig_t *res, int num_server, gamal_key_t key_lead, gamal_key_t key_follow[], gamal_ciphertext_t ciphertext_update, gamal_ciphertext_t ciphertext, bsgs_table_t table)
-{
-    //EC_POINT *M1, *M2, *M3;
-    uint64_t plaintext;
-    BN_CTX *ctx = BN_CTX_new();
-
-    gamal_coll_decrypt_lead(ciphertext_update, key_lead, ciphertext, table);
-    // gamal_coll_decrypt_follow(ciphertext_update, key_follow[0], ciphertext,table);
-    //gamal_coll_decrypt_follow(ciphertext_update, key_follow[1], ciphertext,table);
-    for (int i = 0; i < num_server - 1; i++)
-    {
-        gamal_coll_decrypt_follow(ciphertext_update, key_follow[i], ciphertext, table);
-    }
-
-    EC_POINT_invert(init_group, ciphertext_update->C1, ctx);                              // -r(K1 + K2 + K3) = -rK
-    EC_POINT_add(init_group, ciphertext->C2, ciphertext->C2, ciphertext_update->C1, ctx); // m + rK - r(K1+K2+K3) = m +rK - rK = m
-
-    if (table != NULL)
-    {
-        solve_ecdlp_bsgs(table, &plaintext, ciphertext->C2, 1L << MAX_BITS);
-    }
-    else
-    {
-        solve_dlog_brute(init_group, ciphertext->C2, &plaintext, 1L << MAX_BITS);
-    }
-
-    *res = (dig_t)plaintext;
-
-    // printf("Test Decrypt fusion OK\n");
-
-    BN_CTX_free(ctx);
-
-    return 0;
-}
 
 int gamal_add(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciphertext_t ciphertext2)
 {
@@ -861,162 +489,10 @@ int gamal_add(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciph
     return 0;
 }
 
-//added by Tham for subtraction 
-int gamal_subtract(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciphertext_t ciphertext2)
-{
-
-    /*
-		int EC_POINT_add(const EC_GROUP *group, EC_POINT *r, const EC_POINT *a,
-		                 const EC_POINT *b, BN_CTX *ctx)
-		*/
-    res->C1 = EC_POINT_new(init_group);
-    res->C2 = EC_POINT_new(init_group);
-
-    gamal_ciphertext_t tmp;
-    gamal_cipher_new(tmp);
-    tmp->C1 = ciphertext2->C1;
-    tmp->C2 = ciphertext2->C2;
-
-    BN_CTX *ctx = BN_CTX_new();
-    EC_POINT_invert(init_group, tmp->C1, ctx);
-    EC_POINT_invert(init_group, tmp->C2, ctx);
-
-    
-    EC_POINT_add(init_group, res->C1, ciphertext1->C1, tmp->C1, ctx);
-    EC_POINT_add(init_group, res->C2, ciphertext1->C2, tmp->C2, ctx);
-    BN_CTX_free(ctx);
-    return 0;
-}
 
 
-//int gamal_mult(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, int pt);
-//added by Tham
-int gamal_mult(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, dig_t pt)
-{
 
-    gamal_ciphertext_t temp;
-    /**
-	res->C1 = EC_POINT_new(init_group);
-	res->C2 = EC_POINT_new(init_group);
-	temp->C1 = EC_POINT_new(init_group);
-	temp->C2 = EC_POINT_new(init_group);
-	if (pt == 1) {
-		//res = ciphertext1;
-				res->C1 = ciphertext1->C1;
-				res->C2 = ciphertext1->C2;
-	} else if (pt == 2){
-		BN_CTX *ctx = BN_CTX_new();
-		EC_POINT_dbl(init_group, res->C1, ciphertext1->C1, ctx);
-		EC_POINT_dbl(init_group, res->C2, ciphertext1->C2, ctx);
-		BN_CTX_free(ctx);
 
-	} else {
-
-		temp->C1 = ciphertext1->C1;
-		temp->C2 = ciphertext1->C2;
-		for(int it=0; it<pt-1; it++){
-				gamal_add(res,temp,ciphertext1);
-				temp->C1 = res->C1;
-				temp->C2 = res->C2;
-			}
-	}
-*/
-
-    res->C1 = EC_POINT_new(init_group);
-    res->C2 = EC_POINT_new(init_group);
-    temp->C1 = EC_POINT_new(init_group);
-    temp->C2 = EC_POINT_new(init_group);
-
-    if (pt == 1)
-    {
-        //res = ciphertext1;
-        res->C1 = ciphertext1->C1;
-        res->C2 = ciphertext1->C2;
-    }
-    else
-    {
-
-        temp->C1 = ciphertext1->C1;
-        temp->C2 = ciphertext1->C2;
-        for (int it = 0; it < pt - 1; it++)
-        {
-            gamal_add(res, temp, ciphertext1);
-            temp->C1 = res->C1;
-            temp->C2 = res->C2;
-        }
-    }
-
-    return 0;
-}
-
-//Added by Tham for better multiplication between a ciphertext and a plaintext (scalar multiplication)
-int gamal_mult_opt(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext, dig_t pt)
-{
-
-    //printf("Test begin\n");
-    gamal_ciphertext_t temp, temp1;
-    BN_CTX *ctx = BN_CTX_new();
-    EC_POINT *M1, *M2;
-    double x = log2(pt);
-    int num_bit = floor(x) + 1;
-    int bit_num[2];
-    int naf_binary_arr[64];
-    //int counter1 = 0, counter2 = 0;
-
-    res->C1 = EC_POINT_new(init_group);
-    res->C2 = EC_POINT_new(init_group);
-
-    ///** n-1 doublings and m - 1 additions: double-and-add binary-correct
-    // if (pt == 0) 
-    // {
-    //     res->C1 = 0;
-    //     res->C2 = 0;
-    // }
-    // else if (pt == 1) 
-    // {
-    //     res->C1 = ciphertext->C1;
-    //     res->C2 = ciphertext->C2;
-    // }
-    if (pt == 0 || pt == 1) //change by Tham 24 Jan 2020
-    {
-       printf("gamal_mult_opt require scalar is greater than 1\n");        
-    }
-    else
-    {
-        int binary_arr[num_bit];
-
-        convert_to_bin(binary_arr, pt, num_bit); //binary_arr = 100010000....
-        //for (int it = num_bit-1; it>=0; it--){
-        //printf("%d", binary_arr[it]);
-        //}
-        //printf("\n");
-
-        temp->C1 = ciphertext->C1;
-        temp->C2 = ciphertext->C2;
-
-        for (int it = num_bit - 2; it >= 0; it--)
-        {
-
-            EC_POINT_dbl(init_group, res->C1, temp->C1, ctx);
-            EC_POINT_dbl(init_group, res->C2, temp->C2, ctx);
-
-            if (binary_arr[it] == 1)
-            {
-                //counter1++;
-                EC_POINT_add(init_group, res->C1, res->C1, ciphertext->C1, ctx);
-                EC_POINT_add(init_group, res->C2, res->C2, ciphertext->C2, ctx);
-            }
-            temp->C1 = res->C1;
-            temp->C2 = res->C2;
-        }
-    }
-    BN_CTX_free(ctx);
-    EC_POINT_clear_free(M1);
-    EC_POINT_clear_free(M2);
-
-    //printf("Test mult end\n");
-    return 0;
-}
 
 EC_GROUP *gamal_get_current_group()
 {
@@ -1229,3 +705,621 @@ int decode_key(gamal_key_t key, unsigned char *buff, int size)
     BN_CTX_free(ctx);
     return 0;
 }
+
+
+
+//===================================================================================//
+//================== Below are function implemented by Tham =========================//
+
+
+//Added by Tham for better multiplication between a ciphertext and a plaintext (scalar multiplication)
+int gamal_mult_opt(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext, dig_t pt)
+{
+
+    //printf("Test begin\n");
+    gamal_ciphertext_t temp, temp1, tmp;
+    BN_CTX *ctx = BN_CTX_new();
+    BIGNUM *X = BN_new();
+	BIGNUM *Y = BN_new();
+    EC_POINT *M1, *M2;
+    double x = log2(pt);
+    int num_bit = floor(x) + 1;
+    int bit_num[2];
+    int naf_binary_arr[64];
+    //int counter1 = 0, counter2 = 0;
+
+    gamal_cipher_new(tmp);
+    
+    
+    // res->C1 = EC_POINT_new(init_group);
+    // res->C2 = EC_POINT_new(init_group); 
+   
+
+    ///** n-1 doublings and m - 1 additions: double-and-add binary-correct
+    // if (pt == 0) 
+    // {
+    //     res->C1 = 0;
+    //     res->C2 = 0;
+    // }
+    // else if (pt == 1) 
+    // {
+    //     res->C1 = ciphertext->C1;
+    //     res->C2 = ciphertext->C2;
+    // }
+    if (pt == 0 ) //change by Tham 24 Jan 2020
+    {
+       printf("gamal_mult_opt require scalar is greater than 0\n"); // updated Mar 2020 by Tham
+
+        // printf("multiply with 0\n");  
+
+        // int i = EC_POINT_get_affine_coordinates(init_group,res->C1, X, Y, ctx); 
+        // printf("i = %d\n", i);
+        // int j = EC_POINT_get_affine_coordinates(init_group,res->C2, X, Y, ctx); 
+        // printf("j = %d\n", j);
+
+
+        // gamal_ciphertext_t tmp;
+        // gamal_cipher_new(tmp);
+        // tmp->C1 = ciphertext->C1;
+        // tmp->C2 = ciphertext->C2;
+
+        // gamal_ciphertext_t tmp2;
+        // gamal_cipher_new(tmp2);
+        // tmp2->C1 = ciphertext->C1;
+        // tmp2->C2 = ciphertext->C2;
+
+        // res->C1 = ciphertext->C1;
+        // res->C2 = ciphertext->C2;
+
+
+        // BN_CTX *ctx = BN_CTX_new();
+        // EC_POINT_invert(init_group, tmp->C1, ctx);
+        // EC_POINT_invert(init_group, tmp->C2, ctx);
+
+        // // //tmp2 = cipher(x) - cipher(x) = cipher(0)
+        // EC_POINT_add(init_group, res->C1, ciphertext->C1, tmp->C1, ctx);
+        // EC_POINT_add(init_group, res->C2, ciphertext->C2, tmp->C2, ctx);
+
+        // res->C1 = EC_POINT_new(init_group);
+        // res->C2 = EC_POINT_new(init_group);
+
+        // gamal_cipher_new(res); 
+        // gamal_add(res,res,res);
+
+        return -1;
+
+        // gamal_subtract(res,ciphertext,ciphertext);
+
+    }
+    else if (pt == 1)
+    {
+        // printf("multiply with 1\n"); 
+        gamal_cipher_new(res);  
+    
+        EC_POINT_add(init_group, res->C1, res->C1, ciphertext->C1, ctx);
+        EC_POINT_add(init_group, res->C2, res->C2, ciphertext->C2, ctx);
+
+
+    }
+    else
+    {
+        // printf("multiply with x >= 2\n");  
+        gamal_cipher_new(res); 
+        
+        int binary_arr[num_bit];
+
+        convert_to_bin(binary_arr, pt, num_bit); //binary_arr = 100010000....
+        //for (int it = num_bit-1; it>=0; it--){
+        //printf("%d", binary_arr[it]);
+        //}
+        //printf("\n");
+
+        temp->C1 = ciphertext->C1;
+        temp->C2 = ciphertext->C2;
+
+        for (int it = num_bit - 2; it >= 0; it--)
+        {
+
+            EC_POINT_dbl(init_group, res->C1, temp->C1, ctx);
+            EC_POINT_dbl(init_group, res->C2, temp->C2, ctx);
+
+            if (binary_arr[it] == 1)
+            {
+                //counter1++;
+                EC_POINT_add(init_group, res->C1, res->C1, ciphertext->C1, ctx);
+                EC_POINT_add(init_group, res->C2, res->C2, ciphertext->C2, ctx);
+            }
+            temp->C1 = res->C1;
+            temp->C2 = res->C2;
+        }
+    }
+
+    BN_CTX_free(ctx);
+    EC_POINT_clear_free(M1);
+    EC_POINT_clear_free(M2);
+
+    //printf("Test mult end\n");
+    return 0;
+}
+
+
+//int gamal_mult(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, int pt);
+//added by Tham
+int gamal_mult(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, dig_t pt)
+{
+
+    gamal_ciphertext_t temp;
+    /**
+	res->C1 = EC_POINT_new(init_group);
+	res->C2 = EC_POINT_new(init_group);
+	temp->C1 = EC_POINT_new(init_group);
+	temp->C2 = EC_POINT_new(init_group);
+	if (pt == 1) {
+		//res = ciphertext1;
+				res->C1 = ciphertext1->C1;
+				res->C2 = ciphertext1->C2;
+	} else if (pt == 2){
+		BN_CTX *ctx = BN_CTX_new();
+		EC_POINT_dbl(init_group, res->C1, ciphertext1->C1, ctx);
+		EC_POINT_dbl(init_group, res->C2, ciphertext1->C2, ctx);
+		BN_CTX_free(ctx);
+
+	} else {
+
+		temp->C1 = ciphertext1->C1;
+		temp->C2 = ciphertext1->C2;
+		for(int it=0; it<pt-1; it++){
+				gamal_add(res,temp,ciphertext1);
+				temp->C1 = res->C1;
+				temp->C2 = res->C2;
+			}
+	}
+*/
+
+    res->C1 = EC_POINT_new(init_group);
+    res->C2 = EC_POINT_new(init_group);
+    temp->C1 = EC_POINT_new(init_group);
+    temp->C2 = EC_POINT_new(init_group);
+
+    if (pt == 1)
+    {
+        //res = ciphertext1;
+        res->C1 = ciphertext1->C1;
+        res->C2 = ciphertext1->C2;
+    }
+    else
+    {
+
+        temp->C1 = ciphertext1->C1;
+        temp->C2 = ciphertext1->C2;
+        for (int it = 0; it < pt - 1; it++)
+        {
+            gamal_add(res, temp, ciphertext1);
+            temp->C1 = res->C1;
+            temp->C2 = res->C2;
+        }
+    }
+
+    return 0;
+}
+
+
+//added by Tham for subtraction 
+int gamal_subtract(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciphertext_t ciphertext2)
+{
+
+    /*
+		int EC_POINT_add(const EC_GROUP *group, EC_POINT *r, const EC_POINT *a,
+		                 const EC_POINT *b, BN_CTX *ctx)
+		*/
+    res->C1 = EC_POINT_new(init_group);
+    res->C2 = EC_POINT_new(init_group);
+
+    gamal_ciphertext_t tmp;
+    gamal_cipher_new(tmp);
+    tmp->C1 = ciphertext2->C1;
+    tmp->C2 = ciphertext2->C2;
+
+    BN_CTX *ctx = BN_CTX_new();
+    EC_POINT_invert(init_group, tmp->C1, ctx);
+    EC_POINT_invert(init_group, tmp->C2, ctx);
+
+    
+    EC_POINT_add(init_group, res->C1, ciphertext1->C1, tmp->C1, ctx);
+    EC_POINT_add(init_group, res->C2, ciphertext1->C2, tmp->C2, ctx);
+    BN_CTX_free(ctx);
+    return 0;
+}
+
+
+
+//added by Tham: function for fusion all partially decryption to get plaintext
+int gamal_fusion_decrypt(dig_t *res, int num_server, gamal_key_t key_lead, gamal_key_t key_follow[], gamal_ciphertext_t ciphertext_update, gamal_ciphertext_t ciphertext, bsgs_table_t table)
+{
+    //EC_POINT *M1, *M2, *M3;
+    uint64_t plaintext;
+    BN_CTX *ctx = BN_CTX_new();
+
+    gamal_coll_decrypt_lead(ciphertext_update, key_lead, ciphertext, table);
+    // gamal_coll_decrypt_follow(ciphertext_update, key_follow[0], ciphertext,table);
+    //gamal_coll_decrypt_follow(ciphertext_update, key_follow[1], ciphertext,table);
+    for (int i = 0; i < num_server - 1; i++)
+    {
+        gamal_coll_decrypt_follow(ciphertext_update, key_follow[i], ciphertext, table);
+    }
+
+    EC_POINT_invert(init_group, ciphertext_update->C1, ctx);                              // -r(K1 + K2 + K3) = -rK
+    EC_POINT_add(init_group, ciphertext->C2, ciphertext->C2, ciphertext_update->C1, ctx); // m + rK - r(K1+K2+K3) = m +rK - rK = m
+
+    if (table != NULL)
+    {
+        solve_ecdlp_bsgs(table, &plaintext, ciphertext->C2, 1L << MAX_BITS);
+    }
+    else
+    {
+        solve_dlog_brute(init_group, ciphertext->C2, &plaintext, 1L << MAX_BITS);
+    }
+
+    *res = (dig_t)plaintext;
+
+    // printf("Test Decrypt fusion OK\n");
+
+    BN_CTX_free(ctx);
+
+    return 0;
+}
+
+
+//added by Tham: this is for a server who takes lead the decryption
+int gamal_coll_decrypt_lead(gamal_ciphertext_t ciphertext_update, gamal_key_t keys, gamal_ciphertext_t ciphertext, bsgs_table_t table)
+{
+
+    ciphertext_update->C1 = multiply_constant(ciphertext->C1, keys->secret, init_group); //rB*sk1
+    return 0;
+}
+//added by Tham: function for other server partially decrypt the ciphertext
+int gamal_coll_decrypt_follow(gamal_ciphertext_t ciphertext_update, gamal_key_t keys, gamal_ciphertext_t ciphertext, bsgs_table_t table)
+{
+    EC_POINT *M;
+    //uint64_t plaintext;
+    BN_CTX *ctx = BN_CTX_new();
+
+    M = multiply_constant(ciphertext->C1, keys->secret, init_group); //rB*sk1
+    EC_POINT_add(init_group, ciphertext_update->C1, ciphertext_update->C1, M, ctx);
+    // printf("Testdecrypt_follow OK\n");
+
+    BN_CTX_free(ctx);
+    EC_POINT_clear_free(M);
+
+    //EC_POINT_clear_free(M3);
+    return 0;
+}
+
+
+
+/*----added by Tham for Threshold Decryption by multiple servers ---------------------------------------*/
+int gamal_coll_decrypt(dig_t *res, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_ciphertext_t ciphertext, bsgs_table_t table)
+{
+    EC_POINT *M1, *M2, *M3;
+    uint64_t plaintext;
+    BN_CTX *ctx = BN_CTX_new();
+
+    M1 = multiply_constant(ciphertext->C1, keys1->secret, init_group); //rB*sk1
+    M2 = multiply_constant(ciphertext->C1, keys2->secret, init_group); //rB*sk2
+    M3 = multiply_constant(ciphertext->C1, keys3->secret, init_group); //rB*sk3
+    //EC_POINT_add(init_group, M2, ciphertext->C1, M1, ctx); //rB*k1 + rB*k2 = r(K1 + K2)
+    EC_POINT_add(init_group, M2, M2, M1, ctx);             //rB*k1 + rB*k2 = r(K1 + K2)
+    EC_POINT_add(init_group, M3, M3, M2, ctx);             //rB*k1 + rB*k2 + rB*k3= r(K1 + K2 + K3)
+    EC_POINT_invert(init_group, M3, ctx);                  // -r(K1 + K2 + K3) = -rK
+    EC_POINT_add(init_group, M3, ciphertext->C2, M3, ctx); // m + rK - r(K1+K2+K3) = m +rK - rK = m
+
+    if (table != NULL)
+    {
+        solve_ecdlp_bsgs(table, &plaintext, M3, 1L << MAX_BITS);
+    }
+    else
+    {
+        solve_dlog_brute(init_group, M3, &plaintext, 1L << MAX_BITS);
+    }
+    *res = (dig_t)plaintext;
+
+    BN_CTX_free(ctx);
+    EC_POINT_clear_free(M1);
+    EC_POINT_clear_free(M2);
+    EC_POINT_clear_free(M3);
+    return 0;
+}
+
+
+
+/** added by Tham 7 Dec 2019
+ * This piece of code for re-encryption (key switching) from PK_Ss to PK_B
+ * idea: one server will take lead the key switching
+ * other servers will partially switching collective public key to target's public key
+ * 
+ */ 
+
+int gama_key_switch_lead(gamal_ciphertext_t cipher_update, gamal_ciphertext_t cipher, gamal_key_t keys_lead, gamal_key_t keysNew)
+{
+    
+    BIGNUM *ord, *rand1;
+    BN_CTX *ctx = BN_CTX_new();
+    EC_POINT *M1, *temp1; 
+    gamal_ciphertext_t temp;
+
+    ord = BN_new();
+    rand1 = BN_new();
+    cipher_update->C1 = EC_POINT_new(init_group); 
+    cipher_update->C2 = EC_POINT_new(init_group);
+    temp->C1 = EC_POINT_new(init_group);
+
+
+    temp->C1 = multiply_generator(rand1, init_group);
+    EC_POINT_add(init_group, cipher_update->C1, cipher_update->C1, temp->C1, ctx); //v_1*B
+    
+    M1 = multiply_constant(cipher->C1, keys_lead->secret, init_group); //rB*k_1
+    
+    EC_POINT_invert(init_group, M1, ctx); // -rB*k_1
+   
+    EC_POINT_add(init_group, cipher_update->C2, cipher->C2, M1, ctx); //C2 - rB*k_1
+    
+    temp1 = multiply_constant(keysNew->Y, rand1, init_group); //v_1 * Knew
+   
+    EC_POINT_add(init_group, cipher_update->C2, cipher_update->C2, temp1, ctx); //c2 - rB*k_1 + v_1 * K_new
+    
+
+    BN_clear_free(rand1);
+    BN_free(ord);
+    BN_CTX_free(ctx);
+    EC_POINT_clear_free(M1);
+    
+    EC_POINT_clear_free(temp1);
+    
+    return 0;
+}
+//added by Tham 7 Dec 2019
+int gama_key_switch_follow(gamal_ciphertext_t cipher_update, gamal_ciphertext_t cipher, gamal_key_t keys_follow, gamal_key_t keysNew)
+{
+    BIGNUM *ord,  *rand2;
+    BN_CTX *ctx = BN_CTX_new();
+    EC_POINT *M2, *temp2; 
+    gamal_ciphertext_t temp;
+
+    ord = BN_new();
+   
+    rand2 = BN_new();
+    temp->C1 = EC_POINT_new(init_group);
+
+    temp->C1 = multiply_generator(rand2, init_group);
+    EC_POINT_add(init_group, cipher_update->C1, cipher_update->C1, temp->C1, ctx); //v_1*B + v_2*B
+    
+    M2 = multiply_constant(cipher->C1, keys_follow->secret, init_group); //rB*k_2
+    
+    EC_POINT_invert(init_group, M2, ctx); // -rB*k_2
+   
+    EC_POINT_add(init_group, cipher_update->C2, cipher_update->C2, M2, ctx); //C2 - rB*k_1 + v_1*B - rB*k_2
+   
+    temp2 = multiply_constant(keysNew->Y, rand2, init_group);             //v_2 * Knew
+    EC_POINT_add(init_group, cipher_update->C2, cipher_update->C2, temp2, ctx); //C2 - rB*k_1 + v_1*Knew - rB*k_2 + v_2*Knew = x + (v_1 + v_2)*Knew
+       
+    BN_clear_free(rand2);
+    BN_free(ord);
+    BN_CTX_free(ctx);
+    EC_POINT_clear_free(M2);
+    EC_POINT_clear_free(temp2);
+    return 0;
+}
+
+
+
+/**
+ * added by Tham for re-encrypt a ciphertext by a new public key, 
+ * switching from collective public key of 3 servers
+ * Need to improve, adapt to many servers
+ */
+
+int gamal_key_switching(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_key_t keysNew)
+{
+    // (C1, C2) = (r*B, x + r*(K1 + K2)) => (C1, C2) = (v*B, x + v*Knew)
+    //K1 = k_1*B; K2 = k_2*B
+    //Knew = k_new*B
+    //printf("key switch Test begin\n");
+    BIGNUM *ord, *rand1, *rand2, *rand3;
+    BN_CTX *ctx = BN_CTX_new();
+    //gamal_ciphertext_t temp;
+    EC_POINT *M1, *M2, *M3, *temp1, *temp2, *temp3; // *temp;
+    gamal_ciphertext_t temp;
+
+    //bn_plain = BN_new();
+    ord = BN_new();
+    rand1 = BN_new();
+    rand2 = BN_new();
+    rand3 = BN_new();
+    new_cipher->C1 = EC_POINT_new(init_group); //nothing
+    new_cipher->C2 = EC_POINT_new(init_group);
+    temp->C1 = EC_POINT_new(init_group);
+
+    //server 1 modifies the tuple:
+    //printf("key switch Test OK\n");
+    temp->C1 = multiply_generator(rand1, init_group);
+    EC_POINT_add(init_group, new_cipher->C1, new_cipher->C1, temp->C1, ctx); //v_1*B
+    //printf("key switch Test OK1\n");
+    M1 = multiply_constant(cipher->C1, keys1->secret, init_group); //rB*k_1
+    //printf("key switch Test OK2\n");
+    EC_POINT_invert(init_group, M1, ctx); // -rB*k_1
+    //printf("key switch Test OK3\n");
+    EC_POINT_add(init_group, new_cipher->C2, cipher->C2, M1, ctx); //C2 - rB*k_1
+    //printf("key switch Test OK4\n");
+    temp1 = multiply_constant(keysNew->Y, rand1, init_group); //v_1 * Knew
+    //printf("key switch Test OK5\n");
+    EC_POINT_add(init_group, new_cipher->C2, new_cipher->C2, temp1, ctx); //c2 - rB*k_1 + v_1 * K_new
+    //printf("key switch Test OK6\n");
+
+    //server 2 modifies the tuple:
+    temp->C1 = multiply_generator(rand2, init_group);
+    EC_POINT_add(init_group, new_cipher->C1, new_cipher->C1, temp->C1, ctx); //v_1*B + v_2*B
+    //printf("key switch Test OK7\n");
+    M2 = multiply_constant(cipher->C1, keys2->secret, init_group); //rB*k_2
+    //printf("key switch Test OK8\n");
+    EC_POINT_invert(init_group, M2, ctx); // -rB*k_2
+    //printf("key switch Test OK9\n");
+    EC_POINT_add(init_group, new_cipher->C2, new_cipher->C2, M2, ctx); //C2 - rB*k_1 + v_1*B - rB*k_2
+    //printf("key switch Test OK10\n");
+    temp2 = multiply_constant(keysNew->Y, rand2, init_group);             //v_2 * Knew
+    EC_POINT_add(init_group, new_cipher->C2, new_cipher->C2, temp2, ctx); //C2 - rB*k_1 + v_1*Knew - rB*k_2 + v_2*Knew = x + (v_1 + v_2)*Knew
+    //printf("key switch Test OK11\n");
+
+    //#if 0 // server 3 modifies the tuple
+    temp->C1 = multiply_generator(rand3, init_group);
+    EC_POINT_add(init_group, new_cipher->C1, new_cipher->C1, temp->C1, ctx); //v_1*B + v_2*B + v_3*B
+    //printf("key switch Test OK7\n");
+    M3 = multiply_constant(cipher->C1, keys3->secret, init_group); //rB*k_3
+    //printf("key switch Test OK8\n");
+    EC_POINT_invert(init_group, M3, ctx); // -rB*k_3
+    //printf("key switch Test OK9\n");
+    EC_POINT_add(init_group, new_cipher->C2, new_cipher->C2, M3, ctx); //C2 - rB*k_1 + v_1*B - rB*k_2 + v_2*Knew - rB*k_3
+    //printf("key switch Test OK10\n");
+    temp3 = multiply_constant(keysNew->Y, rand3, init_group);             //v_3 * Knew
+    EC_POINT_add(init_group, new_cipher->C2, new_cipher->C2, temp3, ctx); //C2 - rB*k_1 + v_1*Knew - rB*k_2 + v_2*Knew - rB*k_3 + v3*Knew
+    //printf("key switch Test OK11\n");
+    //#endif
+    BN_clear_free(rand1);
+    BN_clear_free(rand2);
+    BN_clear_free(rand3);
+    BN_free(ord);
+    BN_CTX_free(ctx);
+    EC_POINT_clear_free(M1);
+    EC_POINT_clear_free(M2);
+    EC_POINT_clear_free(M3);
+    EC_POINT_clear_free(temp1);
+    EC_POINT_clear_free(temp2);
+    EC_POINT_clear_free(temp3);
+    //printf("key switch Test OK12\n");
+
+    return 0;
+}
+
+
+
+/**
+ * Added by Tham in 4 Feb 2020
+ * Re-encrypt a ciphertext under a server's public key to a ciphertext under a new public key
+ */
+int gamal_re_encrypt(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys, gamal_key_t keysNew)
+{
+    
+    BIGNUM *ord, *rand1;
+    BN_CTX *ctx = BN_CTX_new();
+    //gamal_ciphertext_t temp;
+    EC_POINT *M1, *temp1; // *temp;
+    gamal_ciphertext_t temp;
+
+    //bn_plain = BN_new();
+    ord = BN_new();
+    rand1 = BN_new();
+    
+    new_cipher->C1 = EC_POINT_new(init_group); //nothing
+    new_cipher->C2 = EC_POINT_new(init_group);
+    temp->C1 = EC_POINT_new(init_group);
+
+    //printf("key switch Test OK\n");
+    temp->C1 = multiply_generator(rand1, init_group);
+    EC_POINT_add(init_group, new_cipher->C1, new_cipher->C1, temp->C1, ctx); //v_1*B = C1_new
+    //printf("key switch Test OK1\n");
+    M1 = multiply_constant(cipher->C1, keys->secret, init_group); //rB*k_1
+    //printf("key switch Test OK2\n");
+    EC_POINT_invert(init_group, M1, ctx); // -rB*k_1
+    //printf("key switch Test OK3\n");
+    EC_POINT_add(init_group, new_cipher->C2, cipher->C2, M1, ctx); //C2 - rB*k_1
+    //printf("key switch Test OK4\n");
+    temp1 = multiply_constant(keysNew->Y, rand1, init_group); //v_1 * Knew
+    //printf("key switch Test OK5\n");
+    EC_POINT_add(init_group, new_cipher->C2, new_cipher->C2, temp1, ctx); //C2 - rB*k_1 + v_1 * K_new = x + v1*K_new = C2_new
+    //printf("key switch Test OK6\n");
+
+    BN_clear_free(rand1);
+    
+    BN_free(ord);
+    BN_CTX_free(ctx);
+    EC_POINT_clear_free(M1);
+    EC_POINT_clear_free(temp1);
+
+    return 0;
+}
+
+
+
+// added by Nam: generate collective key with only public keys input
+int gamal_collective_publickey_gen(gamal_key_t coll_keys, EC_POINT **p_key_list, int size_key_list)
+{
+    gamal_init(CURVE_256_SEC);
+
+    BN_CTX *ctx = BN_CTX_new();
+    BIGNUM *ord, *secret_key;
+
+    ord = BN_new();
+    // secret_key = BN_new(); //coll secret key
+    coll_keys->Y = EC_POINT_new(init_group);
+    EC_GROUP_get_order(init_group, ord, ctx);
+
+    coll_keys->is_public = 0;
+
+    EC_POINT *tmp;
+    for (int i = 0; i < size_key_list; i++)
+    {
+        if (i == 0)
+        {
+            coll_keys->Y = p_key_list[i];
+        }
+        else
+        {
+            tmp = coll_keys->Y;
+            EC_POINT_add(init_group, coll_keys->Y, tmp, p_key_list[i], ctx); //added up all public keys
+        }
+    }
+    // coll_keys->secret = secret_key;
+
+    BN_CTX_free(ctx);
+    return 0;
+}
+
+//added by Tham for generate collective key => need to improve so that only public keys are the input of the function
+int gamal_collective_key_gen(gamal_key_t coll_keys, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3)
+{
+    //gamal_key_t gamal_collective_key_gen(int party) {
+    //party = 2;
+    //gamal_key_t coll_keys;
+    //gamal_key_t key1, key2, key3;//, key3;
+
+    gamal_init(CURVE_256_SEC);
+    //gamal_generate_keys(key1);
+    //gamal_generate_keys(key2);
+    //gamal_generate_keys(key3);
+
+    BN_CTX *ctx = BN_CTX_new();
+    BIGNUM *ord, *coll_key;
+
+    ord = BN_new();
+    //coll_key = BN_new(); //coll secret key
+    coll_keys->Y = EC_POINT_new(init_group);
+    EC_GROUP_get_order(init_group, ord, ctx);
+
+    coll_keys->is_public = 0;
+
+    //EC_POINT_add(const EC_GROUP *group, EC_POINT *r, const EC_POINT *a, const EC_POINT *b, BN_CTX *ctx); //in ec.h
+
+    EC_POINT_add(init_group, coll_keys->Y, keys2->Y, keys1->Y, ctx);     //added up all public keys
+    EC_POINT_add(init_group, coll_keys->Y, coll_keys->Y, keys3->Y, ctx); //added up all public keys
+
+    //int BN_add(BIGNUM *r, const BIGNUM *a, const BIGNUM *b); //in bn.h
+
+    //BN_add(coll_key, keys1->secret, keys2->secret);
+    //coll_keys->secret = coll_key;
+    //BN_add(coll_key, coll_keys->secret, key3->secret);
+    //coll_keys->secret = coll_key;
+
+    //BN_free(ord);
+    BN_CTX_free(ctx);
+    return 0;
+}
+

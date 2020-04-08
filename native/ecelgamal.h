@@ -173,89 +173,161 @@ int gamal_decrypt(dig_t *res, gamal_key_t key, gamal_ciphertext_t ciphertext, bs
 int gamal_add(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciphertext_t ciphertext2);
 
 
-//==== below are functions added by Tham =========
+//=========== Below are functions added by Tham =========//
+
 /**
- * Added by Tham to substract two ciphertexts 
+ * Added by Tham for optimize the mult(cipher, plain)
+ * This function use the double-and-add scheme to provide the scalar multipication of a ciphertext
+ * @param res: the resulted ciphertext
+ * @param ciphertext: ciphertext to be scalar
+ * @param pt: scalar is an integer >=1 
  */
 
-int gamal_subtract(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciphertext_t ciphertext2);
+int gamal_mult_opt(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext, dig_t pt);
+
+
 
 /**
- * Added by Nam
  * Generates an collective EC-ElGamal key pair from number of parties
  * @param coll_keys: the collective keypair
- * @return
- * UPDATE: rename to: gamal_collective_publickey_gen()
+ * @param p_key_list: point to the list of public keys of servers
+ * @param size_key_list: number of public keys = number of servers
+ * @return a colective
  */
 int gamal_collective_publickey_gen(gamal_key_t coll_keys, EC_POINT **p_key_list, int size_key_list);
 
+
 /**
- * Added by Tham (this is not optimal)
- * Generates an collective EC-ElGamal key pair from number of parties
+ * This function for a leading server to intitiate the key switching for re-encryption
+ * @param cipher_update: partially re-encrypted cipher
+ * @param cipher: original ciphertext to be re-encrypted
+ * @param keys_lead: key pair of the leading server (both public key and secret key)
+ * @param ketsNew: new public key
+*/
+
+int gama_key_switch_lead(gamal_ciphertext_t cipher_update, gamal_ciphertext_t cipher, gamal_key_t keys_lead, gamal_key_t keysNew);
+
+/**
+ * This function for a leading server to continue the key switching for re-encryption
+ * @param cipher_update: partially re-encrypted cipher
+ * @param cipher: original ciphertext to be re-encrypted
+ * @param keys_follow: key pair of the following servers (both public key and secret key)
+ * @param ketsNew: new public key
+*/
+int gama_key_switch_follow(gamal_ciphertext_t cipher_update, gamal_ciphertext_t cipher, gamal_key_t keys_follow, gamal_key_t keysNew);
+
+
+
+/**
+ * Added by Tham (optimal)
+ * Collective decrypts an EC-ElGamal ciphertext by all parties
+ * This function for a leading server to initiate the threshold decryption
+ * @param ciphertext_update: partially decrypted by the leading server
+ * @param keys: the key pair of the leading server (pk and sk)
+ * @param ciphertext: original ciphertext to be decrypted
+ * @param table: lookup table for decryption
+ *
+ */
+int gamal_coll_decrypt_lead(gamal_ciphertext_t ciphertext_update, gamal_key_t keys, gamal_ciphertext_t ciphertext, bsgs_table_t table);
+
+/**
+ * Added by Tham (optimal)
+ * Collective decrypts an EC-ElGamal ciphertext by all parties
+ * This function for a following server to continue the threshold decryption
+ * @param ciphertext_update: partially decrypted by the leading server
+ * @param keys: the key pair of the following servers (pk and sk)
+ * @param ciphertext: original ciphertext to be decrypted
+ * @param table: lookup table for decryption
+ *
+ */
+
+int gamal_coll_decrypt_follow(gamal_ciphertext_t ciphertext_update, gamal_key_t keys, gamal_ciphertext_t ciphertext, bsgs_table_t table);
+
+/**
+ * Added by Tham (optimal)
+ * Collective decrypts an EC-ElGamal ciphertext by all parties
+ * This function for all server to join and decrypt a ciphertext
+ * this function will call the gamal_coll_decrypt_lead() and  gamal_coll_decrypt_lead() functions
+ * @param res: result is a plaintext
+ * @param num_server: the number of servers to jointly decrypt
+ * @param ciphertext_update: partially decrypted by the leading server
+ * @param key_lead: the key pair of the leading server (pk and sk)
+ *  @param key_follow[]: the set of key pair of the following servers (pk and sk)
+ * @param ciphertext: original ciphertext to be decrypted
+ * @param table: lookup table for decryption
+ *
+ */
+int gamal_fusion_decrypt(dig_t *res, int num_server, gamal_key_t key_lead, gamal_key_t key_follow[], 
+                        gamal_ciphertext_t ciphertext_update, gamal_ciphertext_t ciphertext, bsgs_table_t table);
+
+
+
+
+/**
+ * Re-encrypt a ciphertext under one server's public key to a ciphertext under a new public key
+ * @param new_cipher
+ * @param cipher: ciphertext under server's public key
+ * @param keys: server's key pair
+ * @param keySNew: new public key
+ */
+int gamal_re_encrypt(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys, gamal_key_t keysNew);
+
+
+/**
+ * Added by Tham 
+ * Re-encrypt (switching)) a ciphertext under a collective public key of a group of 3 servers to a ciphertext under a new public key
+ * @param new_cipher
+ * @param cipher: ciphertext under server's public key
+ * @param keys1, keys2, keys3: three servers' key pairs
+ * @param keySNew: new public key
+ */
+int gamal_key_switching(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys1, gamal_key_t keys2, 
+                        gamal_key_t keys3, gamal_key_t keysNew);
+
+
+
+/**
+ * Added by Tham (not optimal_)
+ * Collective decrypts an EC-ElGamal ciphertext by 3 servers
+ *
+ */
+
+int gamal_coll_decrypt(dig_t *res, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_ciphertext_t ciphertext, bsgs_table_t table);
+
+
+/**
+ * Added by Tham 
+ * Generates an collective EC-ElGamal key pair from 3 servers
  * @param coll_keys: the collective keypair
  * @return
  */
 //int gamal_collective_key_gen(gamal_key_t coll_keys);
 int gamal_collective_key_gen(gamal_key_t coll_keys, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3);
 
-//gamal_key_t gamal_collective_key_gen(int party);
-
-/**
- * Added by Tham in 4 Feb 2020
- * Re-encrypt a ciphertext under a server's public key to a ciphertext under a new public key
- */
-int gamal_re_encrypt(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys, gamal_key_t keysNew);
-
-
-/**
- * Added by Tham (this is not optimal)
- * Re-encrypt a ciphertext under a collective public key of a group of servers to a ciphertext under a new public key
- */
-int gamal_key_switching(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_key_t keysNew);
-
-//added by Tham 7 Dec 2019 for improving re-encryption (key switching optimal)
-int gama_key_switch_lead(gamal_ciphertext_t cipher_update, gamal_ciphertext_t cipher, gamal_key_t keys_lead, gamal_key_t keysNew);
-int gama_key_switch_follow(gamal_ciphertext_t cipher_update, gamal_ciphertext_t cipher, gamal_key_t keys_follow, gamal_key_t keysNew);
-
-
-
-/**
- * Added by Tham (not optimal_)
- * Collective decrypts an EC-ElGamal ciphertext by all parties
- *
- */
-
-int gamal_coll_decrypt(dig_t *res, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_ciphertext_t ciphertext, bsgs_table_t table);
-
-/**
- * Added by Tham (optimal)
- * Collective decrypts an EC-ElGamal ciphertext by all parties
- * @param
- * @param
- * @param
- *
- */
-int gamal_coll_decrypt_lead(gamal_ciphertext_t ciphertext_update, gamal_key_t keys, gamal_ciphertext_t ciphertext, bsgs_table_t table);
-int gamal_coll_decrypt_follow(gamal_ciphertext_t ciphertext_update, gamal_key_t keys, gamal_ciphertext_t ciphertext, bsgs_table_t table);
-int gamal_fusion_decrypt(dig_t *res, int num_server, gamal_key_t key_lead, gamal_key_t key_follow[], gamal_ciphertext_t ciphertext_update, gamal_ciphertext_t ciphertext, bsgs_table_t table);
 
 /**
  * Added by Tham (not optimal)
+ * This function add the ciphertext to itself for (scalar - 1) times
  * Multiply EC-Elgamal ciphertext and a plaintext and stores it in res.
  * @param res the resulting ciphertext
  * @param ciphertext
- * @param plaintext
- * @return
+ * @param pt: scalar is an integer >=1 
+ * @return res
  */
 
 int gamal_mult(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, dig_t pt);
 
+
+
+
 /**
- * Added by Tham for optimize the mult(cipher, plain)
- *
+ * Added by Tham to substract two ciphertexts 
+ * might not be able to decrypt the result, need to double check
  */
 
-int gamal_mult_opt(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext, dig_t pt);
+int gamal_subtract(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciphertext_t ciphertext2);
+
+
 
 /**
  * Added by Tham for utility functions
@@ -267,5 +339,9 @@ int findCeil(int arr[], int r, int l, int h);
 int myRand(int arr[], int freq[], int n);
 int *hist_gen(int histogr[], int arr[], int freq[], int datasize, int scale_up);
 // int *pir_gen(int myPIR_arr[], int arr[], int freq[], int datasize, double pv_ratio);
+
+
+
+//=================================================================//
 
 #endif //ECELGAMAL_ECELGAMAL_H

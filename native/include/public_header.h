@@ -77,7 +77,7 @@ typedef map<id_domain_pair, gamal_ciphertext_ptr, comp> ENC_DOMAIN_MAP;
 typedef vector<id_domain_pair> id_domain_vector;
 typedef set<id_domain_pair, comp> id_domain_set;
 
-typedef map<id_domain_pair, gamal_ciphertext_ptr, comp> CIPHER_DOMAIN_MAP;
+typedef map<id_domain_pair, gamal_ciphertext_ptr, comp> CIPHER_ENC_DOMAIN_MAP;
 
 typedef list<pair<string, string>> TRACK_LIST;
 
