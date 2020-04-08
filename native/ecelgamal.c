@@ -89,95 +89,6 @@ int add_value_to_table(bsgs_table_t table, EC_POINT *point, uint32_t value)
     return 0;
 }
 
-// Added by Tham to convert an integer to its binary representation
-int *convert_to_bin(int binary_arr[64], dig_t number, int bit_num)
-{
-    //dig_t binary = 0, counter = 0;
-    //double x;
-    //int bit_num;
-    //bit_num = 32;
-    //number = 100;
-    // x = log2(number);
-    //printf("%f\n", x);
-    // bit_num = ceil(x);
-    //printf("%d\n", bit_num);
-
-    //int binary_arr[bit_num];
-    //binary_arr[64]={0};
-    int remainder, counter = 0;
-    //int binary_arr[32];
-
-    while (number > 0)
-    {
-        remainder = number % 2;
-        number /= 2;
-        //binary += pow(10, counter) * remainder;
-        binary_arr[counter] = remainder;
-        counter++;
-    }
-
-    //for(int it=counter; it<= bit_num - 1; it++){
-    //	binary_arr[it] = 0;
-    // }
-
-    //binary_arr[counter] = 1;
-    //#if 0
-    // for(int it=0; it<=bit_num - 1; it++){
-    //binary_arr_correct[it] = binary_arr[bit_num - 1 - it];
-    //printf("%d", binary_arr[it]);
-    // }
-    // printf("\n");
-    //#endif    //return 0;
-
-    return binary_arr;
-}
-
-/**Added by Tham, function to decode an integer to the form of non-adjacent form,
- * to reduce the number of point addition in scalar multiplication
- * paras
- */
-int *convert_to_NAF(int naf_arr[64], dig_t number, int bit_num[2])
-{
-
-    int i;
-    while (number > 0)
-    {
-        if ((number % 2) == 1)
-        {
-            naf_arr[i] = mods_func(number); //number mods 2^2
-            number = number - naf_arr[i];
-        }
-        else
-            naf_arr[i] = 0;
-        number = number / 2;
-        i++;
-    }
-    bit_num[0] = i - 1;
-    //int res_naf_arr[i];
-    //for(int it=0; it<=i; it++){
-    //  	res_naf_arr[i] = naf_arr[i];
-    //  }
-
-    //for(int it=bit_num[0]; it>=0; it--){
-    //binary_arr_correct[it] = binary_arr[bit_num - 1 - it];
-    // printf("%d", naf_arr[it]);
-    // }
-    //  printf("\n");
-
-    //return naf_arr;
-    return bit_num;
-}
-
-/**
- * added by Tham, compute the "mods" function
- */
-int mods_func(int number)
-{
-    if ((number % 4) >= 2)
-        return (number % 4) - 4; //(number mode 2^2) - 2^2
-    else
-        return (number % 4);
-}
 
 int bsgs_table_init(EC_GROUP *curve_group, bsgs_table_t table, dig_t t_size)
 {
@@ -709,7 +620,7 @@ int decode_key(gamal_key_t key, unsigned char *buff, int size)
 
 
 //===================================================================================//
-//================== Below are function implemented by Tham =========================//
+//================== Below are functions implemented by Tham =========================//
 
 
 //Added by Tham for better multiplication between a ciphertext and a plaintext (scalar multiplication)
@@ -1321,5 +1232,96 @@ int gamal_collective_key_gen(gamal_key_t coll_keys, gamal_key_t keys1, gamal_key
     //BN_free(ord);
     BN_CTX_free(ctx);
     return 0;
+}
+
+//Suportive functions
+// Added by Tham to convert an integer to its binary representation
+int *convert_to_bin(int binary_arr[64], dig_t number, int bit_num)
+{
+    //dig_t binary = 0, counter = 0;
+    //double x;
+    //int bit_num;
+    //bit_num = 32;
+    //number = 100;
+    // x = log2(number);
+    //printf("%f\n", x);
+    // bit_num = ceil(x);
+    //printf("%d\n", bit_num);
+
+    //int binary_arr[bit_num];
+    //binary_arr[64]={0};
+    int remainder, counter = 0;
+    //int binary_arr[32];
+
+    while (number > 0)
+    {
+        remainder = number % 2;
+        number /= 2;
+        //binary += pow(10, counter) * remainder;
+        binary_arr[counter] = remainder;
+        counter++;
+    }
+
+    //for(int it=counter; it<= bit_num - 1; it++){
+    //	binary_arr[it] = 0;
+    // }
+
+    //binary_arr[counter] = 1;
+    //#if 0
+    // for(int it=0; it<=bit_num - 1; it++){
+    //binary_arr_correct[it] = binary_arr[bit_num - 1 - it];
+    //printf("%d", binary_arr[it]);
+    // }
+    // printf("\n");
+    //#endif    //return 0;
+
+    return binary_arr;
+}
+
+/**Added by Tham, function to decode an integer to the form of non-adjacent form,
+ * to reduce the number of point addition in scalar multiplication
+ * paras
+ */
+int *convert_to_NAF(int naf_arr[64], dig_t number, int bit_num[2])
+{
+
+    int i;
+    while (number > 0)
+    {
+        if ((number % 2) == 1)
+        {
+            naf_arr[i] = mods_func(number); //number mods 2^2
+            number = number - naf_arr[i];
+        }
+        else
+            naf_arr[i] = 0;
+        number = number / 2;
+        i++;
+    }
+    bit_num[0] = i - 1;
+    //int res_naf_arr[i];
+    //for(int it=0; it<=i; it++){
+    //  	res_naf_arr[i] = naf_arr[i];
+    //  }
+
+    //for(int it=bit_num[0]; it>=0; it--){
+    //binary_arr_correct[it] = binary_arr[bit_num - 1 - it];
+    // printf("%d", naf_arr[it]);
+    // }
+    //  printf("\n");
+
+    //return naf_arr;
+    return bit_num;
+}
+
+/**
+ * added by Tham, compute the "mods" function
+ */
+int mods_func(int number)
+{
+    if ((number % 4) >= 2)
+        return (number % 4) - 4; //(number mode 2^2) - 2^2
+    else
+        return (number % 4);
 }
 
