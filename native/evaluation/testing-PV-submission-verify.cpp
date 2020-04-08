@@ -1,10 +1,10 @@
-#include "include/public_header.h"
-#include "src/Participant.h"
-#include "src/Server.h"
-#include "src/Servers.h"
-#include "src/process_noise.h"
-#include "src/time_evaluation.h"
-#include "public_func.h"
+#include "../include/public_header.h"
+#include "../src/Participant.h"
+#include "../src/Server.h"
+#include "../src/Servers.h"
+#include "../src/process_noise.h"
+#include "../src/time_evaluation.h"
+#include "../public_func.h"
 
 int partialView_verification(int argc, char **argv)
 {

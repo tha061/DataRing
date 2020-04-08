@@ -1,5 +1,5 @@
-#include "include/public_header.h"
-#include "public_func.h"
+#include "../include/public_header.h"
+#include "../public_func.h"
 
 
 void bench_elgamal(int num_entries, int tablebits)

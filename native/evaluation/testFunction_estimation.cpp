@@ -1,15 +1,15 @@
 
-#include "include/public_header.h"
-#include "src/Participant.h"
-#include "src/Server.h"
-#include "src/Servers.h"
-#include "src/process_noise.h"
-#include "src/time_evaluation.h"
-#include "public_func.h"
+#include "../include/public_header.h"
+#include "../src/Participant.h"
+#include "../src/Server.h"
+#include "../src/Servers.h"
+#include "../src/process_noise.h"
+#include "../src/time_evaluation.h"
+#include "../public_func.h"
 
 // #include "testing2.cpp"
 
-int phase_3_test_new_PVGen_method(int argc, char **argv)
+int test_estimation(int argc, char **argv)
 {
 	int dataset_size = 500000; //make it an argument to use to determine dataset_size
 	int number_servers = 3;	   //make it an argument use to setup number of servers
@@ -19,7 +19,6 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	double pv_ratio = 0.01;
     int num_query;
     double test_frequency;
-	int fre_lie;
 	
 	string dataset_directory, background_knowledge_directory;
 	if (argc > 1)
@@ -36,8 +35,6 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 			alpha = stod(argv[8]);
             num_query = stoi(argv[9]);
             test_frequency = stod(argv[10]);
-			fre_lie = stoi(argv[11]);
-			
 
 		}
 		else
@@ -63,7 +60,7 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	// Setup answer strategy
 	int answer_strategy;
 	int true_fake[] = {1, 0};
-	int fake_freq = fre_lie*5;//25; //freq of lie
+	int fake_freq = 50; //freq of lie
 	int freq[] = {100 - fake_freq, fake_freq}; //using fake dataset with p2 = 0.1
 
 	float lie_freq = (float)fake_freq/100;
@@ -71,7 +68,6 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	int answer_strategy_arr[iterations];
 
 	int no_lied_answer = (int)(lie_freq*iterations);
-	cout<<"no_lied_answer = "<<no_lied_answer<<endl;
 
 	int counter = 0;
 	for (int i =0; i< iterations; i++)
@@ -83,7 +79,8 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 		}
 	}
 
-	
+
+
 	int i;
 	while (counter < no_lied_answer)
 	{
@@ -112,13 +109,14 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 		// i++;
 		
 	}
+	
 
 	// participant computes epsilon for a query's answer and a test's answer
     float epsilon_q = noise_budget/(num_query+3*num_test);
 	float epsilon_test = 3*epsilon_q;
 
 
-	double num_test_each = (double)num_test/4; // 4 test function types
+	double num_test_each = (double)num_test/2; // 4 test function types
 	int num_test_rounded = ceil(num_test_each);
 	cout << "num_test_rounded = "<< num_test_rounded <<endl;
 	// cout << "num_test = " << num_test_each <<endl;
@@ -144,12 +142,16 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 
 	// PARTICIPANT CONVERT DATASET TO HISTOGRAM
 	Participant part_A(dataset_directory);
-	Participant part_B;
 
-	
+	// t1 = high_resolution_clock::now();
 	part_A.create_OriginalHistogram(dataset_size);
-	
-	
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Create Hist (ms)", t1, t2);
+
+	// cout << "Total rows: " << part_A.size_dataset << endl;
+	// cout << "Total domains: " << part_A.histogram.size() << endl;
+
+	// part_A.print_Histogram();
 
 	//===== party generate true histogram =====
 	
@@ -161,6 +163,23 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	int size_dataset = part_A.size_dataset;
 
 
+	//party create fake histogram: 
+
+	//===case 1 ======
+
+	float amt_lie = 0.8; 
+	int keep_row = int(dataset_size*(1-amt_lie)); //amount of lie
+	// // t1 = high_resolution_clock::now();
+	part_A.addDummy_FakeHist_random(keep_row, a);
+	// // t2 = high_resolution_clock::now();
+	// // trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
+	
+	// //==case 2
+	// float adding_ones = 1;
+	// t1 = high_resolution_clock::now();
+	// part_A.addDummy_ones_FakeHistogram(a, adding_ones);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 
 	
 	// SERVER SETUP COLLECTIVE KEY
@@ -172,7 +191,7 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	servers.pv_ratio = pv_ratio;
 
 	// INITIALIZE CIPHERTEXT STACK FOR PARTY
-	// part_A.initializePreStack(servers.coll_key);
+	part_A.initializePreStack(servers.coll_key);
 
 
 
@@ -212,9 +231,10 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 	// SERVER CREATE PV SAMPLING VECTOR
-	
-	servers.createPVsamplingVector_size_N_plus_1(pre_enc_stack);
-	
+	// t1 = high_resolution_clock::now();
+	servers.createPVsamplingVector(pre_enc_stack);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Gen PV sampling (ms)", t1, t2);
 
 	//+++++++++++ PARTY IS HONEST +++++++++++++++//
 
@@ -222,23 +242,42 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	//Gen PV optimal by pre-compte Enc(0) to all dummy domains at offline
 	//pre process:
 	// t1 = high_resolution_clock::now();
-	// part_A.pre_process_generatePV(true);
+	part_A.pre_process_generatePV(true);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
 	
 	// t1 = high_resolution_clock::now();
-	// part_A.generatePV_opt(servers.s_myPIR_enc, true);
+	part_A.generatePV_opt(servers.s_myPIR_enc, true);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
 	//++++++++++ PARTY IS DISHONEST ++++++++++++//
 
+	//====== strategy 1
+
+	// int keep_row = int(dataset_size*0.9); //lie about 50% rows
+	// t1 = high_resolution_clock::now();
+	// part_A.addDummy_FakeHist(keep_row, a);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
+
+	// //pre process for reduce runtime
+	// t1 = high_resolution_clock::now();
+	// part_A.pre_process_generatePV(false);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
+
+	// t1 = high_resolution_clock::now();
+	// part_A.generatePV_opt(servers.s_myPIR_enc, false);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
+
 	//====== strategy 2: participant generate fake histogram randomly
 	
-	int keep_row_Hist = int(dataset_size*0.95); //lie about 50% rows
+	// int keep_row = int(dataset_size*0.4); //lie about 50% rows
 	// // int keep_row = 428027; 
 	// t1 = high_resolution_clock::now();
-	part_A.addDummy_FakeHist_random(keep_row_Hist, a);
+	// part_A.addDummy_FakeHist_random(keep_row, a);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 
@@ -250,24 +289,29 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 
 	// t1 = high_resolution_clock::now();
 	// part_A.generatePV_opt(servers.s_myPIR_enc, false);
-	part_A.generatePV_fixed_scheme(servers.s_myPIR_enc, part_A.histogram, part_A.size_dataset);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
+	//======= strategy 3: participant does not use PV sampling vector from server
 	
-
-//======= strategy 3: participant does not use PV sampling vector from server and keep this in the fake histogram
-	// int true_record_PV = (int)PV_size*1;
-	
+	// int true_record_PV = (int)PV_size;
+	// // int true_record_PV = 1498;
+	// // t1 = high_resolution_clock::now();
 	// part_A.self_create_PV_prepare(true_record_PV, a);
+	// // t2 = high_resolution_clock::now();
+	// // trackTaskPerformance(time_track_list, "Part_A keep x rows: ", t1, t2);
 
-
+	// // //pre process:
+	// // // t1 = high_resolution_clock::now();
 	// part_A.pre_process_generatePV(false);
-	
-	// part_A.selfCreateFakePV_opt(false);
+	// // // t2 = high_resolution_clock::now();
+	// // // trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
 
-	// //// after creating PV by itself, create a histogram included V bins in PV and hide all other bins (N-V) bins
-    // part_A.generate_Histogram_included_self_PV(false, PV_size, a);
+	// // // t1 = high_resolution_clock::now();
+	//  part_A.selfCreateFakePV_opt(false);
+	// // // part_A.selfCreateFakePV_opt(false);
+	// // // t2 = high_resolution_clock::now();
+	// // // trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
 
 	//=====SERVER VERIFIES SUBMITTED PV
@@ -280,30 +324,6 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Verify PV (ms)", t1, t2);
 
-	if (verify_status)
-	{
-
-		//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-	//                          QUERY & TEST PHASE                              //
-	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-
-	//party create fake histogram (not the fake histogram used in PV)
-
-	//=======case 1 ===========
-
-	// float amt_lie = 0.1; 
-	// int keep_row = int(dataset_size*(1-amt_lie)); //amount of lie
-	// // // // t1 = high_resolution_clock::now();
-	// part_A.addDummy_FakeHist_random(keep_row, a);
-	// // // // t2 = high_resolution_clock::now();
-	// // // trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
-	
-	// //==case 2
-	// float adding_ones = 1; //omega = 1
-	// t1 = high_resolution_clock::now();
-	// part_A.addDummy_ones_FakeHistogram(a, adding_ones);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 
 	bool test_status;
 	int count_lied_ans = 0;
@@ -311,11 +331,9 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	int threshold;
 	gamal_ciphertext_t sum_cipher;
 
-	// Servers send a cipher_1 = enc(1) to party for encryptig noise
-
-	pre_enc_stack.pop_E1(part_A.cipher1);
-
-	
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+	//                          QUERY & TEST PHASE                              //
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 	
 	//Server determines maxNoise
 	servers.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon_test, percentile_noise);
@@ -333,45 +351,46 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	int index = 0;
 	int itr = 1;
 
-	// cout<<"test ok"<<endl;
-
-	t1 = high_resolution_clock::now();
+	
 	while (itr <= num_query)
     {
          // // ==== NORMAL QUERY PRE_COMPUTE TO OPTIMIZE RUNTIME ============//
       
-       
+        cout<< "\nQuery: #" << itr << endl;
+		// bool check = server1.enc_question_map.empty();
+		// cout<< "enc_question_map empty? "<<check<<endl;
 		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
        
-       
         server1.generateMatchDomain(0);
-       
       
         // t1 = high_resolution_clock::now();
 		server1.generateNormalQuery_opt(pre_enc_stack);
-        
-		
+		// t2 = high_resolution_clock::now();
+		// trackTaskPerformance(time_track_list, "Gen Query (ms)", t1, t2);
+
+
 		// //====answer using fake dataset with probability p2
-
-		
+	
+		// answer_strategy = myRand(true_fake, freq, n);
 		answer_strategy = answer_strategy_arr[index];
-		// answer_strategy = 0;
-
-		gamal_cipher_new(sum_cipher);
+		
+		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
 
 		if (answer_strategy == 0)
 		{
-			
-            part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.fake_histogram, part_A.cipher1, epsilon_q);
-            
+			// t1 = high_resolution_clock::now();
+			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon_q);
+			// t2 = high_resolution_clock::now();
+			// trackTaskPerformance(time_track_list, "Compute ans Query (ms)", t1, t2);
 			count_lied_ans++;
 			
 		}
 		else
 		{
-			
-			part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon_q);
-			
+			// t1 = high_resolution_clock::now();
+			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon_q);
+			// t2 = high_resolution_clock::now();
+			// trackTaskPerformance(time_track_list, "Compute ans Query (ms)", t1, t2);
 			
 		}	
 		trackTaskStatus(time_track_list, "Query:Dataset true/false", answer_strategy);
@@ -382,186 +401,28 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 		server1.match_query_domain_vect.clear();
         itr++;
 		index++;
+    }
 
-
-		//======Re-encrypt query answer to participant B's public key
-
-		gamal_ciphertext_t sum_cipher_update;
-
-		gamal_generate_keys(part_B.keys); //part_B keys pair   
-
-		
-		gama_key_switch_lead(sum_cipher_update, sum_cipher, server1.key, part_B.keys);
-
-		for (int i=1; i< number_servers; i++)
-		{
-			gama_key_switch_follow(sum_cipher_update, sum_cipher, servers.server_vect[server_id+i].key, part_B.keys);
-		}
-       
-		
-	}
-
-	
-	// //====TEST FUNCTION KNOWN RECORDS NEW USING PRE_COMPUTE TEST FUCTION =====//
-    // Pre process
-	
-    // num_test_rounded =1;
-	for (int i = 1; i<= num_test_rounded; i++) 
-	{
-		
-		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
-		
-		// t1 = high_resolution_clock::now();
-		server1.generateTestKnownRecords_opt(pre_enc_stack, part_A.enc_domain_map);
-		
-		
-		
-		//====answer using fake dataset with probability p2
-	
-		
-		answer_strategy = answer_strategy_arr[index];
-		// answer_strategy = 0;
-		
-		gamal_cipher_new(sum_cipher);
-
-		if (answer_strategy == 0)
-		{
-			part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.fake_histogram, part_A.cipher1, epsilon_test);
-			count_lied_ans++;
-			
-		}
-		else
-		{
-			part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon_test);
-			
-		}	
-		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
-
-		
-		
-		threshold = server1.known_record_subset.size();
-		// cout<< "Threshold L = " << threshold <<endl;
-
-		test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold);
-
-		if (test_status == 0)
-		{
-			no_lied_detected++;
-		}
-		trackTaskStatus(time_track_list, "Test target L status", test_status);
-		// trackTaskStatus(time_track_list, "No of lied ans", count_lied_ans);
-		server1.enc_question_map_pre.clear();
-		//Tham added 15 Jan, delete test at server side
-		server1.enc_question_map.clear();
-		index++;
-		// cout<< "Test L verify done" << endl;
-
-	}
-	
-	// //===== TEST FUNCTION BASED PV OPTIMAL =====
-	 
-	
-	for (int i=1; i<=num_test_rounded; i++)
-	{
-		
-		server1.generateTestBasedPartialView_opt(pre_enc_stack, part_A.enc_domain_map);
-		
-		
-		//====answer using fake dataset with probability p2
-	
-		
-		answer_strategy = answer_strategy_arr[index];
-		// answer_strategy = 0;
-		gamal_cipher_new(sum_cipher);
-
-		if (answer_strategy == 0)
-		{
-			part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.fake_histogram, part_A.cipher1, epsilon_test);
-			count_lied_ans++;
-			
-		}
-		else
-		{
-			part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon_test);
-			
-		}	
-		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
-
-		threshold = PV_size; //actual PV size = V (not the PV histogram)
-		// cout<<"Threshold V = " << threshold << endl;
-		test_status = servers.verifyingTestResult("Test target V rows found:", sum_cipher, table, server_id, threshold);
-		
-		trackTaskStatus(time_track_list, "Test target V status", test_status);
-
-		if (test_status == 0)
-		{
-			no_lied_detected++;
-		}
-		
-		
-		server1.enc_question_map_pre.clear();
-		//Tham added 15 Jan, delete test at server side
-		server1.enc_question_map.clear();
-		index++;
-	}
-
-	//===== TEST FUNCTION  targeting all rows in dataset ====//
-
-
-	
-	for (int i=1; i<=num_test_rounded; i++)
-	{
-			
-		server1.generateTest_Target_All_Records(pre_enc_stack, part_A.enc_domain_map);
-		
-		gamal_cipher_new(sum_cipher);
-
-		//===== Party answer truth or lie at random p2
-
-		answer_strategy = answer_strategy_arr[index];
-		// answer_strategy = 0;
-
-		
-		if (answer_strategy == 0)
-		{
-            part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.fake_histogram, part_A.cipher1, epsilon_test);
-			count_lied_ans++;
-		}
-		else
-		{
-			part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon_test);
-		}
-		
-		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
-
-		threshold = size_dataset;
-		test_status = servers.verifyingTestResult("Test target n rows found:", sum_cipher, table, server_id, threshold);
-		trackTaskStatus(time_track_list, "Test target n rows status", test_status);
-
-		
-		if (test_status == 0)
-		{
-			no_lied_detected++;
-		}
-
-		server1.enc_question_map.clear();
-		index++;
-	
-	}
 
 	//====== RUNTIME OPTIMAL TEST FUNCTION 4 targeting specific attributes ==========//
 
 
-	for (int i=1; i<= num_test - 3*num_test_rounded; i++)
-	// for (int i=1; i<= num_test_rounded +1; i++)
+	for (int i=1; i<= num_test; i++)
 	{
-
+		cout<<"\nTest estimate: #"<<i<<endl;
+		// bool check = server1.enc_question_map.empty();
+		// cout<< "enc_question_map empty? "<<check<<endl;
 		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
 
 		server1.generateMatchDomain(1);
 		
+
 		// t1 = high_resolution_clock::now();
 		server1.generateTest_Target_Attr_opt(pre_enc_stack);
+		// t2 = high_resolution_clock::now();
+		// trackTaskPerformance(time_track_list, "Gen Test Attr (ms)", t1, t2);
+
+
 		
 		//====answer using fake dataset with probability p2
 	
@@ -569,23 +430,28 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
 
 		answer_strategy = answer_strategy_arr[index];
-		// answer_strategy = 0;
-		gamal_cipher_new(sum_cipher);
 		
 		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
 
 		if (answer_strategy == 0)
 		{
-			part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.fake_histogram, part_A.cipher1, epsilon_test);
+			// t1 = high_resolution_clock::now();
+			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon_test);
+			// t2 = high_resolution_clock::now();
+			// trackTaskPerformance(time_track_list, "Compute ans Test Attr opt (ms)", t1, t2);
 			count_lied_ans++;
 			
 		}
 		else
 		{
-			part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon_test);
+			// t1 = high_resolution_clock::now();
+			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon_test);
+			// t2 = high_resolution_clock::now();
+			// trackTaskPerformance(time_track_list, "Compute ans Test Attr opt (ms)", t1, t2);
 			
 		}	
 		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
+
 
 		server1.generateServerDomain_Test_Target_Attr(pre_enc_stack);
 		
@@ -611,10 +477,6 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 
 	}
 
-
-	  t2 = high_resolution_clock::now();
-
-	  trackTaskPerformance(time_track_list, "E2E delay", t1, t2);
    
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -647,24 +509,15 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	trackTestAccu(time_track_list, "No. of lied detected", no_lied_detected);
 
 
-	// storeTimeEvaluation(argc, argv, time_track_list, verify_status);
+	storeTimeEvaluation(argc, argv, time_track_list, verify_status);
 
 
 	if (argc > 1)
 	{
 		fstream fout;
-		// std::ofstream fout;
-
-		string filename = "./results/lie_dectection_PV_disHist_95pc_new_";
-	
-		stringstream ss;
-	
-		if (strcmp(argv[12], "1") == 0)
+		if (strcmp(argv[11], "1") == 0)
 		{
-			
-			ss << filename <<"dataset_"<<dataset_size <<"_"<<num_query<<"_query_"<<num_test<<"_test_"<<"30runs_freq_lie_"<< fake_freq << ".csv"; // add your stuff to the stream
-			fout.open(ss.str().c_str(),ios::out | ios::trunc);
-		
+			fout.open("./results/phase3_n_300K_L_1000_honestPV_lied_answer_lie_amount_80_3q_freq_test_05_freq_lie_50.csv", ios::out | ios::trunc);
 			fout << "Iteration, PV Verification";
 			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
@@ -675,15 +528,11 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 		}
 		else
 		{
-			
-			ss << filename <<"dataset_"<<dataset_size <<"_"<<num_query<<"_query_"<<num_test<<"_test_"<<"30runs_freq_lie_"<< fake_freq << ".csv";
-			 
-			fout.open(ss.str().c_str(),ios::out | ios::app);
-			
+			fout.open("./results/phase3_n_300K_L_1000_honestPV_lied_answer_lie_amount_80_3q_freq_test_05_freq_lie_50.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file
-		fout << argv[12] << ", " << verify_status;
+		fout << argv[11] << ", " << verify_status;
 		for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 		{
 			string time_diff = itr->second;
@@ -694,58 +543,4 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	}
 
 	return 0;
-
-
-	}
-	else
-	{
-		
-		if (argc > 1)
-		{
-			fstream fout;
-			// std::ofstream fout;
-
-			string filename = "./results/lie_dectection_PV_disHist_95pc_new_";
-		
-			stringstream ss;
-		
-			if (strcmp(argv[12], "1") == 0)
-			{
-				
-				ss << filename <<"dataset_"<<dataset_size <<"_"<<num_query<<"_query_"<<num_test<<"_test_"<<"30runs_freq_lie_"<< fake_freq << ".csv"; // add your stuff to the stream
-				fout.open(ss.str().c_str(),ios::out | ios::trunc);
-			
-				fout << "Iteration, PV Verification";
-				for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
-				{
-					string column = itr->first;
-					fout << ", " << column;
-				}
-				fout << "\n";
-			}
-			else
-			{
-				
-				ss << filename <<"dataset_"<<dataset_size <<"_"<<num_query<<"_query_"<<num_test<<"_test_"<<"30runs_freq_lie_"<< fake_freq << ".csv";
-				
-				fout.open(ss.str().c_str(),ios::out | ios::app);
-				
-			}
-
-			// Insert the data to file
-			fout << argv[12] << ", " << verify_status;
-			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
-			{
-				string time_diff = itr->second;
-				fout << ", " << time_diff;
-			}
-			fout << "\n";
-			fout.close();
-		}
-		
-		return 0;
-	}
-	
-
-	
 }

@@ -7,17 +7,17 @@
 #include "src/time_evaluation.h"
 #include "public_func.h"
 
-#include "testing2.cpp"
-#include "testing-PV-submission-verify.cpp"
-#include "test-runtime.cpp"
-#include "test_query_testfunction_process.cpp"
-#include "testFunction_estimation.cpp"
-#include "fakePV_fakeResponse_test.cpp"
-#include "runtime_comparison.cpp"
-#include "varying_params.cpp"
-#include "release_answer.cpp"
-#include "testing-PartialView_verification_selfPV.cpp"
-#include "test_query_testfunction_process_new_PV_gen_method.cpp"
+#include "evaluation/testing2.cpp"
+#include "evaluation/testing-PV-submission-verify.cpp"
+#include "evaluation/test-runtime.cpp"
+#include "evaluation/test_query_testfunction_process.cpp"
+#include "evaluation/testFunction_estimation.cpp"
+#include "evaluation/fakePV_fakeResponse_test.cpp"
+#include "evaluation/runtime_comparison.cpp"
+#include "evaluation/varying_params.cpp"
+#include "evaluation/release_answer.cpp"
+#include "evaluation/testing-PartialView_verification_selfPV.cpp"
+#include "evaluation/test_query_testfunction_process_new_PV_gen_method.cpp"
 
 
 

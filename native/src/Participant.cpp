@@ -62,6 +62,45 @@ void Participant::create_OriginalHistogram(int dataset_size)
     original_histogram = histogram; //added by Tham 12 Feb 2020 for improving the compute answer for honest participant
 }
 
+
+static int _getRandomInRange(int min, int max)
+{
+    return min + (rand() % (max - min + 1));
+}
+
+string getDummyDomain()
+{
+    const int MAX_COL_1 = 40000;
+    const int MIN_COL_1 = 1000;
+    const int MAX_COL_2 = 40000;
+    const int MIN_COL_2 = 1000;
+    const int MAX_COL_3 = 40000;
+    const int MIN_COL_3 = 0;
+    const float MAX_COL_4 = 110000000.0;
+    const float MIN_COL_4 = 0.0;
+    const int DISTINCT_COL_5 = 2;
+    const int DISTINCT_COL_7 = 7;
+    const int DISTINCT_COL_8 = 12;
+    const int DISTINCT_COL_9 = 3;
+    const int DISTINCT_COL_10 = 6;
+
+    int col1 = _getRandomInRange(MIN_COL_1, MAX_COL_1);
+    int col2 = _getRandomInRange(MIN_COL_2, MAX_COL_2);
+    int col3 = _getRandomInRange(MIN_COL_3, MAX_COL_3);
+    float col4 = 0.0 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (110000000.0 - 0.0)));
+    int col5 = _getRandomInRange(0, DISTINCT_COL_5 - 1);
+    float col6 = 5.31 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (30.99 - 5.31)));
+    int col7 = _getRandomInRange(0, DISTINCT_COL_7 - 1);
+    int col8 = _getRandomInRange(-1, 10);
+    int col9 = _getRandomInRange(0, DISTINCT_COL_9 - 1);
+    int col10 = _getRandomInRange(0, DISTINCT_COL_10 - 1);
+
+    string dummy_domain = to_string(col1) + " " + to_string(col2) + " " + to_string(col3) + " " + to_string(col4) + " " + to_string(col5) + " " + to_string(col6) + " " + to_string(col7) + " " + to_string(col8) + " " + to_string(col9) + " " + to_string(col10);
+
+    return dummy_domain;
+}
+
+
 /*
     Honest participant adds dummy bins (all zeroes) to the original histogram
     -> true histogram: n bins "1" from dataset and (a-1)n bins "0" from dummy
@@ -866,10 +905,6 @@ static void _printEncData(int index, gamal_ciphertext_t *enc_list)
     printf("\n");
 }
 
-static int _getRandomInRange(int min, int max)
-{
-    return min + (rand() % (max - min + 1));
-}
 
 
 // initialize ciphertext stack for participant
@@ -895,38 +930,6 @@ void Participant::print_Histogram()
         }
         cout << itr->first.first << "|" << itr->first.second << "|" << itr->second << endl;
     }
-}
-
-string getDummyDomain()
-{
-    const int MAX_COL_1 = 40000;
-    const int MIN_COL_1 = 1000;
-    const int MAX_COL_2 = 40000;
-    const int MIN_COL_2 = 1000;
-    const int MAX_COL_3 = 40000;
-    const int MIN_COL_3 = 0;
-    const float MAX_COL_4 = 110000000.0;
-    const float MIN_COL_4 = 0.0;
-    const int DISTINCT_COL_5 = 2;
-    const int DISTINCT_COL_7 = 7;
-    const int DISTINCT_COL_8 = 12;
-    const int DISTINCT_COL_9 = 3;
-    const int DISTINCT_COL_10 = 6;
-
-    int col1 = _getRandomInRange(MIN_COL_1, MAX_COL_1);
-    int col2 = _getRandomInRange(MIN_COL_2, MAX_COL_2);
-    int col3 = _getRandomInRange(MIN_COL_3, MAX_COL_3);
-    float col4 = 0.0 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (110000000.0 - 0.0)));
-    int col5 = _getRandomInRange(0, DISTINCT_COL_5 - 1);
-    float col6 = 5.31 + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (30.99 - 5.31)));
-    int col7 = _getRandomInRange(0, DISTINCT_COL_7 - 1);
-    int col8 = _getRandomInRange(-1, 10);
-    int col9 = _getRandomInRange(0, DISTINCT_COL_9 - 1);
-    int col10 = _getRandomInRange(0, DISTINCT_COL_10 - 1);
-
-    string dummy_domain = to_string(col1) + " " + to_string(col2) + " " + to_string(col3) + " " + to_string(col4) + " " + to_string(col5) + " " + to_string(col6) + " " + to_string(col7) + " " + to_string(col8) + " " + to_string(col9) + " " + to_string(col10);
-
-    return dummy_domain;
 }
 
 void _printCiphertext(gamal_ciphertext_ptr ciphertext)
@@ -1542,7 +1545,7 @@ void Participant::computeAnswer_use_orig_histogram(ENC_DOMAIN_MAP &enc_question_
     
     // tmp_histogram.clear();
 
-   
-    
+
+
 }
 
