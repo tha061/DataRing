@@ -45,8 +45,11 @@ void Participant::create_OriginalHistogram(int dataset_size)
         int count;
         istringstream iss(str);
         getline(iss, id, ',');
+        // cout<<"id = "<<id<<endl;
         getline(iss, name, ',');
+        // cout<<"name = "<<name<<endl;
         iss >> count;
+        // cout<<"count = "<<count<<endl;
 
         string id_domain = id + " " + name;
 
@@ -101,10 +104,10 @@ string getDummyDomain()
 }
 
 
-/*
-    Honest participant adds dummy bins (all zeroes) to the original histogram
-    -> true histogram: n bins "1" from dataset and (a-1)n bins "0" from dummy
-*/
+// /*
+//     Honest participant adds dummy bins (all zeroes) to the original histogram
+//     -> true histogram: n bins "1" from dataset and (a-1)n bins "0" from dummy
+// */
 
 
 void Participant::addDummy_to_Histogram(int factorSize)
@@ -118,8 +121,7 @@ void Participant::addDummy_to_Histogram(int factorSize)
     while (histogram.size() < Histo_size)
     {
         string dummy_domain = getDummyDomain();
-        histogram.insert({make_pair(to_string(dummy_id), dummy_domain), 0}); //honest Histogram: dummy are bin 0s
-        // fake_histogram.insert({make_pair(to_string(dummy_id), dummy_domain), 1}); // dummy are bin 1s
+        histogram.insert({make_pair(to_string(dummy_id), dummy_domain), 0}); //honest Histogram: dummy are bin 0s, insert to a map
         dummy_id++;
     }
 
@@ -170,11 +172,11 @@ void Participant::addDummy_FakeHist_random(int keepDomainS, int factorSize)
 }
 
 
-/*
-    Dishonest participant makes a histogram of (1+scaled_up)*n bins "1" 
-    Fake histogram = n bins "1" from orig and scaled_up*n bins "1" from dummy
-    NOtE: not be able to make the domain names similar with the true histogram
-*/
+// /*
+//     Dishonest participant makes a histogram of (1+scaled_up)*n bins "1" 
+//     Fake histogram = n bins "1" from orig and scaled_up*n bins "1" from dummy
+//     NOtE: not be able to make the domain names similar with the true histogram
+// */
 void Participant::addDummy_ones_FakeHistogram(int factorSize, float adding_ones)
 {
 
@@ -211,64 +213,64 @@ void Participant::addDummy_ones_FakeHistogram(int factorSize, float adding_ones)
 void Participant::generatePV_fixed_scheme(gamal_ciphertext_t *enc_list, hash_pair_map hist, int dataset_size)
 {
 
-   /** 
-    int counter_bin_1s = 0;
-    int count_bin_0s = 0;
-    // cout << "PV SIZE " << tmp_histogram.size() << ", VECTOR FROM SERVER SIZE " << size_dataset << endl;
-    int index_cipher0 = hist.size();
+//    /** 
+//     int counter_bin_1s = 0;
+//     int count_bin_0s = 0;
+//     // cout << "PV SIZE " << tmp_histogram.size() << ", VECTOR FROM SERVER SIZE " << size_dataset << endl;
+//     int index_cipher0 = hist.size();
 
-    cout<<"Hist size ="<<index_cipher0<<endl;
+//     cout<<"Hist size ="<<index_cipher0<<endl;
 
-    gamal_ciphertext_t tmp, tmp2;
-    tmp->C1 = enc_list[index_cipher0-1]->C1;
-    tmp->C2 = enc_list[index_cipher0-1]->C2;
+//     gamal_ciphertext_t tmp, tmp2;
+//     tmp->C1 = enc_list[index_cipher0-1]->C1;
+//     tmp->C2 = enc_list[index_cipher0-1]->C2;
 
-    tmp2->C1 = enc_list[index_cipher0-2]->C1;
-    tmp2->C2 = enc_list[index_cipher0-2]->C2;
+//     tmp2->C1 = enc_list[index_cipher0-2]->C1;
+//     tmp2->C2 = enc_list[index_cipher0-2]->C2;
 
-    // cout<<"test genPV ok1\n";
-    for (hash_pair_map::iterator itr = hist.begin(); itr != hist.end(); ++itr)
-    {
+//     // cout<<"test genPV ok1\n";
+//     for (hash_pair_map::iterator itr = hist.begin(); itr != hist.end(); ++itr)
+//     {
         
-        id_domain_pair domain = itr->first;
-        int domain_count = itr->second;
-        // cout<<"domain_count = "<<domain_count<<endl;
+//         id_domain_pair domain = itr->first;
+//         int domain_count = itr->second;
+//         // cout<<"domain_count = "<<domain_count<<endl;
 
-        gamal_ciphertext_t *mul_enc_ciphertext = new gamal_ciphertext_t[1];
+//         gamal_ciphertext_t *mul_enc_ciphertext = new gamal_ciphertext_t[1];
 
         
-        if (domain_count == 0)
-        {
-            gamal_add(mul_enc_ciphertext[0], mul_enc_ciphertext[0], tmp);
-            count_bin_0s++;
-            tmp->C1 = enc_list[index_cipher0-1-count_bin_0s]->C1;
-            tmp->C2 = enc_list[index_cipher0-1-count_bin_0s]->C2;
-            // cout<<"test genPV ok2\n";
-        }
-        else if (domain_count == 1)
-        {
-            gamal_add(mul_enc_ciphertext[0], enc_list[counter_bin_1s], tmp2);
-            counter_bin_1s++;
-            // cout<<"test genPV ok3\n";
+//         if (domain_count == 0)
+//         {
+//             gamal_add(mul_enc_ciphertext[0], mul_enc_ciphertext[0], tmp);
+//             count_bin_0s++;
+//             tmp->C1 = enc_list[index_cipher0-1-count_bin_0s]->C1;
+//             tmp->C2 = enc_list[index_cipher0-1-count_bin_0s]->C2;
+//             // cout<<"test genPV ok2\n";
+//         }
+//         else if (domain_count == 1)
+//         {
+//             gamal_add(mul_enc_ciphertext[0], enc_list[counter_bin_1s], tmp2);
+//             counter_bin_1s++;
+//             // cout<<"test genPV ok3\n";
             
-        } 
-        else
-        {
-            gamal_mult_opt(mul_enc_ciphertext[0], enc_list[counter_bin_1s], domain_count);
-            counter_bin_1s++;
-            // cout<<"test genPV ok4\n";
-        }
+//         } 
+//         else
+//         {
+//             gamal_mult_opt(mul_enc_ciphertext[0], enc_list[counter_bin_1s], domain_count);
+//             counter_bin_1s++;
+//             // cout<<"test genPV ok4\n";
+//         }
         
         
-        enc_domain_map.insert({domain, mul_enc_ciphertext[0]});
-        // cout<<"test genPV ok5\n";
+//         enc_domain_map.insert({domain, mul_enc_ciphertext[0]});
+//         // cout<<"test genPV ok5\n";
     
-    }
+//     }
 
-    cout << "Count 1s in Hist " << counter_bin_1s << endl;
-    // tmp_histogram.clear();
+//     cout << "Count 1s in Hist " << counter_bin_1s << endl;
+//     // tmp_histogram.clear();
 
-    **/
+//     **/
 
 
     int counter_bin_1s = 0;
@@ -348,7 +350,14 @@ void Participant::computeAnswer_opt(ENC_DOMAIN_MAP &enc_question_map, gamal_ciph
     // const int size_test_map = enc_question_map.size();
     // gamal_ciphertext_t *enc_list = new gamal_ciphertext_t[size_test_map];
 
-    int counter = 0;
+    // int counter = 0;
+
+    // for (ENC_DOMAIN_MAP::iterator itr = enc_question_map.begin(); itr != enc_question_map.end(); ++itr)
+    // {
+    //     counter++;
+    // }
+
+    // cout<<"Number of bins in question vector: "<<counter<<endl;
 
     gamal_ciphertext_t tmp, mul_tmp;
     gamal_cipher_new(tmp);
@@ -388,7 +397,7 @@ void Participant::computeAnswer_opt(ENC_DOMAIN_MAP &enc_question_map, gamal_ciph
                 
     }
 
-    // cout<<"\nNumber of bins 1 in histogram = "<<count<<endl;
+    cout<<"\nNumber of bins 1 in histogram when compute answer = "<<count<<endl;
 
 
     //noise generation
@@ -866,7 +875,83 @@ void Participant::computeAnswer_sum(ENC_DOMAIN_MAP &enc_question_map, gamal_ciph
     
 }
 
-//++++++ support functions +++++++//
+//--------------------------------//
+//++++++ Support functions +++++++//
+// generate a permutation
+void Participant::getPermutationOfHistogram(vector<string> v, vector<int> flag) 
+{ 
+    //permutation the histogram to shuffle all the id,label with flags
+
+    // cout<<"test permutation function ok"<<endl;
+    // cout<<"getPermutationOfHistogram: start"<<endl;
+	int index=0;
+	string temp;
+
+	vector<string> v_temp = v;
+    
+	while (v_temp.size()) { 
+		temp=getString(v_temp);
+		// cout << "temp = " <<temp<<endl; 
+		
+		string id, name;
+		istringstream iss(temp);
+        getline(iss, id, ' ');
+        getline(iss, name);
+		// iss >> name;
+        // cout<<"id = "<<id<<endl;
+        
+        // cout<<"name = "<<name<<endl;
+
+        // cout<<"flag = "<<flag[index]<<endl;
+        
+        map_v_permute.insert({make_pair(id, name), index}); //keep this for un-permutation vector generation
+        // cout<<"test permutation function ok"<<endl;
+		map_v_permute_to_send_flag.insert({make_pair(id, name), flag[index]});//send this to S1: id,label and corresponding flag
+        // cout<<"test permutation function ok"<<endl;
+
+		index++;
+	} 
+
+    vector<string> v_permute_sort(map_v_permute.size());
+	vector<int> match_back_to_v(map_v_permute.size());
+    // cout<<"print map_v_permute"<<endl;
+    int i =0;
+    for (hash_pair_map::iterator itr = map_v_permute.begin(); itr != map_v_permute.end(); ++itr) { 
+        // cout << '\t' << itr->first.first
+		// 	<< "\t" << itr->first.second	 
+        //      << '\t' << itr->second << '\n'; 
+        v_permute_sort[i] = itr->first.first;//just for check  bug
+		match_back_to_v[i] = itr->second; //take this to get the un-permute vector
+		i++;
+    }
+
+    // cout<<"print permute_map_with_flag"<<endl;
+    // for (hash_pair_map::iterator itr = map_v_permute_to_send_flag.begin(); itr != map_v_permute_to_send_flag.end(); ++itr) { 
+    //     cout << '\t' << itr->first.first
+	// 		<< "\t" << itr->first.second	 
+    //          << '\t' << itr->second << '\n'; 
+    // }
+
+
+    //un-permutation vector generation
+	for (int i=0; i<map_v_permute.size(); i++)
+	{
+		int ind = match_back_to_v[i];
+		// cout<<"ind = "<<ind<<"\n";
+		vector_un_permute_sort[i] = v[ind];
+		// cout<<"test = "<<v_un_permute_sort[i]<<endl;
+	}
+
+    
+	// map_v_permute.clear();
+    // v_permute_sort.clear();
+    // match_back_to_v.clear();
+
+	// cout<<"getPermutationOfHistogram: end"<<endl;
+}
+    
+
+
 
 
 static void _printEncData(int index, gamal_ciphertext_t *enc_list)
@@ -916,20 +1001,29 @@ void Participant::initializePreStack(gamal_key_t coll_key)
     pre_enc_stack_participant.initializeStack_E1();
 }
 
-void Participant::print_Histogram()
+void Participant::print_Histogram(string filename)
 {
     cout << "\nPrint Histogram\n";
     int i = 0;
     hash_pair_map::iterator itr;
+    
+    stringstream ss;
+    fstream fout;
+
+    ss << filename <<".csv";
+    fout.open(ss.str().c_str(),ios::out | ios::app);
+
     for (itr = histogram.begin(); itr != histogram.end(); ++itr)
     {
-        i += 1;
-        if (i > 10)
-        {
-            break;
-        }
-        cout << itr->first.first << "|" << itr->first.second << "|" << itr->second << endl;
+        // i += 1;
+        // if (i > 100)
+        // {
+        //     break;
+        // }
+        fout << itr->first.first << "|" << itr->first.second << "|" << itr->second << endl;
     }
+
+    fout.close();
 }
 
 void _printCiphertext(gamal_ciphertext_ptr ciphertext)
@@ -968,17 +1062,17 @@ void _printCiphertext(gamal_ciphertext_ptr ciphertext)
 
 //=============================================================================================//
 
-/*
-    Dishonest participant strategy 1: in n original rows, participant A keeps x rows and replace
-    n-x rows as dummy rows. Values of bin associated with n original rows (n original domains) are set to 1
-    participant add a*n dummy rows and set their bin values to 0
-    Then A applies the sampling vector received from S:
-    there are still V enc(1) and a*n - V enc(0).
-    However, with this strategy, there are only x original domains are kept intact. If S 
-    checks for the domains associated with L known records (regardless of the bin values are enc(1)
-    or enc(0)), 
-    there is high chance that there is not enough L domains are kept. 
-*/
+// /*
+//     Dishonest participant strategy 1: in n original rows, participant A keeps x rows and replace
+//     n-x rows as dummy rows. Values of bin associated with n original rows (n original domains) are set to 1
+//     participant add a*n dummy rows and set their bin values to 0
+//     Then A applies the sampling vector received from S:
+//     there are still V enc(1) and a*n - V enc(0).
+//     However, with this strategy, there are only x original domains are kept intact. If S 
+//     checks for the domains associated with L known records (regardless of the bin values are enc(1)
+//     or enc(0)), 
+//     there is high chance that there is not enough L domains are kept. 
+// */
 
 void Participant::addDummy_FakeHist(int keepDomainS, int factorSize)
 {
@@ -1021,29 +1115,29 @@ void Participant::addDummy_FakeHist(int keepDomainS, int factorSize)
     
 }
 
-/*
-    Dishonest participant strategy 2: A randomly keeps x (x<n) original rows in histogram,
-    replace the bin value of (n-x) original rows from 1 to 0. For added dummy domains,
-    A set bin values of (n-x) dummy rows to 1. All other dummy rows have bin value of 0 in
-    the historgram.
-    Hence, there still n bins with 1 and (a-1)*n bins with 0.
-    Then A applies the sampling vector to its histogram, there still V enc(1) and all other 
-    elements in PV are with enc(0)
-    TO DO: add randomese feature to this function.
-*/
+// /*
+//     Dishonest participant strategy 2: A randomly keeps x (x<n) original rows in histogram,
+//     replace the bin value of (n-x) original rows from 1 to 0. For added dummy domains,
+//     A set bin values of (n-x) dummy rows to 1. All other dummy rows have bin value of 0 in
+//     the historgram.
+//     Hence, there still n bins with 1 and (a-1)*n bins with 0.
+//     Then A applies the sampling vector to its histogram, there still V enc(1) and all other 
+//     elements in PV are with enc(0)
+//     TO DO: add randomese feature to this function.
+// */
 
 
-/*
-   Dishonest participant A creates PV by itself:
-    A does not apply the sampling vector to its histogram. Instead, A randomly chooses v rows in original dataset and keeps their bin
-   bin value of 1; all other (n-v) original rows' bin value is set to 0
-   add in n dummy rows and choose V-v rows in these dummy and set their bin value to 1;
-   all other dummy bins value set to 0
-   Then participant encrypts bins' value. Hence there are still V enc(1) and 2n-V enc(0), 
-   and participant controls which domains were included in PV.
-   Also, participant keeps all original domains name in PV, if server wants to see if the domain
-   of L records are in PV, the participant passes this test.
-*/
+// /*
+//    Dishonest participant A creates PV by itself:
+//     A does not apply the sampling vector to its histogram. Instead, A randomly chooses v rows in original dataset and keeps their bin
+//    bin value of 1; all other (n-v) original rows' bin value is set to 0
+//    add in n dummy rows and choose V-v rows in these dummy and set their bin value to 1;
+//    all other dummy bins value set to 0
+//    Then participant encrypts bins' value. Hence there are still V enc(1) and 2n-V enc(0), 
+//    and participant controls which domains were included in PV.
+//    Also, participant keeps all original domains name in PV, if server wants to see if the domain
+//    of L records are in PV, the participant passes this test.
+// */
 
 void Participant::selfCreateFakePV(int keepDomainS, int factorSize)
 {

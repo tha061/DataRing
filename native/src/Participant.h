@@ -5,74 +5,109 @@
 #include "ENC_Stack.h"
 #include "process_noise.h"
 
+
+/** @brief This class provides functions for a participant in the Data Ring system.
+ * @details The class implements functions for participant to convert its dataset in to a histogram, generate a partial view and compute query answer.
+ * @author Tham Nguyen tham.nguyen@mq.edu.au, Nam Bui, Data Ring
+ * @date April 2020
+*/
+
 class Participant
 {
 
 public:
-    string DATA_DIR; // dataset directory
-    ENC_Stack pre_enc_stack_participant; //Precomputed encryption stack if participant knows a collective Public Key
-    ENC_DOMAIN_MAP enc_domain_map; // partial view encrypted
-    hash_pair_map histogram, plain_domain_map, fake_histogram, original_histogram; //histogram map
-    gamal_key_t keys; //added by Tham 21 Jan
-    gamal_ciphertext_t cipher1; //encyption of 1 sent by servers
-    int size_dataset; //size of the data set
-    double pv_ratio; //partial view size to dataset size
-    float epsilon_q; //epsilon for compute noise for a query answer
-    float epsilon_test; //epsilon for compute noise for a test answer
-    float sensitivity; //sensitivity of a query
-    double maxNoise_q; //maximum noise to add to a query answer
-    double minNoise_q; //minim noise to add to a query answer
-    double maxNoise_test; //maximum noise to add to a test answer
-    double minNoise_test; //minmum noise to add to a test answer
-    int no_lied_answer; //number of lied answer during the query evaluation phase
-    int scale_up_answer; //an answer has been scaled up by the participant
+    ///Dataset's directory 
+    string DATA_DIR;   
+    /// Permutation of the histogram map
+    hash_pair_map map_v_permute;
+    /// Permutation sorted with flags of datapoints
+    hash_pair_map map_v_permute_to_send_flag;
+    /// Vector of encoded labels
+    vector<string> vector_endcoded_label;
+    /// Vector of flags to datapoints: 1 or 0
+    vector<int> vector_flag;
+    ///vector of un-permutation of encoded labels
+    vector<string> vector_un_permute_sort;
+    /// True Histogram
+    hash_pair_map histogram; 
+    /// Fake Histogram
+    hash_pair_map fake_histogram; 
+    /// Key pair
+    gamal_key_t keys; 
+    ///Size of the dataset
+    int size_dataset; 
+    ///Ratio of partial view size to dataset size
+    double pv_ratio; 
+    /// Epsilon parameter for computing noise for a query answer
+    float epsilon_q; 
+    /// Epsilon parameter for computing noise for a test answer
+    float epsilon_test; 
+    ///Sensitivity of a query
+    float sensitivity; 
+    ///Maximum noise to add to a query answer
+    double maxNoise_q; 
+    ///Minimum noise to add to a query answer
+    double minNoise_q; 
+    ///Maximum noise to add to a test answer
+    double maxNoise_test; 
+    ///Minimum noise to add to a test answer
+    double minNoise_test; 
+    ///Number of lied answers during the query evaluation phase
+    int no_lied_answer;
+
+    //-----------------------------------------// 
+    // An answer has been scaled up by the participant
+    int scale_up_answer; 
+    hash_pair_map original_histogram, plain_domain_map;
+    // Encrrypted partial view
+    ENC_DOMAIN_MAP enc_domain_map;
+    // Pre-computed encyption of 1
+    gamal_ciphertext_t cipher1;  
+    // Precomputed encryption stack if participant knows a collective Public Key
+    ENC_Stack pre_enc_stack_participant; 
 
 
-/**
- * This function create an object Participant
+/** Default constructor. Does something.
 */
     Participant();
 
-
-/**
- * This function get the directory to the participant's dataset
-*/    
+/** My constructor. Initializes the coordinates.
+*/   
     Participant(string data_dir);
 
 /**
- * This function tranfer the original data into histogram of size N (dataset size)
- * each data records is represented by a label
- * there are N labels representing true data
- * @para: dataset_size: dataset size
- * @return: a map including N elements of <label, binValue = 1>
+ * @brief Tranfers the original dataset into a histogram.
+ * @details Each data record is represented by a label. 
+ * @param dataset_size: dataset size
+ * @return a map including N elements of <label, binValue = 1>
  */ 
     void create_OriginalHistogram(int dataset_size);
 
 /**
- * This function generate a histgram from the true dataset
- * @para: factorSize: scale_up factor to limit the domain size to a*N
- * @return: a histgram of size = dataset size * scale_up
+ * @brief Adds dummy records to the histogram.
+ * @param factorSize: scale_up factor to limit the domain size to a*N
+ * @return a histgram of size = dataset size * scale_up
 */   
     void addDummy_to_Histogram(int factorSize); //add dummyy '0' to the histogram
 
 /**
- * To simulaye a cheating participant in Partial View Collection
- * This function generate a fake histgram from the true histogram by 
- * replace n-keepDomainS by 0 and make n-keepDomainS dummy 1
- * @para: keepDomainS: the true records to be kept in the fake histogram
- * @para: factorSize: scale_up factor to limit the domain size to a*N
- * @return: a fake histgram of size = dataset size * scale_up including only keepDomainS bins are true
+ * @brief Generates a fake histgram from the true histogram.
+ * @details To simulate a cheating participant in Partial View Collection, cheating participant generates a fake histgram from the true histogram by 
+ * replacing n-keepDomainS by 0 and making n-keepDomainS dummy 1
+ * @param keepDomainS: the true records to be kept in the fake histogram
+ * @param factorSize: scale_up factor to limit the domain size to a*N
+ * @return a fake histgram of size = dataset size * scale_up including only keepDomainS bins are true
  * a map with aN elements of <label, binValue={1,0}>
 */     
     void addDummy_FakeHist_random(int keepDomainS, int factorSize);
 
 
 /**
- * To simulate a cheating participant in PV Collection
- * This function generate a fake histogram where many dummy labels have binvalue = 1
- * @para: factorSize: scaled-up factor (a) to limit the histogram size to aN
- * @para: adding_ones: the number of dummy bins are added which have binValue=1 
- * @return: a fake histogram where there are more than N labels having binValue =1, 
+ * @brief Generate a fake histogram where many dummy labels have binvalue = 1
+ * @details To simulate a cheating participant in PV Collection
+ * @param factorSize: scaled-up factor (a) to limit the histogram size to aN
+ * @param adding_ones: the number of dummy bins are added which have binValue=1 
+ * @return a fake histogram where there are more than N labels having binValue =1, 
  * the original data records are kept, adding more arbitrary records with label = 1
  * then the query answer is scaled up
 */
@@ -80,39 +115,46 @@ public:
     void addDummy_ones_FakeHistogram(int factorSize, float adding_ones); //added by Tham 29 Jan
 
 
-/**
- * Function for generating a partial view by applying the vector size aN to the histogram size aN
- * @para: *enc_list: encrypted sampling vector size aN from serveer
- * @para: histogram: a histogram of the party
- * @return: a vector of size aN with V enc(1) and aN-V enc(0)
-*/
+// /**
+//  * @brief Generates a partial view by applying the sampling vector to the histogram.
+//  * @param enc_list: encrypted sampling vector size aN from serveer
+//  * @param hist: a histogram of the party to generate partial view
+//  * @param dataset_size: size of the dataset
+//  * @return a vector of size aN with V enc(1) and aN-V enc(0)
+// */
     void generatePV_fixed_scheme(gamal_ciphertext_t *enc_list, hash_pair_map hist, int dataset_size);
 
-
+/**
+ * @brief Generates a permutation of the histogram of the dataset
+ * @param v: a vector of encoded labels corresponding to possible records
+ * @param flag: a binary vector indicates the which position in the pemutation refering a data point
+ * @return a permutation of the histogram (labels of data records are shuffled)
+*/
+    void getPermutationOfHistogram(vector<string> v, vector<int> flag);
 
 /**
- * function compute answer for a query when servers use different collective key for Query Evaluation Phase
- * @para: enc_question_map: question = query/test
- * @para: sum_cipher: encrypted answer
- * @para: hist: histogram to apply the enc_question_map to
- * @para: coll_key: collective PK to encrypt noise
- * @para: epsilon_i: privacy budget for a query/test
+ * @brief Computes query answer
+ * @param enc_question_map: encrypted query/test function 
+ * @param sum_cipher: encrypted answer
+ * @param hist: histogram to apply the encrypted query to
+ * @param coll_key: collective public key of servers used for encryption
+ * @param epsilon_i: privacy budget for a query/test
  * 
  */
     void computeAnswer_opt(ENC_DOMAIN_MAP &enc_question_map, gamal_ciphertext_t sum_cipher, hash_pair_map hist, gamal_key_t &coll_key, float epsilon_i);
 
 
 
-/**
- * function compute answer for a query when party doesnt know collective public key
- * servers send over an encryption of 1 for party to encrypt its noise
- * @para: enc_question_map: question = query/test
- * @para: sum_cipher: encrypted answer
- * @para: hist: histogram to apply the enc_question_map to
- * @para: cipher_1: encryption of 1 from server, to encrypt noise
- * @para: epsilon_i: privacy budget for a query/test
- * 
- */
+// /**
+//  * @brief Computes query answer when party doesnt know collective public key
+//  * @details Servers send over an encryption of 1 to the participants for them to encrypt Laplace noise
+//  * @param enc_question_map: encrypted query/test function 
+//  * @param sum_cipher: encrypted answer
+//  * @param hist: histogram to apply the encrypted query/test function  to
+//  * @param cipher_1: encryption of 1 from servers, to encrypt noise
+//  * @param epsilon_i: privacy budget for a query/test
+//  * 
+//  */
     void computeAnswer_modified(ENC_DOMAIN_MAP &enc_question_map, gamal_ciphertext_t sum_cipher, hash_pair_map hist, gamal_ciphertext_t cipher_1, float epsilon_i);   
 
 
@@ -127,8 +169,7 @@ public:
 //===================== Supportive functions or unused functions ====================================================//
 
 
-    void print_Histogram();
-
+    void print_Histogram(string filename);
 
     // replace n-keepDomainS with dummy of E(1)
     void addDummy_FakeHist(int keepDomainS, int factorSize);

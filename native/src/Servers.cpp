@@ -22,10 +22,13 @@
 
 Servers::Servers(int server_size, int data_size, string known_domain_dir, int scale_up_factor)
 {
-    gamal_generate_keys(coll_key);
+    gamal_generate_keys(coll_key);//not used
+    gamal_generate_keys(coll_key_PV_phase); //gen collective key pairs for PV phase
+    gamal_generate_keys(coll_key); //gen collective key pairs for Query phase
+
     for (int i = 0; i < server_size; i++)
     {
-        Server server(data_size, known_domain_dir);
+        Server server(data_size, known_domain_dir); // initiate all servers with their key pair
         server_vect.push_back(server);
     }
 
@@ -100,19 +103,117 @@ void Servers::createPVsamplingVector_size_N_plus_1(ENC_Stack &pre_enc_stack)
 
 
 
-void Servers::generateCollKey()
+void Servers::generateCollKey_projectBased(gamal_key_t collective_key, bool coll_key_phase)
 {
     int server_size = server_vect.size();
     EC_POINT **p_key_list = new EC_POINT *[server_size];
     // BIGNUM **secret_key_list = new BIGNUM *[server_size]; //added 21 Jan by Tham: for re-encryption
-    for (int i = 0; i < server_size; i++)
+   
+    if (coll_key_phase) //=1: gen key for PV phase
     {
-        p_key_list[i] = server_vect[i].key->Y;
-        // secret_key_list[i] = server_vect[i].key->secret; //added 21 Jan by Tham: for re-encryption
-    }
+        // cout<<"test Ok"<<endl;
+        for (int i = 0; i < server_size; i++)
+        {
+            
+            p_key_list[i] = server_vect[i].key_PV_phase->Y;
+            // p_key_list[i] = server_vect[i].key->Y;
+            // cout<<"test gen keyOk"<<endl;
+            // secret_key_list[i] = server_vect[i].key->secret; //added 21 Jan by Tham: for re-encryption
+        }
 
-    gamal_collective_publickey_gen(coll_key, p_key_list, server_size);
+        gamal_collective_publickey_gen(coll_key_PV_phase, p_key_list, server_size);
+    }
+    else
+    {
+       
+        for (int i = 0; i < server_size; i++)
+        {
+            p_key_list[i] = server_vect[i].key_query_phase->Y;
+            // p_key_list[i] = server_vect[i].key->Y;
+            // secret_key_list[i] = server_vect[i].key->secret; //added 21 Jan by Tham: for re-encryption
+        }
+
+        gamal_collective_publickey_gen(coll_key, p_key_list, server_size);
+    }
+    
+    // cout<<"test collective gen key Ok"<<endl;
+    // gamal_collective_publickey_gen(collective_key, p_key_list, server_size);
+    // cout<<"test collective gen key Ok"<<endl;
 }
+
+
+void Servers::generateCollKey(gamal_key_t collective_key)
+{
+    int server_size = server_vect.size();
+    EC_POINT **p_key_list = new EC_POINT *[server_size];
+    // BIGNUM **secret_key_list = new BIGNUM *[server_size]; //added 21 Jan by Tham: for re-encryption
+   
+   
+        for (int i = 0; i < server_size; i++)
+        {
+            
+            p_key_list[i] = server_vect[i].key->Y;
+            // p_key_list[i] = server_vect[i].key->Y;
+            // cout<<"test gen keyOk"<<endl;
+            // secret_key_list[i] = server_vect[i].key->secret; //added 21 Jan by Tham: for re-encryption
+        }
+
+        gamal_collective_publickey_gen(coll_key, p_key_list, server_size);
+   
+}
+
+dig_t Servers ::_fusionDecrypt_projectBased(gamal_ciphertext_t ciphertext, bsgs_table_t table, int serverId, bool key_for_decrypt)
+{
+    // cout<<"decryption begin "<<endl;
+    int server_size = server_vect.size();
+    // cout<<"server_size = "<<server_size <<endl;
+    gamal_key_t key_follow[server_size - 1];
+
+    int counter = 0;
+    dig_t res;
+    gamal_ciphertext_t ciphertext_update;
+
+    if (key_for_decrypt) //key_for_decrypt == 1: use key for PV to decrypt
+    {
+        
+        for (int i = 0; i < server_size; i++)
+        {
+            
+            if (i != serverId)
+            {
+                key_follow[counter]->Y = server_vect[i].key_PV_phase->Y;
+                key_follow[counter]->secret = server_vect[i].key_PV_phase->secret;
+                key_follow[counter]->is_public = server_vect[i].key_PV_phase->is_public;
+                counter++;
+            }
+            
+        }
+    
+        gamal_fusion_decrypt(&res, server_size, server_vect[serverId].key_PV_phase, key_follow, ciphertext_update, ciphertext, table);
+    }
+    else // 0 for using key for query phase
+    {
+        for (int i = 0; i < server_size; i++)
+        {
+            if (i != serverId)
+            {
+                key_follow[counter]->Y = server_vect[i].key_query_phase->Y;
+                key_follow[counter]->secret = server_vect[i].key_query_phase->secret;
+                key_follow[counter]->is_public = server_vect[i].key_query_phase->is_public;
+                counter++;
+            }
+        }
+    
+        gamal_fusion_decrypt(&res, server_size, server_vect[serverId].key_query_phase, key_follow, ciphertext_update, ciphertext, table);
+    }
+    
+    
+
+    // cout<<"decrypted answer = "<<res<<endl;
+
+    return res;
+}
+
 
 dig_t Servers ::_fusionDecrypt(gamal_ciphertext_t ciphertext, bsgs_table_t table, int serverId)
 {
@@ -122,8 +223,14 @@ dig_t Servers ::_fusionDecrypt(gamal_ciphertext_t ciphertext, bsgs_table_t table
     gamal_key_t key_follow[server_size - 1];
 
     int counter = 0;
+    dig_t res;
+    gamal_ciphertext_t ciphertext_update;
+
+   
+        
     for (int i = 0; i < server_size; i++)
     {
+        
         if (i != serverId)
         {
             key_follow[counter]->Y = server_vect[i].key->Y;
@@ -131,13 +238,12 @@ dig_t Servers ::_fusionDecrypt(gamal_ciphertext_t ciphertext, bsgs_table_t table
             key_follow[counter]->is_public = server_vect[i].key->is_public;
             counter++;
         }
+        
     }
-    // cout<<"counter = "<<counter<<endl;
-
-    dig_t res;
-    gamal_ciphertext_t ciphertext_update;
 
     gamal_fusion_decrypt(&res, server_size, server_vect[serverId].key, key_follow, ciphertext_update, ciphertext, table);
+
+
 
     // cout<<"decrypted answer = "<<res<<endl;
 
@@ -172,9 +278,26 @@ void Servers::fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table)
 }
 
 
-/**
+void Servers::decryptPV(ENC_DOMAIN_MAP unPermutePV, bsgs_table_t table, int serverId)
+{
+    // cout<<"decryptPV: start"<<endl;
+    for(ENC_DOMAIN_MAP::iterator itr = unPermutePV.begin(); itr != unPermutePV.end(); ++itr)
+    {
+        // itr->second = flag[ii];
+		// ii++;
+		cout << '\t' << itr->first.first
+			<< "\t" << itr->first.second<< '\t'; 	 
+        
+		dig_t position_selected_decrypt = Servers::_fusionDecrypt(itr->second, table, serverId);
+		cout<< "resPV= " <<position_selected_decrypt<<'\n';
+    }
+
+    // cout<<"decryptPV: end"<<endl;    
+}
+
+/*
  * to verify the PV
- * @paras: eta is the probability s.t the honest participant will pass the test at eta
+ * eta is the probability s.t the honest participant will pass the test at eta
  * higher eta is, smaller r0 is
  * 
  */
@@ -300,7 +423,9 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
                 //To open each bin with label matching label of known records
                 gamal_ciphertext_t tmp_decrypt;
                 gamal_add(tmp_decrypt, find->second, encrypt_E0); // to fix the decryption function
-                dig_t domain_decrypt = Servers::_fusionDecrypt(tmp_decrypt, table, serverId);
+                
+                dig_t domain_decrypt = Servers::_fusionDecrypt(tmp_decrypt, table, serverId); 
+                
                 if (domain_decrypt > 0)
                 {
                     // cout << "Domain decrypt: " << domain_decrypt << endl;
@@ -315,17 +440,18 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
 
         }
     //decrypt the sum of all encryptions with matched label
-    dig_t sum_res = Servers::_fusionDecrypt(sum, table, serverId); //serverId to specify the first server initiate the decryption
-
+    
+    dig_t sum_res = Servers::_fusionDecrypt(sum, table, serverId); //serverId to specify the first server initiate the decryption;
+     
     if (sum_res >= req_known_record_found)
     {
-        // cout << "Total known rows found in PV: " << sum_res << endl;
+        cout << "Total known rows found in PV: " << sum_res << endl;
         cout << "Pass the verification" << endl;
         return true;
     }
     else
     {
-        // cout << "Total known rows found in PV: " << sum_res << endl;
+        cout << "Total known rows found in PV: " << sum_res << endl;
         cout << "Fail the verification" << endl;
         return false;
     }
@@ -334,6 +460,37 @@ bool Servers::verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int
     //=====================================================
     
     
+}
+
+void Servers::re_encrypt_PV(ENC_DOMAIN_MAP enc_domain_map, int serverId, gamal_key_t coll_key_for_query_phase)
+{
+    Server server = server_vect[serverId]; // shallow copy
+    gamal_ciphertext_t temp, cipher_update;
+
+    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
+    {
+        // itr->second = 
+        
+
+        // gamal_ciphertext_t temp, cipher_update;
+        temp->C1 = itr->second->C1;
+        temp->C2 = itr->second->C2;
+
+                
+        gama_key_switch_lead(cipher_update, temp, server.key_PV_phase, coll_key_for_query_phase);
+
+        for (int i=1; i< server_vect.size(); i++)
+        {
+            gama_key_switch_follow(cipher_update, temp, server_vect[serverId+i].key_PV_phase, coll_key_for_query_phase);
+        }
+
+        itr->second->C1 = cipher_update->C1;
+        itr->second->C2 = cipher_update->C2;
+
+
+    }
+    // cout<<"re-encrypt end"<<endl;
+
 }
 
 
@@ -392,7 +549,8 @@ void Servers::open_true_PV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, in
 
 bool Servers::verifyingTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold)
 {
-    dig_t decrypt_test_f = Servers::_fusionDecrypt(sum_cipher, table, serverId);
+    dig_t decrypt_test_f = Servers::_fusionDecrypt(sum_cipher, table, serverId); 
+    
 
     cout << testName << " " << decrypt_test_f << endl;
 
@@ -416,7 +574,9 @@ bool Servers::verifyingTestResult(string testName, gamal_ciphertext_t sum_cipher
 
 bool Servers::verifyingTestResult_Estimate(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, gamal_ciphertext_t enc_PV_answer, double alpha)
 {
-    dig_t PV_answer = Servers::_fusionDecrypt(enc_PV_answer, table, serverId);
+    dig_t PV_answer = Servers::_fusionDecrypt(enc_PV_answer, table, serverId); 
+    
+    
     int int_PV_answer = (int)PV_answer;
 
     cout << "PV_answer = " << PV_answer << endl;
@@ -426,7 +586,9 @@ bool Servers::verifyingTestResult_Estimate(string testName, gamal_ciphertext_t s
     int min_conf = (int)(conf_range[0]);
     int max_conf = (int)(conf_range[1]);
 
-    dig_t decrypt_test_f = Servers::_fusionDecrypt(sum_cipher, table, serverId);
+    cout<<"test OK"<<endl;
+
+    dig_t decrypt_test_f = Servers::_fusionDecrypt(sum_cipher, table, serverId); 
     cout << testName << " " << decrypt_test_f << endl;
     cout << "min_conf " << min_conf << ", "
          << "max_conf " << max_conf << endl;

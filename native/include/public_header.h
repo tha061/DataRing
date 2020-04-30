@@ -1,6 +1,7 @@
 #ifndef PUBLIC_HEADER
 #define PUBLIC_HEADER
 
+
 #include <stdio.h>
 #include <chrono>
 #include <iostream>
@@ -15,9 +16,9 @@
 #include <utility>
 #include <algorithm>
 #include <iterator> // for iterators
-#include <boost/math/distributions/laplace.hpp>
-#include <boost/math/distributions/hypergeometric.hpp>
-#include <boost/math/distributions/chi_squared.hpp>
+#include <boost/math/distributions/laplace.hpp> //dataring
+#include <boost/math/distributions/hypergeometric.hpp>//dataring
+#include <boost/math/distributions/chi_squared.hpp>//dataring
 #include <boost/array.hpp>
 #include <cstdlib> 
 
@@ -37,6 +38,15 @@ extern "C"
 #include "../src/ENC_Stack.h"
 
 using namespace std;
+
+
+/** 
+ * @file public_header.h
+ * @brief Functions that define data structure and math packages used in Data Ring protocol.
+ * @details Define data structure and supportive mathematical packages for Laplace distribution, Hypergeometric distribution and Chi Squared distribution.
+ * @author Tham Nguyen tham.nguyen@mq.edu.au, Nam Bui, Data Ring
+ * @date April 2020
+*/
 
 typedef vector<int> int_vector;
 
@@ -68,16 +78,18 @@ struct comp
     }
 };
 
-typedef pair<string, string> id_domain_pair;
-typedef std::map<id_domain_pair, int, comp> hash_pair_map;
-typedef std::map<string, int> hash_map;
 
-typedef map<id_domain_pair, gamal_ciphertext_ptr, comp> ENC_DOMAIN_MAP;
+typedef pair<string, string> id_domain_pair;
+typedef std::map<id_domain_pair, int, comp> hash_pair_map; //histogram
+typedef std::map<string, int> hash_map; //not used
+
+
+typedef map<id_domain_pair, gamal_ciphertext_ptr, comp> ENC_DOMAIN_MAP; //encrypted partial view
 
 typedef vector<id_domain_pair> id_domain_vector;
 typedef set<id_domain_pair, comp> id_domain_set;
 
-typedef map<id_domain_pair, gamal_ciphertext_ptr, comp> CIPHER_ENC_DOMAIN_MAP;
+typedef map<id_domain_pair, gamal_ciphertext_ptr, comp> CIPHER_ENC_DOMAIN_MAP;//not used
 
 typedef list<pair<string, string>> TRACK_LIST;
 

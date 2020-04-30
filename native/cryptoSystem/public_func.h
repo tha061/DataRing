@@ -4,7 +4,9 @@
 #include "./include/public_header.h"
 
 
-/** @brief Functions facilitate ciphertext presentation.
+/** 
+ * @file public_func.h
+ * @brief Functions facilitate ciphertext presentation.
  * @author Tham Nguyen tham.nguyen@mq.edu.au, Nam Bui, Data Ring
  * @date April 2020
 */
@@ -34,17 +36,9 @@ void printCiphertext(gamal_ciphertext_t ciphertext);
  * @return: a random number
 */
 
-
 int getRandomInRange(int min, int max);
 
 // void decryptFind(map<string, gamal_ciphertext_t *> enc_domain_map, gamal_key_t key, bsgs_table_t table);
 
-/**
- * @brief Choose one string from a list of strings randomly for permutation
- * @param v: a vector of strings
- * @return: a string randomly selected and be removed from vector v
- * 
- */
-    string getString(vector<string>& v);
 
 #endif

@@ -38,6 +38,8 @@ int myRand(int arr[], int freq[], int n)
     // Find index of ceiling of r in prefix arrat
     int indexc = findCeil(prefix, r, 0, n - 1);
 
+    
+
     return arr[indexc]; // return arr[1] -> 0 | arr[0] -> 1
 }
 
@@ -82,8 +84,11 @@ int *hist_gen(int histogr[], int arr[], int freq[], int datasize, int scale_up)
 
 int *pir_gen(int *myPIR_arr, int arr[], int freq[], int datasize, double pv_ratio)
 {
+    // printf("test ok\n");
     int PV_size = (int)datasize*pv_ratio; 
+    // printf("PV size = \n", PV_size);
     int n = sizeof(arr) / sizeof(arr[0]);  
+    // printf("n = \n", n);
     int count_1 = 0;
     int i;
 
@@ -120,6 +125,8 @@ int *pir_gen(int *myPIR_arr, int arr[], int freq[], int datasize, double pv_rati
             }
         }
     }
+
+    // printf("test ok\n");
 
 
 }

@@ -78,6 +78,9 @@ int partialView_verification(int argc, char **argv)
 	// cout << "Total rows: " << part_A.size_dataset << endl;
 	// cout << "Total domains: " << part_A.histogram.size() << endl;
 
+	// cout<<"Orginal data over histogram: "<<endl;
+	// part_A.print_Histogram("./results/200K_orignal_data_over_Hist_keep_10pc");
+
 	// part_A.print_Histogram();
 
 	t1 = high_resolution_clock::now();
@@ -85,15 +88,16 @@ int partialView_verification(int argc, char **argv)
 	part_A.addDummy_to_Histogram(a);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Add dummy to true Hist (ms)", t1, t2);
+	// cout<<"True histogram: "<<endl;
+	// part_A.print_Histogram("./results/200K_true_Hist_keep_10pc");
 
 	int size_dataset = part_A.size_dataset;
 
-	
 
 	// SERVER SETUP COLLECTIVE KEY
 	Servers servers(number_servers, size_dataset, background_knowledge_directory, a); //modified to size aN
 
-	servers.generateCollKey();
+	servers.generateCollKey(servers.coll_key);
 	servers.pv_ratio = pv_ratio;
 
 	// INITIALIZE CIPHERTEXT STACK FOR PARTY
@@ -113,7 +117,7 @@ int partialView_verification(int argc, char **argv)
 
 
 	// INITIALIZE CIPHERTEXT STACK FOR SERVERS: pre-computing enc(0) and enc(1)
-	ENC_Stack pre_enc_stack(size_dataset, servers.coll_key);
+	ENC_Stack pre_enc_stack(size_dataset, servers.coll_key_PV_phase);
 
 	// t1 = high_resolution_clock::now();
 	pre_enc_stack.initializeStack_E0();
@@ -166,15 +170,16 @@ int partialView_verification(int argc, char **argv)
 	
 
 	//====== strategy 2: participant generate fake histogram randomly
-	
-	// // int keep_row = int(dataset_size*0.2); //lie about 50% rows
-	// int keep_row = 487742; 
+	// float amount_true = 1;
+	// int keep_row = int(dataset_size*amount_true); 
+	// int keep_row = 500000; 
 	// // t1 = high_resolution_clock::now();
 	// part_A.addDummy_FakeHist_random(keep_row, a);
 	// // t2 = high_resolution_clock::now();
 	// // trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 
-
+	// cout<<"Fake histogram: "<<endl;
+	// part_A.print_Histogram("./results/200K_fake_Hist_keep_10pc");
 
 	// t1 = high_resolution_clock::now();
 	// part_A.generatePV_opt(servers.s_myPIR_enc, true);
@@ -227,7 +232,7 @@ int partialView_verification(int argc, char **argv)
 		fstream fout;
 		if (strcmp(argv[9], "1") == 0)
 		{
-			fout.open("./results/test_passing_rate_Ph_500K_pvrate_1pc_eta_01_new3.csv", ios::out | ios::trunc);
+			fout.open("./results/test_PV_verification_500K_eta_005_nopt_theta_097_100runs.csv", ios::out | ios::trunc);
 			fout << "Iteration, PV Verification";
 			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
@@ -238,7 +243,7 @@ int partialView_verification(int argc, char **argv)
 		}
 		else
 		{
-			fout.open("./results/test_passing_rate_Ph_500K_pvrate_1pc_eta_01_new3.csv", ios::out | ios::app);
+			fout.open("./results/test_PV_verification_500K_eta_005_nopt_theta_097_100runs.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file

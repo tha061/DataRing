@@ -8,9 +8,15 @@
 #include "../public_func.h"
 
 
-int varying_params(int argc, char **argv)
+int runtime_new_scheme(int argc, char **argv)
 {
-	
+
+
+	// if (argc > 1 && strcmp(argv[1], "-1") == 0)
+	// {
+	// 	return computeTimeEvaluation();
+	// }
+
 	int dataset_size = 500000; //make it an argument to use to determine dataset_size
 	int number_servers = 3;	   //make it an argument use to setup number of servers
 	int a = 2;				   //make it an argument to scale up the histogram for adding dummy
@@ -45,24 +51,29 @@ int varying_params(int argc, char **argv)
 	}
 
 	double percentile_noise = 0.95;			   //use to determine Laplace max_noise
-	float noise_budget = 0.5;
-	float sensitivity = 1.0;
+	float noise_budget = 1;
+	float sensitivity = 1.0; //for COUNT query
 	int PV_size = (int)dataset_size*pv_ratio; // actual V, not the PV histogram form
 
-	float epsilon_q = noise_budget; //only for test runtime, noise is not a matter
-	float epsilon_test = epsilon_q; //only for test runtime, noise is not a matter
-	float epsilon = noise_budget;  //only for test runtime, noise is not a matter
+	float epsilon_q = noise_budget/20; //if there are 20 questions
+	float epsilon_test = epsilon_q; //if there are 20 questions
+	float epsilon = noise_budget/20;  //if there are 20 questions
 	
 	TRACK_LIST time_track_list;
 
 	high_resolution_clock::time_point t1, t2;
 
 	srand(time(NULL));
+	// srand(100);
+	// initialize key & table
+	// gamal_key_t key;
+
 	
 	bsgs_table_t table;
 	gamal_init(CURVE_256_SEC);
 	// gamal_generate_keys(key);
 	gamal_init_bsgs_table(table, (dig_t)1L << 16);
+	
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 	//                          SETUP PHASE                                     //
@@ -77,11 +88,12 @@ int varying_params(int argc, char **argv)
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Create Hist (ms)", t1, t2);
 
-	
+	// cout << "Total rows: " << part_A.size_dataset << endl;
+	// cout << "Total domains: " << part_A.histogram.size() << endl;
 
 	// part_A.print_Histogram();
 
-	
+	t1 = high_resolution_clock::now();
 	t1 = high_resolution_clock::now();
 	part_A.addDummy_to_Histogram(a);
 	t2 = high_resolution_clock::now();
@@ -93,7 +105,12 @@ int varying_params(int argc, char **argv)
 
 	// SERVER SETUP COLLECTIVE KEY
 	Servers servers(number_servers, size_dataset, background_knowledge_directory, a); //modified to size aN
+
+	//key for partial view generation
+	// gamal_key_t coll_key_PV_phase;
+	
 	servers.generateCollKey(servers.coll_key);
+	
 	servers.pv_ratio = pv_ratio;
 
 	// INITIALIZE CIPHERTEXT STACK FOR PARTY
@@ -112,18 +129,27 @@ int varying_params(int argc, char **argv)
 	part_A.sensitivity = sensitivity;
 	part_A.pv_ratio = pv_ratio;
 
-	
+	// cout<<"Party A: maxNoise query = "<< part_A.maxNoise_q<<endl;
+	// cout<<"Party A: maxNoise test = "<< part_A.maxNoise_test<<endl;
+
 	// INITIALIZE CIPHERTEXT STACK FOR SERVERS
 	ENC_Stack pre_enc_stack(size_dataset, servers.coll_key);
 
-	
+	// t1 = high_resolution_clock::now();
 	pre_enc_stack.initializeStack_E0();
 	
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Precompute Enc0 (ms)", t1, t2);
+	// cout << endl;
 
+	// t1 = high_resolution_clock::now();
 	pre_enc_stack.initializeStack_E1();
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Precompute Enc1 (ms)", t1, t2);
+	// cout << endl;
 
 	
-
+	
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 	//          PV SUBMISSION AND VERIFICATION PHASE                            //
@@ -131,7 +157,8 @@ int varying_params(int argc, char **argv)
 
 	// SERVER CREATE PV SAMPLING VECTOR
 	t1 = high_resolution_clock::now();
-	servers.createPVsamplingVector(pre_enc_stack);
+	// servers.createPVsamplingVector(pre_enc_stack);
+	servers.createPVsamplingVector_size_N_plus_1(pre_enc_stack);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Gen PV sampling (ms)", t1, t2);
 
@@ -140,19 +167,22 @@ int varying_params(int argc, char **argv)
 
 	////Gen PV optimal by pre-compte Enc(0) to all dummy domains at offline
 	// //pre process:
-	t1 = high_resolution_clock::now();
-	part_A.pre_process_generatePV(true);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// part_A.pre_process_generatePV(true);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
 
 	
+
 	
 	t1 = high_resolution_clock::now();
-	part_A.generatePV_opt(servers.s_myPIR_enc, true);
+	// part_A.generatePV_opt(servers.s_myPIR_enc, true);
+	part_A.generatePV_fixed_scheme(servers.s_myPIR_enc, part_A.histogram, part_A.size_dataset);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
-	
+
+
 
 	//=====SERVER VERIFIES SUBMITTED PV
 	int server_id = 0; // Server 1
@@ -160,26 +190,36 @@ int varying_params(int argc, char **argv)
 
 	
 	t1 = high_resolution_clock::now();
+	
 	bool verify_status = servers.verifyingPV(part_A.enc_domain_map, table, server_id, pre_enc_stack, eta);
+	
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Verify PV (ms)", t1, t2);
 
 
-	bool test_status;
-	int threshold;
-	gamal_ciphertext_t sum_cipher, sum_cipher2;
+	
 
 
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 	//                          QUERY & TEST PHASE                              //
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
+    bool test_status;
+	int threshold;
+	gamal_ciphertext_t sum_cipher;
 	
 	//Server determines maxNoise
 	servers.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon, percentile_noise);
 	servers.minNoise = -servers.maxNoise;
 
-    t1 = high_resolution_clock::now();
+    //+++++++++++++++++++RUNTIME OPTIMIZED++++++++++++++++++++++++++++++//
+
+	// // //====TEST FUNCTION KNOWN RECORDS NEW USING PRE_COMPUTE TEST FUCTION =====//
+	// // Pre process
+
+	
+	t1 = high_resolution_clock::now();
 	server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Prepare Test function (ms)", t1, t2);
@@ -191,7 +231,8 @@ int varying_params(int argc, char **argv)
 
 	t1 = high_resolution_clock::now();
 	gamal_cipher_new(sum_cipher);
-	part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+	// part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+    part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Compute ans L opt (ms)", t1, t2);
 
@@ -217,7 +258,8 @@ int varying_params(int argc, char **argv)
 
 	t1 = high_resolution_clock::now();
 	gamal_cipher_new(sum_cipher);
-	part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+	// part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+    part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Compute ans V (ms)", t1, t2);
 
@@ -252,7 +294,8 @@ int varying_params(int argc, char **argv)
 
 	t1 = high_resolution_clock::now();
 	gamal_cipher_new(sum_cipher);
-	part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+	// part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+    part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Compute ans Test Attr opt (ms)", t1, t2);
 
@@ -275,25 +318,7 @@ int varying_params(int argc, char **argv)
 	trackTaskStatus(time_track_list, "Test attr status", test_status);
 
 
-    // ==== Test target all records n ============//
-
-    t1 = high_resolution_clock::now();
-    server1.generateTest_Target_All_Records(pre_enc_stack, part_A.enc_domain_map);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen Test_all_rows (ms)", t1, t2);
-
-    t1 = high_resolution_clock::now();
-	gamal_cipher_new(sum_cipher);
-	part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon_q);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Compute ans Test_all_rows (ms)", t1, t2);
-
-    threshold = size_dataset;
-    test_status = servers.verifyingTestResult("Test target n rows found:", sum_cipher, table, server_id, threshold);
-    trackTaskStatus(time_track_list, "Test target n rows status", test_status);
-
-
-    // // ==== NORMAL QUERY targeting some records satisfied the condiiton ============//
+    // // ==== NORMAL QUERY PRE_COMPUTE TO OPTIMIZE RUNTIME ============//
 
 	t1 = high_resolution_clock::now();
 	server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
@@ -314,29 +339,29 @@ int varying_params(int argc, char **argv)
 
 	t1 = high_resolution_clock::now();
 	gamal_cipher_new(sum_cipher);
-	part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+	// part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+    part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Compute ans Query (ms)", t1, t2);
+	
+	
+    //======= Compute normal query on encrypted PV
 
-	t1 = high_resolution_clock::now();
-	gamal_cipher_new(sum_cipher2);
-	part_A.computeAnswer_use_orig_histogram(server1.enc_question_map, sum_cipher2, part_A.histogram, servers.coll_key, epsilon);
+    t1 = high_resolution_clock::now();
+	server1.generateNormalQuery_Clear(pre_enc_stack);
 	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Compute ans Query use ori hashmap(ms)", t1, t2);
+	trackTaskPerformance(time_track_list, "Gen normal query clear (ms)", t1, t2);
 
-	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-	//                          RELEASE SHARED DATA                             //
-	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+	gamal_ciphertext_t enc_PV_query_answer;
+	gamal_cipher_new(enc_PV_query_answer);
+    t1 = high_resolution_clock::now();
+	server1.getQueryResult_fromPV(part_A.enc_domain_map, enc_PV_query_answer);
+    t2 = high_resolution_clock::now();
+	trackTaskPerformance(time_track_list, "Compute normal query from PV (ms)", t1, t2);
 
-	// After mulitple tests and normal queries, servers compute the final results
-	// by aggregating answers from partiticipants,
-	// re-ecrypt the ciphertext to targeted participant's public key
-	// and send the re-encrypted result to each participant
-	// depeding on the behavior of each participant, the result
-	// is computed so that the protocol ensuring fairness for honest parties
-	// and penalizing the lied parties
+	
 
-    // Re-encrypt query answer to participant B's public key
+	// // Re-encrypt query answer to participant B's public key
 
 	gamal_ciphertext_t sum_cipher_update;
 
@@ -349,18 +374,35 @@ int varying_params(int argc, char **argv)
 		gama_key_switch_follow(sum_cipher_update, sum_cipher, servers.server_vect[server_id+i].key, part_B.keys);
 	}
 	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Re-encryption Normal Query (ms)", t1, t2);
+	trackTaskPerformance(time_track_list, "Re-encryption (ms)", t1, t2);
 
-	dig_t after;
-    t1 = high_resolution_clock::now();
-	gamal_decrypt(&after, part_B.keys, sum_cipher_update, table);	
-    t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Decrypt_answer Normal Query (ms)", t1, t2);
-	std::cout<<"Check after re-encryption: "<<after<<std::endl;
+	// dig_t after;
+	// gamal_decrypt(&after, part_B.keys, sum_cipher_update, table);	
+	// std::cout<<"Check after re-encryption: "<<after<<std::endl;
 
 
-	//Tham added 15 Jan, delete query at the server side
-	server1.enc_question_map.clear();
+
+	// //Tham added 15 Jan, delete query at the server side
+	// server1.enc_question_map.clear();
+
+
+
+
+   
+
+	
+
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+	//                          RELEASE SHARED DATA                             //
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
+	// After mulitple tests and normal queries, servers compute the final results
+	// by aggregating answers from partiticipants,
+	// re-ecrypt the ciphertext to targeted participant's public key
+	// and send the re-encrypted result to each participant
+	// depeding on the behavior of each participant, the result
+	// is computed so that the protocol ensuring fairness for honest parties
+	// and penalizing the lied parties
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 	//                          FINISHED SHARING                               //
@@ -376,7 +418,7 @@ int varying_params(int argc, char **argv)
 		fstream fout;
 		if (strcmp(argv[9], "1") == 0)
 		{
-			fout.open("./results/varying_number_servers_3_300K_a_4.csv", ios::out | ios::trunc);
+			fout.open("./results/runtime_honest_party_n_500K.csv", ios::out | ios::trunc);
 			fout << "Iteration, PV Verification";
 			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
@@ -387,7 +429,7 @@ int varying_params(int argc, char **argv)
 		}
 		else
 		{
-			fout.open("./results/varying_number_servers_3_300K_a_4.csv", ios::out | ios::app);
+			fout.open("./results/runtime_honest_party_n_500K.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file

@@ -89,34 +89,3 @@ int getRandomInRange(int min, int max)
 {
 	return min + (rand() % (max - min + 1));
 }
-
-
-
-string getString(vector<string>& v) 
-{ 
-
-	// Size of the vector 
-	int n = v.size(); 
-	// int index_arr[n];
-
-	// cout<<"size of vector: "<<n<<endl;
-
-	// Generate a random number 
-	srand(time(NULL)); 
-
-	// Make sure the number is within 
-	// the index range 
-	int index = rand() % n; 
-	// cout<<"index = "<<index<<endl;
-
-	// Get random number from the vector 
-	string str = v[index]; 
-	// cout<<"num = "<<num<<endl;
-
-	// Remove the number from the vector 
-	swap(v[index], v[n - 1]); 
-	v.pop_back(); 
-
-	// Return the removed number 
-	return str; 
-} 

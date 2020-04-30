@@ -9,7 +9,7 @@
 
 // #include "testing2.cpp"
 
-int phase_3_test_new_PVGen_method(int argc, char **argv)
+int phase_3_test_question_random(int argc, char **argv)
 {
 	int dataset_size = 500000; //make it an argument to use to determine dataset_size
 	int number_servers = 3;	   //make it an argument use to setup number of servers
@@ -63,8 +63,9 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	//=========Setup answer strategy=========//
 	//=======================================//
 	int answer_strategy;
+    int query_random;
 	int true_fake[] = {1, 0};
-	int fake_freq = fre_lie*5;//25; //freq of lie
+	int fake_freq = fre_lie*5; //25; //freq of lie
 	int freq[] = {100 - fake_freq, fake_freq}; //using fake dataset with p2 = 0.1
 
 	float lie_freq = (float)fake_freq/100;
@@ -114,7 +115,69 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 		
 	}
 
-		// participant computes epsilon for a query's answer and a test's answer
+    for (int i =0; i< iterations; i++)
+    {
+        cout<<"answer = "<<answer_strategy_arr[i]<<endl;
+    }
+
+    cout<<"number of lied answer 0 = "<<counter<<endl;
+
+
+	//=========Question strategy=========//
+	//===================================//
+	int answer_type[] = {1, 0};
+	int freq_2[] = {50, 50}; //using fake dataset with p2 = 0.1
+
+	int n2 = sizeof(answer_type)/sizeof(answer_type[0]);
+
+	int counter2 = 0;
+	int question[20];
+	for (int i =0; i< 20; i++)
+	{
+		question[i] =  myRand(answer_type, freq_2, n2);
+		if (question[i] == 0) counter2++;
+	}
+	cout<<"counter2 before modify: "<<counter2<<endl;
+	int ii;
+	while (counter2 < 10)
+	{
+	
+		ii = rand()%20;
+		// cout<<"which one to fix = "<<i<<endl;
+		if (question[ii] == 1)
+		{
+			question[ii] = 0;
+			counter2++;
+		}
+		// i++;
+		
+	}
+
+	while (counter2 > 10)
+	{
+	
+		ii = rand()%20;
+		// cout<<"which zeros to fix = "<<i<<endl;
+		if (question[ii] == 0)
+		{
+			question[ii] = 1;
+			counter2--;
+		}
+		// i++;
+		
+	}
+
+    for (int i =0; i< 20; i++)
+	{
+		cout<<"question = "<<question[i]<<endl;
+		
+	}
+
+	cout<<"counter of question '1' = "<< counter2 <<endl;
+
+	/////////////////////////////////////////////////////////
+
+	// participant computes epsilon for a query's answer and a test's answer
     // float epsilon_q = noise_budget/(num_query+3*num_test);
 	// float epsilon_test = 3*epsilon_q;
 
@@ -235,7 +298,7 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	// trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
 	
 	// t1 = high_resolution_clock::now();
-	part_A.generatePV_fixed_scheme(servers.s_myPIR_enc, part_A.histogram, part_A.size_dataset);
+	// part_A.generatePV_fixed_scheme(servers.s_myPIR_enc, part_A.histogram, part_A.size_dataset);
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
@@ -283,15 +346,14 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	Server server1 = servers.server_vect[server_id];
 
 	
-	// t1 = high_resolution_clock::now();
+	
 	bool verify_status = servers.verifyingPV(part_A.enc_domain_map, table, server_id, pre_enc_stack, eta);
-	// t2 = high_resolution_clock::now();
-	// trackTaskPerformance(time_track_list, "Verify PV (ms)", t1, t2);
+	
 
 	if (verify_status)
 	{
 
-		//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 	//                          QUERY & TEST PHASE                              //
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
@@ -299,14 +361,14 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 
 	//=======case 1 ===========
 
-	// float amt_lie = 0.1; 
-	// int keep_row = int(dataset_size*(1-amt_lie)); //amount of lie
+	float amt_lie = 0.5; 
+	int keep_row = int(dataset_size*(1-amt_lie)); //amount of lie
 	// // // // t1 = high_resolution_clock::now();
-	// part_A.addDummy_FakeHist_random(keep_row, a);
+	part_A.addDummy_FakeHist_random(keep_row, a);
 	// // // // t2 = high_resolution_clock::now();
 	// // // trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 	
-	// //==case 2
+	//===case 2
 	// float adding_ones = 0.25; //omega = 1
 	// // t1 = high_resolution_clock::now();
 	// part_A.addDummy_ones_FakeHistogram(a, adding_ones);
@@ -319,327 +381,282 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	int threshold;
 	gamal_ciphertext_t sum_cipher;
 
-	// Servers send a cipher_1 = enc(1) to party for encryptig noise
 
-	// pre_enc_stack.pop_E1(part_A.cipher1);
-
-	
-	
 	//Server determines maxNoise
 	servers.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon_test, percentile_noise);
 	servers.minNoise = -servers.maxNoise;
 
 	cout<<"Server: maxNoise = "<<servers.maxNoise<<endl;
 
-	// //server generate collective public key for query evaluation phase
-	// // gamal_key_t coll_key;
-	// servers.generateCollKey(servers.coll_key, 0);
-
-	// // INITIALIZE CIPHERTEXT STACK FOR SERVERS
-	// ENC_Stack pre_enc_stack(size_dataset, servers.coll_key);
-
-	// pre_enc_stack.initializeStack_E0();
-	
-	// pre_enc_stack.initializeStack_E1();
-
-	// // Servers re-encrypt partial view to new collective keys
-	// servers.re_encrypt_PV(part_A.enc_domain_map, server_id, servers.coll_key);
-	
-	
-
 	part_A.no_lied_answer = (int)(lie_freq*iterations);
-	// cout<<"freq of lie = "<<lie_freq<<endl;
-	// cout<<"iterations = "<<iterations<<endl;
-	// cout<<"no of lies = "<<part_A.no_lied_answer<<endl;
-
-	
 
 	int index = 0;
 	int itr = 1;
 
-	// cout<<"test ok"<<endl;
+    int index_question = 0;
+    int itr_question = 0;
+    int itr_test_L = 1;
+    int itr_test_V = 1;
+    int itr_test_n = 1;
 
-	t1 = high_resolution_clock::now();
-	while (itr <= num_query)
+    t1 = high_resolution_clock::now();
+    while (itr_question <20)
     {
-         // // ==== NORMAL QUERY PRE_COMPUTE TO OPTIMIZE RUNTIME ============//
-      
-       
-		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
-       
-       
-        server1.generateMatchDomain(0);
-       
-      
-        // t1 = high_resolution_clock::now();
-		server1.generateNormalQuery_opt(pre_enc_stack);
+
+        query_random=question[itr_question];
+        itr_question++;
+
+        cout<<"query_random = "<<query_random<<endl;
+
+        if (query_random == 1) //actual query
+        {
+            server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
+          
+            server1.generateMatchDomain(0);
+            
+            // t1 = high_resolution_clock::now();
+            server1.generateNormalQuery_opt(pre_enc_stack);
+            
+            
+            ////====answer using fake dataset with probability p2
+
+            
+            answer_strategy = answer_strategy_arr[index];
+            // answer_strategy = 0;
+
+            gamal_cipher_new(sum_cipher);
+
+            if (answer_strategy == 0)
+            {
+                
+                part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon);
+                count_lied_ans++;
+			
+		    }
+            else
+            {
+                part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+                
+            }	
+            trackTaskStatus(time_track_list, "Query:Dataset true/false", answer_strategy);
+		
+
+            //Tham added 15 Jan, delete query at the server side
+            server1.enc_question_map.clear();
+            server1.match_query_domain_vect.clear();
+            itr++;
+            index++;
+
+        }
+        else // test function
+        {
+            if(itr_test_L <= 3)
+            {
+                //test L
+                itr_test_L++;
+
+                server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
+		
+                // t1 = high_resolution_clock::now();
+                server1.generateTestKnownRecords_opt(pre_enc_stack, part_A.enc_domain_map);
+                
+                
+                
+                //====answer using fake dataset with probability p2
+            
+                
+                answer_strategy = answer_strategy_arr[index];
+                // answer_strategy = 0;
+                
+                gamal_cipher_new(sum_cipher);
+
+                if (answer_strategy == 0)
+                {
+                
+                    part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon);
+                    count_lied_ans++;
+                    
+                }
+                else
+                {
+                    part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+                    
+                }	
+                trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
+
+                
+                
+                threshold = server1.known_record_subset.size();
+                // cout<< "Threshold L = " << threshold <<endl;
+
+                test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold);
+
+                if (test_status == 0)
+                {
+                    no_lied_detected++;
+                }
+                trackTaskStatus(time_track_list, "Test target L status", test_status);
+                // trackTaskStatus(time_track_list, "No of lied ans", count_lied_ans);
+                server1.enc_question_map_pre.clear();
+                //Tham added 15 Jan, delete test at server side
+                server1.enc_question_map.clear();
+                index++;
+                // cout<< "Test L verify done" << endl;
+
+            }
+            else if (itr_test_V <= 3)
+            {
+                //test V
+                itr_test_V++;
+
+                server1.generateTestBasedPartialView_opt(pre_enc_stack, part_A.enc_domain_map);
+		
+		
+                //====answer using fake dataset with probability p2
+            
+                
+                answer_strategy = answer_strategy_arr[index];
+                // answer_strategy = 0;
+                gamal_cipher_new(sum_cipher);
+
+                if (answer_strategy == 0)
+                {
+                
+                    part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon);
+                    count_lied_ans++;
+                    
+                }
+                else
+                {
+                    part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+                    
+                }	
+                trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
+
+                threshold = PV_size; //actual PV size = V (not the PV histogram)
+                // cout<<"Threshold V = " << threshold << endl;
+                test_status = servers.verifyingTestResult("Test target V rows found:", sum_cipher, table, server_id, threshold);
+                
+                trackTaskStatus(time_track_list, "Test target V status", test_status);
+
+                if (test_status == 0)
+                {
+                    no_lied_detected++;
+                }
+                
+                
+                server1.enc_question_map_pre.clear();
+                //Tham added 15 Jan, delete test at server side
+                server1.enc_question_map.clear();
+                index++;
+
+            }
+            else if (itr_test_n <= 3)
+            {
+                //test n
+                itr_test_n++;
+                server1.generateTest_Target_All_Records(pre_enc_stack, part_A.enc_domain_map);
+                
+                gamal_cipher_new(sum_cipher);
+
+                //===== Party answer truth or lie at random p2
+
+                answer_strategy = answer_strategy_arr[index];
+                // answer_strategy = 0;
+
+                
+                if (answer_strategy == 0)
+                {
+                    part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon);
+                    count_lied_ans++;
+                }
+                else
+                {
+                    part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+                }
+                
+                trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
+
+                threshold = size_dataset;
+                test_status = servers.verifyingTestResult("Test target n rows found:", sum_cipher, table, server_id, threshold);
+                trackTaskStatus(time_track_list, "Test target n rows status", test_status);
+
+                
+                if (test_status == 0)
+                {
+                    no_lied_detected++;
+                }
+
+                server1.enc_question_map.clear();
+                index++;
+
+            }
+            else
+            {
+                //test estimate
+                server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
+
+                server1.generateMatchDomain(1);
+                
+                // t1 = high_resolution_clock::now();
+                server1.generateTest_Target_Attr_opt(pre_enc_stack);
+                
+                //====answer using fake dataset with probability p2
+            
+                // answer_strategy = myRand(true_fake, freq, n);
+                // cout<<	"answer_strategy = " <<answer_strategy<<endl;
+
+                answer_strategy = answer_strategy_arr[index];
+                // answer_strategy = 0;
+                gamal_cipher_new(sum_cipher);
+                
+                // cout<<	"answer_strategy = " <<answer_strategy<<endl;
+
+                if (answer_strategy == 0)
+                {
+                
+                    part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon);
+                    count_lied_ans++;
+                    
+                }
+                else
+                {
+                    part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+                    
+                }	
+                trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
+
+                server1.generateServerDomain_Test_Target_Attr(pre_enc_stack);
+                
+
+                gamal_ciphertext_t enc_PV_answer;
+                gamal_cipher_new(enc_PV_answer);
+                server1.getTestResult_fromPV(part_A.enc_domain_map, enc_PV_answer);
+
+
+                test_status = servers.verifyingTestResult_Estimate("Test attr found:", sum_cipher, table, server_id, enc_PV_answer, alpha);
+                trackTaskStatus(time_track_list, "Test attr status", test_status);
+                if (test_status == 0)
+                {
+                    no_lied_detected++;
+                }
+
+                server1.match_query_domain_vect.clear();
+                server1.enc_question_map_pre.clear();
+                //Tham added 15 Jan, delete test at server side
+                server1.enc_question_map.clear();
+                index++;
+
+            }
+            
+        }
         
-		
-		// //====answer using fake dataset with probability p2
+    }
+    
 
-		
-		answer_strategy = answer_strategy_arr[index];
-		// answer_strategy = 0;
+	t2 = high_resolution_clock::now();
 
-		gamal_cipher_new(sum_cipher);
-
-		if (answer_strategy == 0)
-		{
-			
-            // part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.fake_histogram, part_A.cipher1, epsilon_q);
-            part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon);
-			count_lied_ans++;
-			
-		}
-		else
-		{
-			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
-			
-		}	
-		trackTaskStatus(time_track_list, "Query:Dataset true/false", answer_strategy);
-		
-
-        //Tham added 15 Jan, delete query at the server side
-        server1.enc_question_map.clear();
-		server1.match_query_domain_vect.clear();
-        itr++;
-		index++;
-
-
-		//======Re-encrypt query answer to participant B's public key
-
-		gamal_ciphertext_t sum_cipher_update;
-
-		gamal_generate_keys(part_B.keys); //part_B keys pair   
-
-		
-		gama_key_switch_lead(sum_cipher_update, sum_cipher, server1.key, part_B.keys);
-
-		for (int i=1; i< number_servers; i++)
-		{
-			gama_key_switch_follow(sum_cipher_update, sum_cipher, servers.server_vect[server_id+i].key, part_B.keys);
-		}
-       
-		
-	}
-
-	
-	// //====TEST FUNCTION KNOWN RECORDS NEW USING PRE_COMPUTE TEST FUCTION =====//
-    // Pre process
-	
-    // num_test_rounded =1;
-	for (int i = 1; i<= num_test_rounded; i++) 
-	{
-		
-		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
-		
-		// t1 = high_resolution_clock::now();
-		server1.generateTestKnownRecords_opt(pre_enc_stack, part_A.enc_domain_map);
-		
-		
-		
-		//====answer using fake dataset with probability p2
-	
-		
-		answer_strategy = answer_strategy_arr[index];
-		// answer_strategy = 0;
-		
-		gamal_cipher_new(sum_cipher);
-
-		if (answer_strategy == 0)
-		{
-		
-            part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon);
-			count_lied_ans++;
-			
-		}
-		else
-		{
-			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
-			
-		}	
-		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
-
-		
-		
-		threshold = server1.known_record_subset.size();
-		// cout<< "Threshold L = " << threshold <<endl;
-
-		test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold);
-
-		if (test_status == 0)
-		{
-			no_lied_detected++;
-		}
-		trackTaskStatus(time_track_list, "Test target L status", test_status);
-		// trackTaskStatus(time_track_list, "No of lied ans", count_lied_ans);
-		server1.enc_question_map_pre.clear();
-		//Tham added 15 Jan, delete test at server side
-		server1.enc_question_map.clear();
-		index++;
-		// cout<< "Test L verify done" << endl;
-
-	}
-	
-	// //===== TEST FUNCTION BASED PV OPTIMAL =====
-	 
-	
-	for (int i=1; i<=num_test_rounded; i++)
-	{
-		
-		server1.generateTestBasedPartialView_opt(pre_enc_stack, part_A.enc_domain_map);
-		
-		
-		//====answer using fake dataset with probability p2
-	
-		
-		answer_strategy = answer_strategy_arr[index];
-		// answer_strategy = 0;
-		gamal_cipher_new(sum_cipher);
-
-		if (answer_strategy == 0)
-		{
-		
-            part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon);
-			count_lied_ans++;
-			
-		}
-		else
-		{
-			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
-			
-		}	
-		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
-
-		threshold = PV_size; //actual PV size = V (not the PV histogram)
-		// cout<<"Threshold V = " << threshold << endl;
-		test_status = servers.verifyingTestResult("Test target V rows found:", sum_cipher, table, server_id, threshold);
-		
-		trackTaskStatus(time_track_list, "Test target V status", test_status);
-
-		if (test_status == 0)
-		{
-			no_lied_detected++;
-		}
-		
-		
-		server1.enc_question_map_pre.clear();
-		//Tham added 15 Jan, delete test at server side
-		server1.enc_question_map.clear();
-		index++;
-	}
-
-	//===== TEST FUNCTION  targeting all rows in dataset ====//
-
-
-	
-	for (int i=1; i<=num_test_rounded; i++)
-	{
-			
-		server1.generateTest_Target_All_Records(pre_enc_stack, part_A.enc_domain_map);
-		
-		gamal_cipher_new(sum_cipher);
-
-		//===== Party answer truth or lie at random p2
-
-		answer_strategy = answer_strategy_arr[index];
-		// answer_strategy = 0;
-
-		
-		if (answer_strategy == 0)
-		{
-            part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon);
-			count_lied_ans++;
-		}
-		else
-		{
-			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
-		}
-		
-		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
-
-		threshold = size_dataset;
-		test_status = servers.verifyingTestResult("Test target n rows found:", sum_cipher, table, server_id, threshold);
-		trackTaskStatus(time_track_list, "Test target n rows status", test_status);
-
-		
-		if (test_status == 0)
-		{
-			no_lied_detected++;
-		}
-
-		server1.enc_question_map.clear();
-		index++;
-	
-	}
-
-	//====== RUNTIME OPTIMAL TEST FUNCTION 4 targeting specific attributes ==========//
-
-
-	for (int i=1; i<= num_test - 3*num_test_rounded; i++)
-	// for (int i=1; i<= num_test_rounded +1; i++)
-	{
-
-		server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
-
-		server1.generateMatchDomain(1);
-		
-		// t1 = high_resolution_clock::now();
-		server1.generateTest_Target_Attr_opt(pre_enc_stack);
-		
-		//====answer using fake dataset with probability p2
-	
-		// answer_strategy = myRand(true_fake, freq, n);
-		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
-
-		answer_strategy = answer_strategy_arr[index];
-		// answer_strategy = 0;
-		gamal_cipher_new(sum_cipher);
-		
-		// cout<<	"answer_strategy = " <<answer_strategy<<endl;
-
-		if (answer_strategy == 0)
-		{
-		
-            part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon);
-			count_lied_ans++;
-			
-		}
-		else
-		{
-			part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
-			
-		}	
-		trackTaskStatus(time_track_list, "Test:Dataset true/false", answer_strategy);
-
-		server1.generateServerDomain_Test_Target_Attr(pre_enc_stack);
-		
-
-		gamal_ciphertext_t enc_PV_answer;
-		gamal_cipher_new(enc_PV_answer);
-		server1.getTestResult_fromPV(part_A.enc_domain_map, enc_PV_answer);
-
-
-		test_status = servers.verifyingTestResult_Estimate("Test attr found:", sum_cipher, table, server_id, enc_PV_answer, alpha);
-		trackTaskStatus(time_track_list, "Test attr status", test_status);
-		if (test_status == 0)
-		{
-			no_lied_detected++;
-		}
-
-		server1.match_query_domain_vect.clear();
-		server1.enc_question_map_pre.clear();
-		//Tham added 15 Jan, delete test at server side
-		server1.enc_question_map.clear();
-		index++;
-		
-
-	}
-
-
-	  t2 = high_resolution_clock::now();
-
-	  trackTaskPerformance(time_track_list, "E2E delay", t1, t2);
+    trackTaskPerformance(time_track_list, "E2E delay", t1, t2);
    
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -665,7 +682,7 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	// cout<<"no of lied ans = "<< count_lied_ans<<endl;
 	// cout<<"no of lied detected = "<< no_lied_detected<<endl;
 	cout<<"index = "<<index<<endl;
-
+    cout<<"index_question ="<<index_question<<endl;
 
 
 	trackTestAccu(time_track_list, "No. of lied answer", count_lied_ans);
@@ -680,7 +697,7 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 		fstream fout;
 		// std::ofstream fout;
 
-		string filename = "./results/lie_dectection_N_100K_eta_095_n_opt_95244_";
+		string filename = "./results/lie_dectection_N_100K_eta_095_question_random_";
 	
 		stringstream ss;
 	
@@ -721,7 +738,7 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 	return 0;
 
 
-	}
+	} //not going to next phase
 	else
 	{
 		
@@ -730,7 +747,7 @@ int phase_3_test_new_PVGen_method(int argc, char **argv)
 			fstream fout;
 			// std::ofstream fout;
 
-			string filename = "./results/lie_dectection_N_100K_eta_095_n_opt_95244_";
+			string filename = "./results/lie_dectection_N_100K_eta_095_question_random_";
 		
 			stringstream ss;
 		

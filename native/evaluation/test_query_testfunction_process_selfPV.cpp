@@ -101,7 +101,7 @@ int partialView_verification_selfPV(int argc, char **argv)
 	// SERVER SETUP COLLECTIVE KEY
 	Servers servers(number_servers, size_dataset, background_knowledge_directory, a);
 
-	servers.generateCollKey();
+	servers.generateCollKey(servers.coll_key);
 	servers.pv_ratio = pv_ratio;
 
 	// INITIALIZE CIPHERTEXT STACK FOR PARTY

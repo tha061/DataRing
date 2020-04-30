@@ -74,6 +74,7 @@
 /**
  * @brief This struct defines an EC-Elgamal key pair
  * @details An EC-Elgaml key pair
+ * @author Lukas Burkhalter <lubu@inf.ethz.ch>
  * @param is_public
  * @param Y: public key
  * @param secret: private key
@@ -85,19 +86,28 @@ struct gamal_key
     BIGNUM *secret; //private_key for decrypt
 };
 
-typedef struct gamal_key *gamal_key_ptr; //data ring
-typedef struct gamal_key gamal_key_t[1]; //dataring
+typedef struct gamal_key *gamal_key_ptr; 
+typedef struct gamal_key gamal_key_t[1]; 
 typedef uint64_t dig_t;
 
+/**
+ * @brief  Get the size of the encoded key
+ */
 size_t get_encoded_key_size(gamal_key_t key, int compressed);
+/**
+ * @brief  Encode a key
+ */
 int encode_key(unsigned char *buff, int size, gamal_key_t key, int compressed);
+/**
+ * @brief  Decode a key
+ */
 int decode_key(gamal_key_t key, unsigned char *buff, int size);
 
 // EC POINTS - tuple of Encrytion of x
 /**
  * @brief This struct defines an EC-Elgamal ciphertext
- * @details An EC-Elgaml ciphertext
- * EC POINTS - tuple of Encrytion of x
+ * @details An EC-Elgaml ciphertext. EC POINTS - tuple of Encrytion of x
+ * @author Lukas Burkhalter <lubu@inf.ethz.ch>
  * @param C1: point in the x axis
  * @param C2: point in the y axis
 */
@@ -107,16 +117,25 @@ struct gamal_ciphertext
     EC_POINT *C2;
 };
 
-typedef struct gamal_ciphertext *gamal_ciphertext_ptr; //dataring
-typedef struct gamal_ciphertext gamal_ciphertext_t[1];//dataring
-
+typedef struct gamal_ciphertext *gamal_ciphertext_ptr;
+typedef struct gamal_ciphertext gamal_ciphertext_t[1];
+/**
+ * @brief  Get the size of the encoded ciphertext
+ */
 size_t get_encoded_ciphertext_size(gamal_ciphertext_t ciphertext);
+/**
+ * @brief  Encode a ciphertext
+ */
 int encode_ciphertext(unsigned char *buff, int size, gamal_ciphertext_t ciphertext);
+/**
+ * @brief  Decode a ciphertext
+ */
 int decode_ciphertext(gamal_ciphertext_t ciphertext, unsigned char *buff, int size);
 
 /**
  * @brief This struct defines a hash table for the EC Elgamal decryption algorithm
  * @details A table to map a value to a key
+ * @author Lukas Burkhalter <lubu@inf.ethz.ch>
  * @param key: to be mapped
  * @param value: the matched value to key
 */
@@ -130,6 +149,7 @@ typedef struct bsgs_hash_table_entry
 /**
  * @brief This struct defines a hash table for the EC Elgamal decryption algorithm
  * @details A table to map an EC_POINT to a value 
+ * @author Lukas Burkhalter <lubu@inf.ethz.ch>
  * @param table: the lookup table including pre-computed matching
  * @param mG: the value to be mapped to m
  * @param group:
@@ -149,31 +169,31 @@ typedef struct bsgs_table_s bsgs_table_t[1];
  
 
 /**
- * Inits the library with the given curve
+ * @brief  Inits the library with the given curve
  * @param cure_id: ID of given elliptic curve
  */
 int gamal_init(int curve_id);
 
 /**
- * Deinits the library
+ * @brief Deinits the library
  * @return
  */
 int gamal_deinit();
 
 
 /**
- * Returns the EC_Group (elliptic curve group) struct if initialized
+ * @brief Returns the EC_Group (elliptic curve group) struct if initialized
  */
 EC_GROUP *gamal_get_current_group();
 
 
 /**
- * Returns the encded size of an EC-Point in this group.
+ * @brief Returns the encded size of an EC-Point in this group.
  */
 int gamal_get_point_compressed_size();
 
 /** 
- * Inititlaizes the baby-step-giant-step table.
+ * @brief Inititlaizes the baby-step-giant-step table.
  * @param the table
  * @param the number of elemnts to store in the table
  * @return
@@ -181,31 +201,35 @@ int gamal_get_point_compressed_size();
 int gamal_init_bsgs_table(bsgs_table_t table, dig_t size);
 
 /**
- * Frees the memory of the table
+ * @brief Frees the memory of the table
  * @param table
  * @return
  */
 int gamal_free_bsgs_table(bsgs_table_t table);
-
+/**
+ * @brief  Clear a key pair
+ */
 int gamal_key_clear(gamal_key_t keys);
+
 int gamal_key_to_public(gamal_key_t pub, gamal_key_t priv);
 int gamal_cipher_clear(gamal_ciphertext_t cipher);
+
 /**
- * Create a new ciphertext
+ * @brief Create a new ciphertext
  * @param cipher: new cipher text, C1 and C2 is the \O point of the x0y
  * @return
  */
 int gamal_cipher_new(gamal_ciphertext_t cipher);
 
 /**
- * Generates an EC-Elgamal key pair
+ * @brief Generates an EC-Elgamal key pair
  * @param keys the EC-ElGamal keypair
  * @return
  */
 int gamal_generate_keys(gamal_key_t keys);
 
 /**
- * Encrypts an Integer with additadive homomorphic EC-ElGamal
+ * @brief Encrypts an Integer with additadive homomorphic EC-ElGamal
  * @param ciphertext
  * @param key
  * @param plaintext
@@ -214,7 +238,7 @@ int gamal_generate_keys(gamal_key_t keys);
 int gamal_encrypt(gamal_ciphertext_t ciphertext, gamal_key_t key, dig_t plaintext);
 
 /**
- * Decrypts an EC-Elgamal ciphertext
+ * @brief Decrypts an EC-Elgamal ciphertext
  * @param res the resulting plaintext integer
  * @param key
  * @param ciphertext
@@ -225,7 +249,7 @@ int gamal_encrypt(gamal_ciphertext_t ciphertext, gamal_key_t key, dig_t plaintex
 int gamal_decrypt(dig_t *res, gamal_key_t key, gamal_ciphertext_t ciphertext, bsgs_table_t table);
 
 /**
- * Adds two EC-Elgamal ciphertext and stores it in res.
+ * @brief Adds two EC-Elgamal ciphertext and stores it in res.
  * @param res the resulting ciphertext
  * @param ciphertext1
  * @param ciphertext2
@@ -233,11 +257,13 @@ int gamal_decrypt(dig_t *res, gamal_key_t key, gamal_ciphertext_t ciphertext, bs
  */
 int gamal_add(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciphertext_t ciphertext2);
 
+
 //==========================================================================================//
 //=============== Below are functions added by Tham =======================================//
 
 /**
- * Implemented by authors of Data Ring.
+ * @brief Multiplication of a ciphertext by a scalar.
+ * @details Implemented by authors of Data Ring.
  * This function use the double-and-add scheme to provide the scalar multipication of a ciphertext.
  * @param res: the resulted ciphertext
  * @param ciphertext: ciphertext to be scalar
@@ -249,7 +275,8 @@ int gamal_mult_opt(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext, dig_t 
 
 
 /**
- * Implemented by authors of Data Ring.
+ * @brief Generate a collective public key from a set of public keys.
+ * @details Implemented by authors of Data Ring.
  * Generates an collective EC-ElGamal key pair from number of parties.
  * @param coll_keys: the collective keypair
  * @param p_key_list: point to the list of public keys of servers
@@ -260,7 +287,8 @@ int gamal_collective_publickey_gen(gamal_key_t coll_keys, EC_POINT **p_key_list,
 
 
 /**
- * Implemented by authors of Data Ring.
+ * @brief A leading server initiates the key switching of an encryption to under a new collective public key
+ * @details Implemented by authors of Data Ring.
  * This function for a leading server to intitiate the key switching for re-encryption
  * @param cipher_update: partially re-encrypted cipher
  * @param cipher: original ciphertext to be re-encrypted
@@ -271,7 +299,8 @@ int gamal_collective_publickey_gen(gamal_key_t coll_keys, EC_POINT **p_key_list,
 int gama_key_switch_lead(gamal_ciphertext_t cipher_update, gamal_ciphertext_t cipher, gamal_key_t keys_lead, gamal_key_t keysNew);
 
 /**
- * Implemented by authors of Data Ring.
+ * @brief A following server operations in the key switching of an encryption to under a new collective public key
+ * @details Implemented by authors of Data Ring.
  * This function for a leading server to continue the key switching for re-encryption.
  * @param cipher_update: partially re-encrypted cipher
  * @param cipher: original ciphertext to be re-encrypted
@@ -281,9 +310,22 @@ int gama_key_switch_lead(gamal_ciphertext_t cipher_update, gamal_ciphertext_t ci
 int gama_key_switch_follow(gamal_ciphertext_t cipher_update, gamal_ciphertext_t cipher, gamal_key_t keys_follow, gamal_key_t keysNew);
 
 
+/**
+ * @brief Simple re-encrytion function
+ * @details Implemented by authors of Data Ring.
+ * Re-encrypt a ciphertext under one (1) server's public key to a ciphertext under a new public key
+ * @param new_cipher
+ * @param cipher: ciphertext under server's public key
+ * @param keys: server's key pair
+ * @param keySNew: new public key
+ */
+
+int gamal_re_encrypt(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys, gamal_key_t keysNew);
+
 
 /**
- * Implemented by authors of Data Ring.
+ * @brief A leading server initiate the threshold decryption
+ * @details Implemented by authors of Data Ring.
  * Collective decrypts an EC-ElGamal ciphertext by all parties
  * This function for a leading server to initiate the threshold decryption
  * @param ciphertext_update: partially decrypted by the leading server
@@ -295,7 +337,8 @@ int gama_key_switch_follow(gamal_ciphertext_t cipher_update, gamal_ciphertext_t 
 int gamal_coll_decrypt_lead(gamal_ciphertext_t ciphertext_update, gamal_key_t keys, gamal_ciphertext_t ciphertext, bsgs_table_t table);
 
 /**
- * Implemented by authors of Data Ring.
+ * @brief Following servers join the threshold decryption.
+ * @details Implemented by authors of Data Ring.
  * Collective decrypts an EC-ElGamal ciphertext by all parties
  * This function for a following server to continue the threshold decryption
  * @param ciphertext_update: partially decrypted by the leading server
@@ -308,7 +351,8 @@ int gamal_coll_decrypt_lead(gamal_ciphertext_t ciphertext_update, gamal_key_t ke
 int gamal_coll_decrypt_follow(gamal_ciphertext_t ciphertext_update, gamal_key_t keys, gamal_ciphertext_t ciphertext, bsgs_table_t table);
 
 /**
- * Implemented by authors of Data Ring.
+ * @brief All servers jointly compute the final plaintext of a ciphertext from the threshold decryption.
+ * @details Implemented by authors of Data Ring.
  * Collective decrypts an EC-ElGamal ciphertext by all parties
  * This function for all server to join and decrypt a ciphertext
  * this function will call the gamal_coll_decrypt_lead() and  gamal_coll_decrypt_lead() functions
@@ -326,102 +370,39 @@ int gamal_fusion_decrypt(dig_t *res, int num_server, gamal_key_t key_lead, gamal
 
 
 
-
 /**
- * Implemented by authors of Data Ring.
- * Re-encrypt a ciphertext under one server's public key to a ciphertext under a new public key
- * @param new_cipher
- * @param cipher: ciphertext under server's public key
- * @param keys: server's key pair
- * @param keySNew: new public key
- */
-int gamal_re_encrypt(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys, gamal_key_t keysNew);
-
-
-/**
- * Implemented by authors of Data Ring.
- * Re-encrypt (switching)) a ciphertext under a collective public key of a group of 3 servers to a ciphertext under a new public key
- * @param new_cipher
- * @param cipher: ciphertext under server's public key
- * @param keys1, keys2, keys3: three servers' key pairs
- * @param keySNew: new public key
- */
-int gamal_key_switching(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys1, gamal_key_t keys2, 
-                        gamal_key_t keys3, gamal_key_t keysNew);
-
-
-
-/**
- * Implemented by authors of Data Ring.
- * Collective decrypts an EC-ElGamal ciphertext by 3 servers
- *
- */
-
-int gamal_coll_decrypt(dig_t *res, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_ciphertext_t ciphertext, bsgs_table_t table);
-
-
-/**
- * Implemented by authors of Data Ring.
- * Generates an collective EC-ElGamal key pair from 3 servers
- * @param coll_keys: the collective keypair
- * @return
- */
-//int gamal_collective_key_gen(gamal_key_t coll_keys);
-int gamal_collective_key_gen(gamal_key_t coll_keys, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3);
-
-
-/**
- * Implemented by authors of Data Ring.
- * This function add the ciphertext to itself for (scalar - 1) times
- * Multiply EC-Elgamal ciphertext and a plaintext and stores it in res.
- * @param res the resulting ciphertext
- * @param ciphertext
- * @param pt: scalar is an integer >=1 
- * @return res
- */
-
-int gamal_mult(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, dig_t pt);
-
-
-
-
-/**
- * Implemented by authors of Data Ring.
- * Substract two ciphertexts 
- * Might not be able to decrypt the result, need to double check
- */
-
-int gamal_subtract(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciphertext_t ciphertext2);
-
-
-
-/**
- * Implemented by authors of Data Ring.
+ * @brief Helper function for the scalar multiplication
+ * @details Implemented by authors of Data Ring.
  * For utility functions
  */
 int *convert_to_bin(int binary_arr[64], dig_t number, int bit_num);
 /**
- * Implemented by authors of Data Ring.
+ * @brief Helper function for the scalar multiplication
+ * @details Implemented by authors of Data Ring.
  * For utility functions
  */
 int *convert_to_NAF(int naf_arr[64], dig_t number, int bit_num[2]);
 /**
- * Implemented by authors of Data Ring.
+ * @brief Helper function for the scalar multiplication
+ * @details Implemented by authors of Data Ring.
  * For utility functions
  */
 int mods_func(int number);
 /**
- * Implemented by authors of Data Ring.
+ * @brief Helper function for the scalar multiplication
+ * @details Implemented by authors of Data Ring.
  * For utility functions
  */
 int findCeil(int arr[], int r, int l, int h);
 /**
- * Implemented by authors of Data Ring.
+ * @brief Helper function for the scalar multiplication
+ * @details Implemented by authors of Data Ring.
  * For utility functions
  */
 int myRand(int arr[], int freq[], int n);
 /**
- * Implemented by authors of Data Ring.
+ * @brief Helper function for generating a histogram
+ * @details Implemented by authors of Data Ring.
  * For utility functions
  */
 int *hist_gen(int histogr[], int arr[], int freq[], int datasize, int scale_up);
@@ -429,5 +410,64 @@ int *hist_gen(int histogr[], int arr[], int freq[], int datasize, int scale_up);
 
 
 //=================================================================//
+
+// /**
+//  * Implemented by authors of Data Ring.
+//  * This function add the ciphertext to itself for (scalar - 1) times
+//  * Multiply EC-Elgamal ciphertext and a plaintext and stores it in res.
+//  * @param res the resulting ciphertext
+//  * @param ciphertext
+//  * @param pt: scalar is an integer >=1 
+//  * @return res
+//  */
+
+int gamal_mult(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, dig_t pt);
+
+
+
+
+// /**
+//  * Implemented by authors of Data Ring.
+//  * Substract two ciphertexts 
+//  * Might not be able to decrypt the result, need to double check
+//  */
+
+int gamal_subtract(gamal_ciphertext_t res, gamal_ciphertext_t ciphertext1, gamal_ciphertext_t ciphertext2);
+
+
+
+// /**
+//  * @brief Key switching process of three servers
+//  * Implemented by authors of Data Ring.
+//  * Re-encrypt (switching)) a ciphertext under a collective public key of a group of 3 servers to a ciphertext under a new public key
+//  * @param new_cipher
+//  * @param cipher: ciphertext under server's public key
+//  * @param keys1, keys2, keys3: three servers' key pairs
+//  * @param keySNew: new public key
+//  */
+int gamal_key_switching(gamal_ciphertext_t new_cipher, gamal_ciphertext_t cipher, gamal_key_t keys1, gamal_key_t keys2, 
+                        gamal_key_t keys3, gamal_key_t keysNew);
+
+
+
+// /**
+//  * Implemented by authors of Data Ring.
+//  * Collective decrypts an EC-ElGamal ciphertext by 3 servers
+//  *
+//  */
+
+int gamal_coll_decrypt(dig_t *res, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3, gamal_ciphertext_t ciphertext, bsgs_table_t table);
+
+
+// /**
+//  * Implemented by authors of Data Ring.
+//  * Generates an collective EC-ElGamal key pair from 3 servers
+//  * @param coll_keys: the collective keypair
+//  * @return
+//  */
+//int gamal_collective_key_gen(gamal_key_t coll_keys);
+int gamal_collective_key_gen(gamal_key_t coll_keys, gamal_key_t keys1, gamal_key_t keys2, gamal_key_t keys3);
+
+
 
 #endif //ECELGAMAL_ECELGAMAL_H

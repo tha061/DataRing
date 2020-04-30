@@ -49,13 +49,13 @@ int runtime_testing(int argc, char **argv)
 	}
 
 	double percentile_noise = 0.95;			   //use to determine Laplace max_noise
-	float noise_budget = 0.5;
+	float noise_budget = 1;
 	float sensitivity = 1.0; //for COUNT query
 	int PV_size = (int)dataset_size*pv_ratio; // actual V, not the PV histogram form
 
-	float epsilon_q = noise_budget; //only for test runtime, noise is not a matter
-	float epsilon_test = epsilon_q; //only for test runtime, noise is not a matter
-	float epsilon = noise_budget;  //only for test runtime, noise is not a matter
+	float epsilon_q = noise_budget/20; //if there are 20 questions
+	float epsilon_test = epsilon_q; //if there are 20 questions
+	float epsilon = noise_budget/20;  //if there are 20 questions
 	
 	TRACK_LIST time_track_list;
 
@@ -65,10 +65,13 @@ int runtime_testing(int argc, char **argv)
 	// srand(100);
 	// initialize key & table
 	// gamal_key_t key;
+
+	
 	bsgs_table_t table;
 	gamal_init(CURVE_256_SEC);
 	// gamal_generate_keys(key);
 	gamal_init_bsgs_table(table, (dig_t)1L << 16);
+	
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 	//                          SETUP PHASE                                     //
@@ -101,8 +104,11 @@ int runtime_testing(int argc, char **argv)
 	// SERVER SETUP COLLECTIVE KEY
 	Servers servers(number_servers, size_dataset, background_knowledge_directory, a); //modified to size aN
 
-
-	servers.generateCollKey();
+	//key for partial view generation
+	// gamal_key_t coll_key_PV_phase;
+	
+	servers.generateCollKey(servers.coll_key);
+	
 	servers.pv_ratio = pv_ratio;
 
 	// INITIALIZE CIPHERTEXT STACK FOR PARTY
@@ -125,10 +131,11 @@ int runtime_testing(int argc, char **argv)
 	// cout<<"Party A: maxNoise test = "<< part_A.maxNoise_test<<endl;
 
 	// INITIALIZE CIPHERTEXT STACK FOR SERVERS
-	ENC_Stack pre_enc_stack(size_dataset, servers.coll_key);
+	ENC_Stack pre_enc_stack(4*size_dataset, servers.coll_key);//four times of the dataset size enc0 and enc1 pre-computed
 
 	// t1 = high_resolution_clock::now();
 	pre_enc_stack.initializeStack_E0();
+	
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Precompute Enc0 (ms)", t1, t2);
 	// cout << endl;
@@ -163,14 +170,13 @@ int runtime_testing(int argc, char **argv)
 	// t2 = high_resolution_clock::now();
 	// trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
 
-	
 
 	
-	t1 = high_resolution_clock::now();
-	// part_A.generatePV_opt(servers.s_myPIR_enc, true);
-	part_A.generatePV_fixed_scheme(servers.s_myPIR_enc, part_A.histogram, part_A.size_dataset);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// // part_A.generatePV_opt(servers.s_myPIR_enc, true);
+	// part_A.generatePV_fixed_scheme(servers.s_myPIR_enc, part_A.histogram, part_A.size_dataset);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
 	
 	//++++++++++ PARTY IS DISHONEST ++++++++++++//
@@ -197,9 +203,9 @@ int runtime_testing(int argc, char **argv)
 	//====== strategy 2: participant generate fake histogram randomly
 	
 	// // int keep_row = int(dataset_size*0.6); //lie about 50% rows
-	// int keep_row = 428027; 
+	int keep_row = 487742; 
 	// // t1 = high_resolution_clock::now();
-	// part_A.addDummy_FakeHist_random(keep_row, a);
+	part_A.addDummy_FakeHist_random(keep_row, a);
 	// // t2 = high_resolution_clock::now();
 	// // trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
 
@@ -210,7 +216,7 @@ int runtime_testing(int argc, char **argv)
 	// // trackTaskPerformance(time_track_list, "Pre Gen PV (ms)", t1, t2);
 
 	// // t1 = high_resolution_clock::now();
-	// part_A.generatePV_opt(servers.s_myPIR_enc, false);
+	part_A.generatePV_fixed_scheme(servers.s_myPIR_enc, part_A.fake_histogram, part_A.size_dataset);
 	// // t2 = high_resolution_clock::now();
 	// // trackTaskPerformance(time_track_list, "Gen PV (ms)", t1, t2);
 
@@ -242,7 +248,9 @@ int runtime_testing(int argc, char **argv)
 
 	
 	t1 = high_resolution_clock::now();
+	
 	bool verify_status = servers.verifyingPV(part_A.enc_domain_map, table, server_id, pre_enc_stack, eta);
+	
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Verify PV (ms)", t1, t2);
 
@@ -273,7 +281,7 @@ int runtime_testing(int argc, char **argv)
 
 	// Servers send a cipher_1 = enc(1) to party for encryptig noise
 
-	pre_enc_stack.pop_E1(part_A.cipher1);
+	// pre_enc_stack.pop_E1(part_A.cipher1);
 
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -284,6 +292,8 @@ int runtime_testing(int argc, char **argv)
 	servers.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon, percentile_noise);
 	servers.minNoise = -servers.maxNoise;
 
+	
+	
     //+++++++++++++++++++RUNTIME OPTIMIZED++++++++++++++++++++++++++++++//
 
 	// // //====TEST FUNCTION KNOWN RECORDS NEW USING PRE_COMPUTE TEST FUCTION =====//
@@ -293,18 +303,21 @@ int runtime_testing(int argc, char **argv)
 	
 	t1 = high_resolution_clock::now();
 	server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
+	
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Prepare Test function (ms)", t1, t2);
 
 	t1 = high_resolution_clock::now();
 	server1.generateTestKnownRecords_opt(pre_enc_stack, part_A.enc_domain_map);
+	
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Gen Test L (ms)", t1, t2);
 
 	t1 = high_resolution_clock::now();
 	gamal_cipher_new(sum_cipher);
-	// part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
-	part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon);
+	part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon);
+	
+	// part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon);
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Compute ans L opt (ms)", t1, t2);
 
@@ -313,10 +326,13 @@ int runtime_testing(int argc, char **argv)
 
 	threshold = server1.known_record_subset.size();
 	t1 = high_resolution_clock::now();
+	
 	test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold);
+	
 	t2 = high_resolution_clock::now();
 	trackTaskPerformance(time_track_list, "Verify test L result  (ms)", t1, t2);
 	trackTaskStatus(time_track_list, "Test target L status", test_status);
+
 
 	// // //===== TEST FUNCTION BASED on known records after phase 2 =====
 
@@ -355,93 +371,95 @@ int runtime_testing(int argc, char **argv)
 
 	//===== TEST FUNCTION BASED PV OPTIMAL =====
 
-	t1 = high_resolution_clock::now();
-	server1.generateTestBasedPartialView_opt(pre_enc_stack, part_A.enc_domain_map);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen Test V optimal (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// server1.generateTestBasedPartialView_opt(pre_enc_stack, part_A.enc_domain_map); //partial view is re-encryted already
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Gen Test V optimal (ms)", t1, t2);
 
-	t1 = high_resolution_clock::now();
-	gamal_cipher_new(sum_cipher);
+	// t1 = high_resolution_clock::now();
+	// gamal_cipher_new(sum_cipher);
 	// part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
-	part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Compute ans V (ms)", t1, t2);
+	// // part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Compute ans V (ms)", t1, t2);
 
-	//Tham added 15 Jan, delete test at server side
-	server1.enc_question_map.clear();
+	// //Tham added 15 Jan, delete test at server side
+	// server1.enc_question_map.clear();
 
-	threshold = PV_size; //actual PV size = V (not the PV histogram)
-	t1 = high_resolution_clock::now();
-	test_status = servers.verifyingTestResult("Test target V rows found:", sum_cipher, table, server_id, threshold);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Verify test V result (ms)", t1, t2);
-	trackTaskStatus(time_track_list, "Test target V status", test_status);
+	// threshold = PV_size; //actual PV size = V (not the PV histogram)
+	// t1 = high_resolution_clock::now();
+	// test_status = servers.verifyingTestResult("Test target V rows found:", sum_cipher, table, server_id, threshold);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Verify test V result (ms)", t1, t2);
+	// trackTaskStatus(time_track_list, "Test target V status", test_status);
 
 
 	//=========== TEST all rows===========
 
-	t1 = high_resolution_clock::now();
-	server1.generateTest_Target_All_Records(pre_enc_stack, part_A.enc_domain_map);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen Test n (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// server1.generateTest_Target_All_Records(pre_enc_stack, part_A.enc_domain_map);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Gen Test n (ms)", t1, t2);
 
 
-	gamal_cipher_new(sum_cipher);
+	// gamal_cipher_new(sum_cipher);
 
-	t1 = high_resolution_clock::now();
+	// t1 = high_resolution_clock::now();
 	// part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
-	part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Compute ans Test n (ms)", t1, t2);	
+	// // part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Compute ans Test n (ms)", t1, t2);	
 
 	
-	threshold = size_dataset;
-	t1 = high_resolution_clock::now();
-	test_status = servers.verifyingTestResult("Test target n rows found:", sum_cipher, table, server_id, threshold);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Verify ans Test n (ms)", t1, t2);
+	// threshold = size_dataset;
+	// t1 = high_resolution_clock::now();
+	// test_status = servers.verifyingTestResult("Test target n rows found:", sum_cipher, table, server_id, threshold);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Verify ans Test n (ms)", t1, t2);
+
 	
 	//====== RUNTIME OPTIMAL TEST FUNCTION 4 targeting specific attributes ==========//
 
-	t1 = high_resolution_clock::now();
-	server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Preprare Test (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// server1.prepareTestFuntion_Query_Vector(pre_enc_stack, part_A.enc_domain_map);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Preprare Test (ms)", t1, t2);
 
-	t1 = high_resolution_clock::now();
-	server1.generateMatchDomain(1);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Matching Domain (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// server1.generateMatchDomain(1);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Matching Domain (ms)", t1, t2);
 
-	t1 = high_resolution_clock::now();
-	server1.generateTest_Target_Attr_opt(pre_enc_stack);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen Test Attr (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// server1.generateTest_Target_Attr_opt(pre_enc_stack);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Gen Test Attr (ms)", t1, t2);
 
-	t1 = high_resolution_clock::now();
-	gamal_cipher_new(sum_cipher);
+	// t1 = high_resolution_clock::now();
+	// gamal_cipher_new(sum_cipher);
 	// part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
-	part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Compute ans Test Attr opt (ms)", t1, t2);
+	// // part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Compute ans Test Attr opt (ms)", t1, t2);
 
-	//Tham added 15 Jan, delete test at server side
-	server1.enc_question_map.clear();
+	// //Tham added 15 Jan, delete test at server side
+	// server1.enc_question_map.clear();
 
-	t1 = high_resolution_clock::now();
-	server1.generateServerDomain_Test_Target_Attr(pre_enc_stack);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Gen test attr clear (ms)", t1, t2);
+	// t1 = high_resolution_clock::now();
+	// server1.generateServerDomain_Test_Target_Attr(pre_enc_stack);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Gen test attr clear (ms)", t1, t2);
 
-	gamal_ciphertext_t enc_PV_answer;
-	gamal_cipher_new(enc_PV_answer);
-	server1.getTestResult_fromPV(part_A.enc_domain_map, enc_PV_answer);
+	// gamal_ciphertext_t enc_PV_answer;
+	// gamal_cipher_new(enc_PV_answer);
+	// server1.getTestResult_fromPV(part_A.enc_domain_map, enc_PV_answer); //partial view is encrypted with coll_key_PV_phase
 
-	t1 = high_resolution_clock::now();
-	test_status = servers.verifyingTestResult_Estimate("Test attr found:", sum_cipher, table, server_id, enc_PV_answer, alpha);
-	t2 = high_resolution_clock::now();
-	trackTaskPerformance(time_track_list, "Verify test attr result (ms)", t1, t2);
-	trackTaskStatus(time_track_list, "Test attr status", test_status);
+	// t1 = high_resolution_clock::now();
+	// cout<<"test ok"<<endl;
+	// test_status = servers.verifyingTestResult_Estimate("Test attr found:", sum_cipher, table, server_id, enc_PV_answer, alpha);
+	// t2 = high_resolution_clock::now();
+	// trackTaskPerformance(time_track_list, "Verify test attr result (ms)", t1, t2);
+	// trackTaskStatus(time_track_list, "Test attr status", test_status);
 
 
     // // ==== NORMAL QUERY PRE_COMPUTE TO OPTIMIZE RUNTIME ============//
@@ -499,7 +517,7 @@ int runtime_testing(int argc, char **argv)
 	
 	
 	//====COUNT query===
-	// for (int i=1; i<=2; i++)
+	// for (int i=1; i<=1; i++)
 	// {
 
 	// 	t1 = high_resolution_clock::now();
@@ -523,8 +541,8 @@ int runtime_testing(int argc, char **argv)
 
 	// 	t1 = high_resolution_clock::now();
 	// 	gamal_cipher_new(sum_cipher);
-	// 	// part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
-	//     part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon);
+	// 	part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+	//     // part_A.computeAnswer_modified(server1.enc_question_map, sum_cipher, part_A.histogram, part_A.cipher1, epsilon);
 	// 	t2 = high_resolution_clock::now();
 	// 	trackTaskPerformance(time_track_list, "Compute ans COUNT Query (ms)", t1, t2);
 
@@ -533,13 +551,15 @@ int runtime_testing(int argc, char **argv)
 
 	// 	gamal_generate_keys(part_B.keys); //part_B keys pair   
 
-		
+	// 	t1 = high_resolution_clock::now();
 	// 	gama_key_switch_lead(sum_cipher_update, sum_cipher, server1.key, part_B.keys);
 
 	// 	for (int i=1; i< number_servers; i++)
 	// 	{
 	// 		gama_key_switch_follow(sum_cipher_update, sum_cipher, servers.server_vect[server_id+i].key, part_B.keys);
 	// 	}
+	// 	t2 = high_resolution_clock::now();
+	// 	trackTaskPerformance(time_track_list, "Re-encryption (ms)", t1, t2);
 		
 	// }
 
@@ -602,7 +622,7 @@ int runtime_testing(int argc, char **argv)
 		if (strcmp(argv[9], "1") == 0)
 		{
 			// fout.open("./results/E2Eruntime_sum_query_20K_attr_income_filtering_loan5_20K_empLength_term_4Query_4Test_a_10_20runs.csv", ios::out | ios::trunc);
-			fout.open("./results/test_new_PV_gen_N_500K.csv", ios::out | ios::trunc);
+			fout.open("./results/runtime_new_scheme_500K_nopt_testL.csv", ios::out | ios::trunc);
 			fout << "Iteration, PV Verification";
 			for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
 			{
@@ -613,7 +633,7 @@ int runtime_testing(int argc, char **argv)
 		}
 		else
 		{
-			fout.open("./results/test_new_PV_gen_N_500K.csv", ios::out | ios::app);
+			fout.open("./results/runtime_new_scheme_500K_nopt_testL.csv", ios::out | ios::app);
 		}
 
 		// Insert the data to file

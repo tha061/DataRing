@@ -8,7 +8,7 @@
 #include "public_func.h"
 
 /**
- * @file API_flow.h 
+ * @file DataRing_workingFlow.cpp
  * @brief An example demonstrates operations of the Data Ring system.
  * @author Tham Nguyen tham.nguyen@mq.edu.au, Nam Bui, Data Ring
  * @date April 2020
@@ -23,7 +23,7 @@
  * 3) Query Evaluation Phase
  * 4) Data Release Phase
 */
-int API_flow(int argc, char **argv)
+int DataRing_workingFlow(int argc, char **argv)
 {
 	
 

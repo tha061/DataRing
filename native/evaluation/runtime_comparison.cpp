@@ -149,7 +149,7 @@ int runtime_comparison(int argc, char **argv)
 	Servers servers(number_servers, size_dataset, background_knowledge_directory, a); //modified to size aN
 
 
-	servers.generateCollKey();
+	servers.generateCollKey(servers.coll_key);
 	servers.pv_ratio = pv_ratio;
 
 	// INITIALIZE CIPHERTEXT STACK FOR PARTY
