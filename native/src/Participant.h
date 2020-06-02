@@ -81,7 +81,11 @@ public:
  * @param dataset_size: dataset size
  * @return a map including N elements of <label, binValue = 1>
  */ 
-    void create_OriginalHistogram(int dataset_size);
+    void create_OriginalHistogram(int dataset_size, int domainCoefficient);
+
+
+ // 
+//  void create_OriginalHistogram(int dataset_size);   
 
 /**
  * @brief Adds dummy records to the histogram.
@@ -132,6 +136,12 @@ public:
 */
     void getPermutationOfHistogram(vector<string> v, vector<int> flag);
 
+
+    void getUnPermutationVector(vector<string> v, hash_pair_map map_v_permute); 
+
+
+    void getArbitraryUnPermutationVector(vector<string> v, hash_pair_map map_v_permute);
+
 /**
  * @brief Computes query answer
  * @param enc_question_map: encrypted query/test function 
@@ -170,6 +180,7 @@ public:
 
 
     void print_Histogram(string filename);
+    void print_Histogram(string filename, hash_pair_map histo);
 
     // replace n-keepDomainS with dummy of E(1)
     void addDummy_FakeHist(int keepDomainS, int factorSize);

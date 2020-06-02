@@ -193,8 +193,8 @@ int API_flow(int argc, char **argv)
 	test_status = servers.verifyingTestResult("Test target L known rows found:", sum_cipher, table, server_id, threshold);
 	
 	server1.enc_question_map.clear();
-
-
+	
+	
 
 	// //===== TEST FUNCTION BASED PV OPTIMAL =====
 

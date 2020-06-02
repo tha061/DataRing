@@ -47,4 +47,7 @@ int getRandomInRange(int min, int max);
  */
     string getString(vector<string>& v);
 
+
+   int getRandomNumber(vector<int>& v);
+
 #endif
