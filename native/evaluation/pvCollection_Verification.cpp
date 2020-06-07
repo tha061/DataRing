@@ -1,10 +1,4 @@
-// #include "include/public_header.h"
- // #include "src/Participant.h"
- // #include "src/Server.h"
- // #include "src/Servers.h"
- // #include "src/process_noise.h"
- // #include "src/time_evaluation.h"
- // #include "public_func.h"
+
   
  #include "../include/public_header.h"
  #include "../src/Participant.h"
@@ -20,7 +14,13 @@
  #include <iostream> 
  #include <map>
  using namespace std; 
-  
+
+ /** 
+ * @file pvCollection_Verification.cpp
+ * @brief Robustness of Partial View Phase
+ * @author Tham Nguyen tham.nguyen@mq.edu.au, Nam Bui, Data Ring
+ * @date April 2020
+*/ 
   
  int pvCollection(int argc, char **argv)
  { 
@@ -225,7 +225,7 @@
     
     
      // t1 = high_resolution_clock::now();
-     // server2.rerandomizePVSampleFromPermutedHistogram(server1.PV_sample_from_permuted_map, pre_enc_stack);
+     server2.rerandomizePVSampleFromPermutedHistogram(server1.PV_sample_from_permuted_map, pre_enc_stack);
      // t2 = high_resolution_clock::now();
      // // time_diff = duration_cast<nanoseconds>(t2 - t1).count();
      // // cout<<"rerandomizePVSampleFromPermutedHistogram (ms) = "<<(time_diff)/1000000.0<<endl; 

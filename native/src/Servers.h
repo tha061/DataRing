@@ -5,6 +5,12 @@
 #include "process_noise.h"
 #include "Server.h"
 
+/** 
+ * @file Servers.h
+ * @brief Definition of functions in Servers class
+ * @author Tham Nguyen tham.nguyen@mq.edu.au, Nam Bui, Data Ring
+ * @date April 2020
+*/ 
 
 /** 
  * @brief This class provides functions for servers to jointly perform activities in the Data Ring system.

@@ -1,7 +1,12 @@
 #include "Participant.h"
- #include "../public_func.h"
+#include "../public_func.h"
   
-  
+ /** 
+ * @file Participant.cpp
+ * @brief Implementation of Participant's functionality
+ * @author Tham Nguyen tham.nguyen@mq.edu.au, Nam Bui, Data Ring
+ * @date April 2020
+*/  
   
  // const string Participant::DATA_DIR = "./data/unique_domains.csv";
   

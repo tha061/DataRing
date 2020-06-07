@@ -6,7 +6,12 @@
  #include "../src/time_evaluation.h"
  #include "../public_func.h"
   
- // #include "testing2.cpp"
+ /** 
+ * @file cheating_detection_query_phase.cpp
+ * @brief Evaluation of the cheating detection in Query Evaluation Phase
+ * @author Tham Nguyen tham.nguyen@mq.edu.au, Nam Bui, Data Ring
+ * @date April 2020
+*/ 
   
  int cheating_detection(int argc, char **argv)
  {

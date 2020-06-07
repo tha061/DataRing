@@ -1,6 +1,13 @@
 #include "Servers.h"
 #include "process_noise.h"
 
+/** 
+ * @file Servers.cpp
+ * @brief Implementation of servers' functions
+ * @author Tham Nguyen tham.nguyen@mq.edu.au, Nam Bui, Data Ring
+ * @date April 2020
+*/ 
+
 // Servers::Servers(int server_size, int data_size, string known_domain_dir)
 // {
 //     gamal_generate_keys(coll_key);

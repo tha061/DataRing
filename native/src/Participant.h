@@ -5,6 +5,12 @@
 #include "ENC_Stack.h"
 #include "process_noise.h"
 
+/** 
+ * @file Participant.h
+ * @brief Definition of functions in Participant class
+ * @author Tham Nguyen tham.nguyen@mq.edu.au, Nam Bui, Data Ring
+ * @date April 2020
+*/ 
 
 /** @brief This class provides functions for a participant in the Data Ring system.
  * @details The class implements functions for participant to convert its dataset in to a histogram, generate a partial view and compute query answer.

@@ -4,6 +4,12 @@
 #include "../include/public_header.h"
 #include "./process_noise.h"
 
+/** 
+ * @file Server.h
+ * @brief Definition of functions in Server class
+ * @author Tham Nguyen tham.nguyen@mq.edu.au, Nam Bui, Data Ring
+ * @date April 2020
+*/ 
 
 
 /** 

@@ -22,6 +22,13 @@
  #include <map>
  using namespace std; 
 
+/** 
+ * @file working_flow.cpp
+ * @brief Evaluation of system performance: computational overhead
+ * @author Tham Nguyen tham.nguyen@mq.edu.au, Nam Bui, Data Ring
+ * @date April 2020
+*/ 
+  
 
  int working_flow(int argc, char **argv)
  {

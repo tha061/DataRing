@@ -1,5 +1,12 @@
 #include "Server.h"
 
+/** 
+ * @file Server.cpp
+ * @brief Implementation of a single server's functions
+ * @author Tham Nguyen tham.nguyen@mq.edu.au, Nam Bui, Data Ring
+ * @date April 2020
+*/ 
+
 Server::Server()
 {
     
