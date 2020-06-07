@@ -20,10 +20,10 @@ public:
     // static gamal_key_t coll_key;
     /// A key pair
     gamal_key_t key; 
-    //// A key pair of one server used in Partial View Phase
-    gamal_key_t key_PV_phase; 
-    //// A key pair of one server used in Query Evaluation Phase
-    gamal_key_t key_query_phase; 
+    // //// A key pair of one server used in Partial View Phase
+    // gamal_key_t key_PV_phase; 
+    // //// A key pair of one server used in Query Evaluation Phase
+    // gamal_key_t key_query_phase; 
     /// The participant's dataset size
     int size_dataset; 
     /// ratio of partial view to dataset size
@@ -33,10 +33,10 @@ public:
     /// Precomputed encrypted query/test function for performance improvement
     ENC_DOMAIN_MAP enc_question_map_pre; 
 
-    /// Vector \mu in clear
+    /// Sample vector in clear
     int *server_sample_vector_clear; 
 
-    /// Vector \mu encrypted
+    /// Sample Vector encrypted
     gamal_ciphertext_t *server_sample_vector_encrypted; 
 
     /// Partial view sampled from permuted histogram
@@ -45,21 +45,29 @@ public:
     /// Encrypted PV from the participant to be shared to all servers
     ENC_DOMAIN_MAP un_permute_PV;
 
-    gamal_ciphertext_t *myPIR_enc; 
-    id_domain_set known_record_subset, known_rows_after_phase2, verified_set, opened_rows_set, known_record_set, rows_set_in_opened_PV, known_rows_in_pv;
+    /// Indicating which attribute to be summed in a sum query
+    int index_attr_sum; 
+
+    /// Subset of records included in the servers' backround knowledge
+    id_domain_set known_record_subset;
+
+    /// Set of labels in clear of the histogram
+    hash_pair_map plain_domain_map; 
+
+    /// Vector of matching records from SQL query to query formulation
+    id_domain_vector match_query_domain_vect; 
      
     // ENC_DOMAIN_MAP enc_question_map_pre, enc_question_map_tmp; // for preprare a test funtion
     
     // id_domain_set verified_set, known_rows_after_phase2;
 
-    hash_pair_map plain_domain_map; //used for tracking bug
+    // hash_pair_map plain_domain_map; 
 
-    id_domain_vector match_query_domain_vect; // matching actual query to a query vector    
+    // id_domain_vector match_query_domain_vect; // matching actual query to a query vector    
 
-    int *plain_track_list; //used for tracking bug
+    // int *plain_track_list; //used for tracking bug
 
-    int index_attr_sum; //specify which attribute to be sum up: for a sum query
-
+    
 /**
  * @brief Default constructor.
 */
@@ -143,7 +151,7 @@ public:
  * it only needs to find the element where the domain is satisfied the condition
  * of the test and changes it from enc(0) to enc(1)
  * @param pre_enc_stack: point to the precomputed encryption stack
- * @param enc_domain_maP: partial view sent by the participant to get the labels
+ * @param enc_domain_map: partial view for server to get labels
  * @return a precomputed test function/query function with all enc(0)
  */  
 
@@ -153,7 +161,7 @@ public:
  * @brief Generate the test that counts all records in the dataset that are known by the servers
  * @details This function modifed the pre-computed test function for reduce runtime. The expected answer is L+/- noise
  * @param pre_enc_stack: point to precomputed encryption stack of the serve
- * @param enc_domain_map: partial view for server to get labels
+ * @param enc_domain_map: set of labels in enc partial view 
  * @return an encrypted vector of enc(0) and enc(1), labels matched with partial view's labels
  * enc(1) is placed to element with labels matched the L known records
  * enc(0) is placed to all other elements
@@ -167,7 +175,7 @@ public:
  * @details The expected answer is V+/- noise
  * This function only re-randomises some of encryptions in the partial view map to reduce runtime
  * @param pre_enc_stack: point to precomputed encryption stack of the serve
- * @param enc_domain_map: using the partial view with both labels and encryptions
+ * @param enc_domain_map: set of labels in enc partial view 
  * @return an encrypted vector of enc(0) and enc(1), labels matched with partial view's labels
  * enc(1) becomes a new ciphertext of 1
  * enc(0) becomes a new ciphertext of 0
@@ -204,7 +212,7 @@ public:
  * @brief Generates the test that counts all records in the dataset 
  * @details The expected answer is N+/- noise
  * @param pre_enc_stack: point to precomputed encryption stack of the serve
- * @param enc_domain_map: partial view for server to get all labels
+ * @param enc_domain_map: set of labels in enc partial view 
  * @return an encrypted vector of all enc(1), labels matched with partial view's labels
 */
 
@@ -241,7 +249,6 @@ public:
  * @details The server matches all records that have the attributes sastifing given values using a matching function
  * Then server add 1 to matched labels, 0 to non matched labels
  * @param pre_enc_stack: point to precomputed encryption stack of the server
- * @param enc_domain_map: partial view for servers to get all labels
  * @return an clear vector of 0 and 1, labels matched with partial view's labels
 */    
 
@@ -262,11 +269,11 @@ public:
 /**
  * @brief This function is to get quer result from the encrypted PV in case a cheating party is detected
  * @details servers then use this decrypted result as the input of function estimate_conf_interval()
- * @param enc_domain_map: encrypted partial view
+ * @param enc_PV: enc partial view 
  * @param enc_PV_answer: to store the encrypted answer 
  * @return an encrypted result from the partial view for the query
  */ 
-    void getQueryResult_fromPV(ENC_DOMAIN_MAP enc_domain_map, gamal_ciphertext_t enc_PV_query_answer); 
+    void getQueryResult_fromPV(ENC_DOMAIN_MAP enc_PV, gamal_ciphertext_t enc_PV_query_answer); 
 
 
 //===============================================================================================================//

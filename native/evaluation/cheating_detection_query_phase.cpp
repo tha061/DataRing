@@ -190,7 +190,7 @@
      part_A.epsilon_q = epsilon_q; // total budget is epsilon for all iterations
      part_A.minNoise_q = -part_A.maxNoise_q;
      part_A.maxNoise_test = getLaplaceNoiseRange(sensitivity, epsilon_test, percentile_noise);
-     part_A.epsilon_test = epsilon_test; // total budget is epsilon for all iterations
+     part_A.epsilon_test = epsilon_q; // total budget is epsilon for all iterations
      part_A.minNoise_test = -part_A.maxNoise_test;
   
      part_A.sensitivity = sensitivity;

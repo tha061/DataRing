@@ -39,6 +39,16 @@ void printCiphertext(gamal_ciphertext_t ciphertext);
 int getRandomInRange(int min, int max);
 
 // void decryptFind(map<string, gamal_ciphertext_t *> enc_domain_map, gamal_key_t key, bsgs_table_t table);
+/**
+ * @brief Choose one string from a list of strings randomly for permutation
+ * @param v: a vector of strings
+ * @return: a string randomly selected and be removed from vector v
+ * 
+ */
+    string getString(vector<string>& v);
+
+
+   int getRandomNumber(vector<int>& v);
 
 
 #endif

@@ -268,43 +268,43 @@ void Server::generateTestKnownRecords_opt(ENC_Stack &pre_enc_stack, ENC_DOMAIN_M
 }
 
 //target L
-void Server::generateTestKnownRecords(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
-{
-    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
-    {
-        id_domain_pair domain = itr->first;
-        gamal_ciphertext_t *mul_enc_ciphertext = new gamal_ciphertext_t[1];
-        if (known_record_subset.find(domain) != known_record_subset.end())
-        {
-            pre_enc_stack.pop_E1(mul_enc_ciphertext[0]);
-        }
-        else
-        {
-            pre_enc_stack.pop_E0(mul_enc_ciphertext[0]);
-        }
-        enc_question_map.insert({domain, mul_enc_ciphertext[0]});
-    }
-}
+// void Server::generateTestKnownRecords(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
+// {
+//     for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
+//     {
+//         id_domain_pair domain = itr->first;
+//         gamal_ciphertext_t *mul_enc_ciphertext = new gamal_ciphertext_t[1];
+//         if (known_record_subset.find(domain) != known_record_subset.end())
+//         {
+//             pre_enc_stack.pop_E1(mul_enc_ciphertext[0]);
+//         }
+//         else
+//         {
+//             pre_enc_stack.pop_E0(mul_enc_ciphertext[0]);
+//         }
+//         enc_question_map.insert({domain, mul_enc_ciphertext[0]});
+//     }
+// }
 
 
 
 
 //test target V
-void Server::generateTestBasedPartialView(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
-{
-    enc_question_map.clear();
-    gamal_ciphertext_t encrypt_0;
-    gamal_cipher_new(encrypt_0);
-    pre_enc_stack.pop_E0(encrypt_0);
+// void Server::generateTestBasedPartialView(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
+// {
+//     enc_question_map.clear();
+//     gamal_ciphertext_t encrypt_0;
+//     gamal_cipher_new(encrypt_0);
+//     pre_enc_stack.pop_E0(encrypt_0);
 
-    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
-    {
-        id_domain_pair domain = itr->first;
-        gamal_ciphertext_t *add_enc_ciphertext = new gamal_ciphertext_t[1];
-        gamal_add(add_enc_ciphertext[0], itr->second, encrypt_0);
-        enc_question_map.insert({domain, add_enc_ciphertext[0]});
-    }
-}
+//     for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
+//     {
+//         id_domain_pair domain = itr->first;
+//         gamal_ciphertext_t *add_enc_ciphertext = new gamal_ciphertext_t[1];
+//         gamal_add(add_enc_ciphertext[0], itr->second, encrypt_0);
+//         enc_question_map.insert({domain, add_enc_ciphertext[0]});
+//     }
+// }
 
 
 //added by Tham to reduce runtime
@@ -482,61 +482,61 @@ void Server::generateTest_Target_Attr_opt(ENC_Stack &pre_enc_stack)
     // cout << "Total match domains in query: " << counter << endl;
 }
 
-void Server::generateTest_Target_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
-{
-    enc_question_map.clear();
+// void Server::generateTest_Target_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
+// {
+//     enc_question_map.clear();
 
-    map<int, string> columns_map;
-    _importQuery(columns_map, 1); // test_or_query = 1 to generate test estimation function
-    const int COLUMN_SIZE = 10;
-    int counter = 0;
-    int plain;
+//     map<int, string> columns_map;
+//     _importQuery(columns_map, 1); // test_or_query = 1 to generate test estimation function
+//     const int COLUMN_SIZE = 10;
+//     int counter = 0;
+//     int plain;
 
-    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
-    {
-        bool match = true;
+//     for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
+//     {
+//         bool match = true;
 
-        vector<string> col_arr;
-        id_domain_pair domain_pair = itr->first;
-        string domain = domain_pair.second;
-        char delim = ' ';
-        stringstream ss(domain);
-        string token;
-        while (getline(ss, token, delim))
-        {
-            col_arr.push_back(token);
-        }
+//         vector<string> col_arr;
+//         id_domain_pair domain_pair = itr->first;
+//         string domain = domain_pair.second;
+//         char delim = ' ';
+//         stringstream ss(domain);
+//         string token;
+//         while (getline(ss, token, delim))
+//         {
+//             col_arr.push_back(token);
+//         }
 
-        for (map<int, string>::iterator colItr = columns_map.begin(); colItr != columns_map.end(); colItr++)
-        {
-            int col_index = colItr->first;
-            string col_value = colItr->second;
-            string o_col_value = col_arr[col_index];
+//         for (map<int, string>::iterator colItr = columns_map.begin(); colItr != columns_map.end(); colItr++)
+//         {
+//             int col_index = colItr->first;
+//             string col_value = colItr->second;
+//             string o_col_value = col_arr[col_index];
 
-            if (o_col_value != col_value)
-            {
-                match = false;
-            }
-        }
+//             if (o_col_value != col_value)
+//             {
+//                 match = false;
+//             }
+//         }
 
-        gamal_ciphertext_t *enc_ciphertext = new gamal_ciphertext_t[1];
-        if (match)
-        {
-            counter++;
-            pre_enc_stack.pop_E1(enc_ciphertext[0]);
-            plain = 1;
-        }
-        else
-        {
-            pre_enc_stack.pop_E0(enc_ciphertext[0]);
-            plain = 0;
-        }
-        plain_domain_map.insert({domain_pair, plain}); //for server to get answer from encrypted
-        enc_question_map.insert({domain_pair, enc_ciphertext[0]});
-    }
+//         gamal_ciphertext_t *enc_ciphertext = new gamal_ciphertext_t[1];
+//         if (match)
+//         {
+//             counter++;
+//             pre_enc_stack.pop_E1(enc_ciphertext[0]);
+//             plain = 1;
+//         }
+//         else
+//         {
+//             pre_enc_stack.pop_E0(enc_ciphertext[0]);
+//             plain = 0;
+//         }
+//         plain_domain_map.insert({domain_pair, plain}); //for server to get answer from encrypted
+//         enc_question_map.insert({domain_pair, enc_ciphertext[0]});
+//     }
 
-    // cout << "Total match row in attribute test func: " << counter << endl;
-}
+//     // cout << "Total match row in attribute test func: " << counter << endl;
+// }
 
 
 void Server::generateTest_Target_All_Records(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
@@ -693,57 +693,57 @@ int Server::generateNormalQuery_sum(ENC_Stack &pre_enc_stack, int index_attr_to_
     // cout << "Total match domains in query: " << counter << endl;
 }
 
-void Server::generateNormalQuery(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
-{
-    enc_question_map.clear();
+// void Server::generateNormalQuery(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
+// {
+//     enc_question_map.clear();
 
-    map<int, string> columns_map;
-    _importQuery(columns_map, 0); //test_or_query = 1 to gen normal query
-    const int COLUMN_SIZE = 10;
-    int counter = 0;
+//     map<int, string> columns_map;
+//     _importQuery(columns_map, 0); //test_or_query = 1 to gen normal query
+//     const int COLUMN_SIZE = 10;
+//     int counter = 0;
 
-    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
-    {
-        bool match = true;
+//     for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
+//     {
+//         bool match = true;
 
-        vector<string> col_arr;
-        id_domain_pair domain_pair = itr->first;
-        string domain = domain_pair.second;
-        char delim = ' ';
-        stringstream ss(domain);
-        string token;
-        while (getline(ss, token, delim))
-        {
-            col_arr.push_back(token);
-        }
+//         vector<string> col_arr;
+//         id_domain_pair domain_pair = itr->first;
+//         string domain = domain_pair.second;
+//         char delim = ' ';
+//         stringstream ss(domain);
+//         string token;
+//         while (getline(ss, token, delim))
+//         {
+//             col_arr.push_back(token);
+//         }
 
-        for (map<int, string>::iterator colItr = columns_map.begin(); colItr != columns_map.end(); colItr++)
-        {
-            int col_index = colItr->first;
-            string col_value = colItr->second;
-            string o_col_value = col_arr[col_index];
+//         for (map<int, string>::iterator colItr = columns_map.begin(); colItr != columns_map.end(); colItr++)
+//         {
+//             int col_index = colItr->first;
+//             string col_value = colItr->second;
+//             string o_col_value = col_arr[col_index];
 
-            if (o_col_value != col_value)
-            {
-                match = false;
-            }
-        }
+//             if (o_col_value != col_value)
+//             {
+//                 match = false;
+//             }
+//         }
 
-        gamal_ciphertext_t *enc_ciphertext = new gamal_ciphertext_t[1];
-        if (match)
-        {
-            counter++;
-            pre_enc_stack.pop_E1(enc_ciphertext[0]);
-        }
-        else
-        {
-            pre_enc_stack.pop_E0(enc_ciphertext[0]);
-        }
-        enc_question_map.insert({domain_pair, enc_ciphertext[0]});
-    }
+//         gamal_ciphertext_t *enc_ciphertext = new gamal_ciphertext_t[1];
+//         if (match)
+//         {
+//             counter++;
+//             pre_enc_stack.pop_E1(enc_ciphertext[0]);
+//         }
+//         else
+//         {
+//             pre_enc_stack.pop_E0(enc_ciphertext[0]);
+//         }
+//         enc_question_map.insert({domain_pair, enc_ciphertext[0]});
+//     }
 
-    // cout << "Total match domains in query: " << counter << endl;
-}
+//     // cout << "Total match domains in query: " << counter << endl;
+// }
 
 float Server::generatePVTestCondition(int dataset, int PV, int known_records, double eta)
 {
@@ -812,7 +812,7 @@ void Server::getTestResult_fromPV(ENC_DOMAIN_MAP enc_domain_map, gamal_ciphertex
 
 
 //Get Query answer from PV
-void Server::getQueryResult_fromPV(ENC_DOMAIN_MAP enc_domain_map, gamal_ciphertext_t enc_PV_query_answer)
+void Server::getQueryResult_fromPV(ENC_DOMAIN_MAP enc_PV, gamal_ciphertext_t enc_PV_query_answer)
 {
     int counter = 0;
 
@@ -822,7 +822,7 @@ void Server::getQueryResult_fromPV(ENC_DOMAIN_MAP enc_domain_map, gamal_cipherte
 
     // cout << "Start multiply and add " << endl;
     int i = 0;
-    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
+    for (ENC_DOMAIN_MAP::iterator itr = enc_PV.begin(); itr != enc_PV.end(); itr++)
     {
         string key = itr->first.first;
         string domain = itr->first.second;
@@ -875,261 +875,261 @@ void Server::getQueryResult_fromPV(ENC_DOMAIN_MAP enc_domain_map, gamal_cipherte
 //============Supportive and unused functions================================================================//
 
 
-void Server::generateTestFunction(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, int type)
-{
-    switch (type)
-    {
-    case 1: // targeting L known rows
-    {
-        Server::generateTestKnownRecords(pre_enc_stack, enc_domain_map);
-        break;
-    }
+// void Server::generateTestFunction(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, int type)
+// {
+//     switch (type)
+//     {
+//     case 1: // targeting L known rows
+//     {
+//         Server::generateTestKnownRecords(pre_enc_stack, enc_domain_map);
+//         break;
+//     }
 
-    case 2: // targetting V rows in PV
-    {
-        Server::generateTestBasedPartialView(pre_enc_stack, enc_domain_map);
-        break;
-    }
+//     case 2: // targetting V rows in PV
+//     {
+//         Server::generateTestBasedPartialView(pre_enc_stack, enc_domain_map);
+//         break;
+//     }
 
-    case 3: // targeting V - r0 rows in PV
-    {
-        Server::generateTestHashMap_3(pre_enc_stack, enc_domain_map);
-        break;
-    }
+//     case 3: // targeting V - r0 rows in PV
+//     {
+//         Server::generateTestHashMap_3(pre_enc_stack, enc_domain_map);
+//         break;
+//     }
 
-    case 4: // targeting specific attributes
-    {
-        Server::generateTest_Target_Attr(pre_enc_stack, enc_domain_map);
-        break;
-    }
-    default:
-    {
-        cout << "Please enter type of test function" << endl;
-        break;
-    }
-    }
-}
+//     case 4: // targeting specific attributes
+//     {
+//         Server::generateTest_Target_Attr(pre_enc_stack, enc_domain_map);
+//         break;
+//     }
+//     default:
+//     {
+//         cout << "Please enter type of test function" << endl;
+//         break;
+//     }
+//     }
+// }
 
 
-void Server::save_knownRow_found_in_PV(id_domain_pair verified_domain_pair)
-{
-    verified_set.insert(verified_domain_pair);
-}
+// void Server::save_knownRow_found_in_PV(id_domain_pair verified_domain_pair)
+// {
+//     verified_set.insert(verified_domain_pair);
+// }
 
 
 //Tham
-void Server::save_opened_rows(id_domain_pair opened_rows)
-{
-    opened_rows_set.insert(opened_rows);
-}
+// void Server::save_opened_rows(id_domain_pair opened_rows)
+// {
+//     opened_rows_set.insert(opened_rows);
+// }
 
-//Tham: open the true PV for v bins to find more records and save to the known-records-set for testing
+// //Tham: open the true PV for v bins to find more records and save to the known-records-set for testing
 
-void Server::save_knownRow_after_phase2(id_domain_pair domain_pair)
-{
-    known_rows_after_phase2.insert(domain_pair);
-}
+// void Server::save_knownRow_after_phase2(id_domain_pair domain_pair)
+// {
+//     known_rows_after_phase2.insert(domain_pair);
+// }
 
 
 
 // //test target V - r0
-void Server::generateTestHashMap_3(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
-{
-    enc_question_map.clear();
-    gamal_ciphertext_t encrypt_0;
-    gamal_cipher_new(encrypt_0);
-    pre_enc_stack.pop_E0(encrypt_0);
+// void Server::generateTestHashMap_3(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map)
+// {
+//     enc_question_map.clear();
+//     gamal_ciphertext_t encrypt_0;
+//     gamal_cipher_new(encrypt_0);
+//     pre_enc_stack.pop_E0(encrypt_0);
 
-    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
-    {
-        id_domain_pair domain = itr->first;
-        gamal_ciphertext_t *enc_ciphertext = new gamal_ciphertext_t[1];
-        if (verified_set.find(domain) != verified_set.end())
-        {
-            pre_enc_stack.pop_E0(enc_ciphertext[0]);
-        }
-        else
-        {
-            gamal_add(enc_ciphertext[0], itr->second, encrypt_0);
-        }
-        enc_question_map.insert({domain, enc_ciphertext[0]});
-    }
-}
+//     for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
+//     {
+//         id_domain_pair domain = itr->first;
+//         gamal_ciphertext_t *enc_ciphertext = new gamal_ciphertext_t[1];
+//         if (verified_set.find(domain) != verified_set.end())
+//         {
+//             pre_enc_stack.pop_E0(enc_ciphertext[0]);
+//         }
+//         else
+//         {
+//             gamal_add(enc_ciphertext[0], itr->second, encrypt_0);
+//         }
+//         enc_question_map.insert({domain, enc_ciphertext[0]});
+//     }
+// }
 
 
 //Tham: test L + rows opened in PV
-void Server::generateTest_known_records_after_phase2(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, id_domain_set known_rows_after_phase2)
-{
-    enc_question_map = enc_question_map_pre;
-    gamal_ciphertext_t encrypt_1;
-    gamal_cipher_new(encrypt_1);
-    pre_enc_stack.pop_E1(encrypt_1);
+// void Server::generateTest_known_records_after_phase2(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, id_domain_set known_rows_after_phase2)
+// {
+//     enc_question_map = enc_question_map_pre;
+//     gamal_ciphertext_t encrypt_1;
+//     gamal_cipher_new(encrypt_1);
+//     pre_enc_stack.pop_E1(encrypt_1);
 
-    for (ENC_DOMAIN_MAP::iterator itr = enc_question_map.begin(); itr != enc_question_map.end(); itr++)
-    {
-        id_domain_pair domain = itr->first;
+//     for (ENC_DOMAIN_MAP::iterator itr = enc_question_map.begin(); itr != enc_question_map.end(); itr++)
+//     {
+//         id_domain_pair domain = itr->first;
 
-        if (known_rows_after_phase2.find(domain) != known_rows_after_phase2.end())
-        {
+//         if (known_rows_after_phase2.find(domain) != known_rows_after_phase2.end())
+//         {
 
-            gamal_add(itr->second, itr->second, encrypt_1);
-        }
-    }
+//             gamal_add(itr->second, itr->second, encrypt_1);
+//         }
+//     }
    
-}
+// }
 
 
 // This test target PV without r0 found in submitted PV
-void Server::generateTest_PV_r0(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, id_domain_set known_rows_in_pv)
-{
-    enc_question_map.clear();
-    // enc_question_map = enc_domain_map;
-    gamal_ciphertext_t encrypt_0;
-    gamal_cipher_new(encrypt_0);
-    pre_enc_stack.pop_E0(encrypt_0);
+// void Server::generateTest_PV_r0(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, id_domain_set known_rows_in_pv)
+// {
+//     enc_question_map.clear();
+//     // enc_question_map = enc_domain_map;
+//     gamal_ciphertext_t encrypt_0;
+//     gamal_cipher_new(encrypt_0);
+//     pre_enc_stack.pop_E0(encrypt_0);
 
-    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
-    {
-        id_domain_pair domain = itr->first;
-        gamal_ciphertext_t *add_enc_ciphertext = new gamal_ciphertext_t[1];
-        gamal_add(add_enc_ciphertext[0], itr->second, encrypt_0);
-        itr->second = add_enc_ciphertext[0];
-        // enc_question_map.insert({domain, add_enc_ciphertext[0]});
-        itr++; //only process for half of the domains to save time
-    }
+//     for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
+//     {
+//         id_domain_pair domain = itr->first;
+//         gamal_ciphertext_t *add_enc_ciphertext = new gamal_ciphertext_t[1];
+//         gamal_add(add_enc_ciphertext[0], itr->second, encrypt_0);
+//         itr->second = add_enc_ciphertext[0];
+//         // enc_question_map.insert({domain, add_enc_ciphertext[0]});
+//         itr++; //only process for half of the domains to save time
+//     }
 
     
-    // removed r0 records from the test
+//     // removed r0 records from the test
     
-    gamal_ciphertext_t encrypt_1;
-    gamal_cipher_new(encrypt_1);
-    pre_enc_stack.pop_E0(encrypt_1);
+//     gamal_ciphertext_t encrypt_1;
+//     gamal_cipher_new(encrypt_1);
+//     pre_enc_stack.pop_E0(encrypt_1);
 
-    for (ENC_DOMAIN_MAP::iterator itr = enc_question_map.begin(); itr != enc_question_map.end(); itr++)
-    {
-        id_domain_pair domain = itr->first;
+//     for (ENC_DOMAIN_MAP::iterator itr = enc_question_map.begin(); itr != enc_question_map.end(); itr++)
+//     {
+//         id_domain_pair domain = itr->first;
 
-        if (known_rows_in_pv.find(domain) != known_rows_in_pv.end())
-        {
+//         if (known_rows_in_pv.find(domain) != known_rows_in_pv.end())
+//         {
 
-            cout<<"found one record of r0"<<endl;
-            // itr->second = encrypt_0;
-            gamal_subtract(itr->second, itr->second, encrypt_1);
-        }
-    }
+//             cout<<"found one record of r0"<<endl;
+//             // itr->second = encrypt_0;
+//             gamal_subtract(itr->second, itr->second, encrypt_1);
+//         }
+//     }
 
-    enc_question_map = enc_domain_map;
+//     enc_question_map = enc_domain_map;
    
-}
+// }
 
 
 // This test target PV and (L- r0) records
 // known_rows_in_PV: r0
 // known_record_subset: L (background knowledge)
-void Server::generateTest_PV_L_r0(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, id_domain_set known_rows_in_pv, id_domain_set known_record_subset)
-{
-    enc_question_map.clear();
-    // enc_question_map = enc_domain_map;
-    gamal_ciphertext_t encrypt_0;
-    gamal_cipher_new(encrypt_0);
-    pre_enc_stack.pop_E0(encrypt_0);
+// void Server::generateTest_PV_L_r0(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, id_domain_set known_rows_in_pv, id_domain_set known_record_subset)
+// {
+//     enc_question_map.clear();
+//     // enc_question_map = enc_domain_map;
+//     gamal_ciphertext_t encrypt_0;
+//     gamal_cipher_new(encrypt_0);
+//     pre_enc_stack.pop_E0(encrypt_0);
 
-    gamal_ciphertext_t encrypt_1;
-    gamal_cipher_new(encrypt_1);
-    pre_enc_stack.pop_E0(encrypt_1);
+//     gamal_ciphertext_t encrypt_1;
+//     gamal_cipher_new(encrypt_1);
+//     pre_enc_stack.pop_E0(encrypt_1);
 
-    for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
-    {
-        id_domain_pair domain = itr->first;
-        gamal_ciphertext_t *add_enc_ciphertext = new gamal_ciphertext_t[1];
-        gamal_add(add_enc_ciphertext[0], itr->second, encrypt_0);
-        itr->second = add_enc_ciphertext[0];
-        // enc_question_map.insert({domain, add_enc_ciphertext[0]});
-        itr++; //only process for half of the domains to save time
-    }
+//     for (ENC_DOMAIN_MAP::iterator itr = enc_domain_map.begin(); itr != enc_domain_map.end(); itr++)
+//     {
+//         id_domain_pair domain = itr->first;
+//         gamal_ciphertext_t *add_enc_ciphertext = new gamal_ciphertext_t[1];
+//         gamal_add(add_enc_ciphertext[0], itr->second, encrypt_0);
+//         itr->second = add_enc_ciphertext[0];
+//         // enc_question_map.insert({domain, add_enc_ciphertext[0]});
+//         itr++; //only process for half of the domains to save time
+//     }
 
-    // Added targeting L records in background knowledge
+//     // Added targeting L records in background knowledge
 
-    int count_L = 0;
-    for (id_domain_set::iterator itr = known_record_subset.begin(); itr != known_record_subset.end(); itr++)
-        {
-            id_domain_pair domain_pair = *itr;
-            ENC_DOMAIN_MAP::iterator find = enc_domain_map.find(domain_pair);
-            if (find != enc_domain_map.end())
-            {
-               count_L++;
-               gamal_add(find->second,find->second,encrypt_1);
-            }
+//     int count_L = 0;
+//     for (id_domain_set::iterator itr = known_record_subset.begin(); itr != known_record_subset.end(); itr++)
+//         {
+//             id_domain_pair domain_pair = *itr;
+//             ENC_DOMAIN_MAP::iterator find = enc_domain_map.find(domain_pair);
+//             if (find != enc_domain_map.end())
+//             {
+//                count_L++;
+//                gamal_add(find->second,find->second,encrypt_1);
+//             }
 
-        }
+//         }
 
-    cout<<"count_L= "<<count_L<<endl;
+//     cout<<"count_L= "<<count_L<<endl;
 
-    // removed r0 records from the test
+//     // removed r0 records from the test
     
 
-    // for (ENC_DOMAIN_MAP::iterator itr = enc_question_map.begin(); itr != enc_question_map.end(); itr++)
-    // {
-    //     id_domain_pair domain = itr->first;
+//     // for (ENC_DOMAIN_MAP::iterator itr = enc_question_map.begin(); itr != enc_question_map.end(); itr++)
+//     // {
+//     //     id_domain_pair domain = itr->first;
 
-    //     if (known_rows_in_pv.find(domain) != known_rows_in_pv.end())
-    //     {
+//     //     if (known_rows_in_pv.find(domain) != known_rows_in_pv.end())
+//     //     {
 
-    //         cout<<"found one record of r0"<<endl;
-    //         // itr->second = encrypt_0;
-    //         gamal_subtract(itr->second, itr->second, encrypt_1);
-    //     }
-    // }
+//     //         cout<<"found one record of r0"<<endl;
+//     //         // itr->second = encrypt_0;
+//     //         gamal_subtract(itr->second, itr->second, encrypt_1);
+//     //     }
+//     // }
 
-    int count_r0 = 0;
-    for (id_domain_set::iterator itr = known_rows_in_pv.begin(); itr != known_rows_in_pv.end(); itr++)
-        {
-            id_domain_pair domain_pair = *itr;
-            ENC_DOMAIN_MAP::iterator find = enc_domain_map.find(domain_pair);
-            if (find != enc_domain_map.end())
-            {
-               count_r0++;
-               gamal_subtract(find->second,find->second,encrypt_1);
-            }
+//     int count_r0 = 0;
+//     for (id_domain_set::iterator itr = known_rows_in_pv.begin(); itr != known_rows_in_pv.end(); itr++)
+//         {
+//             id_domain_pair domain_pair = *itr;
+//             ENC_DOMAIN_MAP::iterator find = enc_domain_map.find(domain_pair);
+//             if (find != enc_domain_map.end())
+//             {
+//                count_r0++;
+//                gamal_subtract(find->second,find->second,encrypt_1);
+//             }
 
-        }
+//         }
 
-    cout<<"count_r0 = "<<count_r0<<endl;
+//     cout<<"count_r0 = "<<count_r0<<endl;
     
 
-    enc_question_map = enc_domain_map;
+//     enc_question_map = enc_domain_map;
    
-}
+// }
 
 
-void Server::createRandomEncrypVector(ENC_Stack &pre_enc_stack)
-{
-    int *myPIR_arr; //final array with value of encryp type after reverting from shuffle array
+// void Server::createRandomEncrypVector(ENC_Stack &pre_enc_stack)
+// {
+//     int *myPIR_arr; //final array with value of encryp type after reverting from shuffle array
 
-    int enc_types[] = {1, 0};
-    int freq[] = {1, 99};
-    int pv_ratio = 100;
+//     int enc_types[] = {1, 0};
+//     int freq[] = {1, 99};
+//     int pv_ratio = 100;
 
-    myPIR_arr = new int[size_dataset];
+//     myPIR_arr = new int[size_dataset];
 
-    pir_gen(myPIR_arr, enc_types, freq, size_dataset, pv_ratio); // function that server place 1 or 0 randomly
+//     pir_gen(myPIR_arr, enc_types, freq, size_dataset, pv_ratio); // function that server place 1 or 0 randomly
 
-    // ========== Encrypt the vector =============== //
+//     // ========== Encrypt the vector =============== //
 
-    int plain1 = 1, plain0 = 0;
+//     int plain1 = 1, plain0 = 0;
 
-    for (int i = 0; i < size_dataset; i++)
-    {
-        plain_track_list[i] = myPIR_arr[i];
-        if (myPIR_arr[i] == 1)
-        {
-            pre_enc_stack.pop_E1(myPIR_enc[i]);
-        }
-        else
-        {
-            pre_enc_stack.pop_E0(myPIR_enc[i]);
-        }
-    }
+//     for (int i = 0; i < size_dataset; i++)
+//     {
+//         plain_track_list[i] = myPIR_arr[i];
+//         if (myPIR_arr[i] == 1)
+//         {
+//             pre_enc_stack.pop_E1(myPIR_enc[i]);
+//         }
+//         else
+//         {
+//             pre_enc_stack.pop_E0(myPIR_enc[i]);
+//         }
+//     }
 
-    delete[] myPIR_arr;
-}
+//     delete[] myPIR_arr;
+// }
