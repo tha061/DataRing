@@ -138,7 +138,8 @@ public:
  * @param threshold: expected answer
  * @return a status that pass/fail the test
 */
-    bool verifyingTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold);
+    // bool verifyingTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold);
+    bool verifyingTestResult(gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold);
 
 /** 
  * @brief Verify if the test answer from the participant is within the confidence interval +/- noise

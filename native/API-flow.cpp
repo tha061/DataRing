@@ -103,6 +103,7 @@ int API_flow(int argc, char **argv)
 	servers.generateCollKey(servers.coll_key); //generate collective key for Partial View Collection Phase
 	servers.pv_ratio = pv_ratio;
 
+
 	// INITIALIZE CIPHERTEXT STACK FOR PARTY
 	// part_A.initializePreStack(servers.coll_key);
 	
@@ -222,7 +223,7 @@ int API_flow(int argc, char **argv)
 	
 	server1.generateMatchDomain(1); // 1: for test function; 0: for normal query
 
-	server1.generateTest_Target_Attr_opt(pre_enc_stack);
+	server1.generateTest_Target_Attr_Clear(pre_enc_stack);
 
 	//PARTY compute answer:
 	

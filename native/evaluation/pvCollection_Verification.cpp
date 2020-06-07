@@ -62,8 +62,9 @@
      int PV_size = (int)dataset_size*pv_ratio; // actual V, not the PV histogram form
   
      
-     TRACK_LIST time_track_list;
-  
+    TRACK_LIST time_track_list;
+
+    
      
      srand(time(NULL)); // for randomness 
   
@@ -79,13 +80,14 @@
   
      // PARTICIPANT CONVERT DATASET TO HISTOGRAM
      Participant part_A(dataset_directory);
-     Participant part_B;
+     Participant part_B(dataset_directory);
      part_A.pv_ratio = pv_ratio;
      // Participant represent its dataset over a histogram of <label, value(label)>; label is one of all possible records that a dataset can take
      part_A.create_OriginalHistogram(dataset_size, a);
      // part_A.addDummy_to_Histogram(a); //for reduce overhead: limit the histogram to size of aN instead of size |D|
      // part_A.print_Histogram("fake_original_Hist_keep_99K", part_A.histogram);
   
+    
      //====== strategy 2: participant generate fake histogram randomly
      // float amount_true = 0.5;
      // int keep_row = int(dataset_size*amount_true); 
@@ -149,6 +151,7 @@
          flag[it] = itr->second;
          it++;
      }
+
   
      // cout<<"print v: "<<endl;
      // for(int i=0; i<n*a; i++)
@@ -247,62 +250,6 @@
      // t2 = high_resolution_clock::now();
      // trackTaskPerformance(time_track_list, "Verify PV (ms)", t1, t2);
   
-     
-     double percentile_noise = 0.95;             //use to determine Laplace max_noise
-     float noise_budget = 1.5;
-     float sensitivity = 1.0;
-     float epsilon_q = noise_budget/20; //if there are 20 questions
-     float epsilon_test = epsilon_q; //if there are 20 questions
-     float epsilon = noise_budget/20;  //if there are 20 questions
-  
-     //Server determines maxNoise
-     servers.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon_test, percentile_noise);
-     servers.minNoise = -servers.maxNoise;
-  
-     // Test target V
-     t1 = high_resolution_clock::now();
-     server1.generateTestBasedPartialView_opt(pre_enc_stack, server2.un_permute_PV);
-     t2 = high_resolution_clock::now();
-     trackTaskPerformance(time_track_list, "Gen Test V (ms)", t1, t2);
-  
-     gamal_ciphertext_t sum_cipher;
-     gamal_cipher_new(sum_cipher);
-	 t1 = high_resolution_clock::now();
-     part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
-	 t2 = high_resolution_clock::now();
-     trackTaskPerformance(time_track_list, "Gen ans test V (ms)", t1, t2);
-     
-	 int threshold;
-     threshold = PV_size; //actual PV size = V (not the PV histogram)
-     bool test_status;
-	 t1 = high_resolution_clock::now();
-     test_status = servers.verifyingTestResult("Test target V rows found:", sum_cipher, table, server_id, threshold);
-	 t2 = high_resolution_clock::now();
-     trackTaskPerformance(time_track_list, "Verify ans test V (ms)", t1, t2); 
-     trackTaskStatus(time_track_list, "Test target V status", test_status);
-
-	 // test L
-    
-     t1 = high_resolution_clock::now();
-    server1.generateTestKnownRecords_opt(pre_enc_stack, server2.un_permute_PV);
-     t2 = high_resolution_clock::now();
-     trackTaskPerformance(time_track_list, "Gen Test V (ms)", t1, t2);
-  
-     gamal_cipher_new(sum_cipher);
-	 t1 = high_resolution_clock::now();
-     part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
-	 t2 = high_resolution_clock::now();
-     trackTaskPerformance(time_track_list, "Gen ans test V (ms)", t1, t2);
-     
-	 
-     threshold = server1.known_record_subset.size();
-    
-	 t1 = high_resolution_clock::now();
-     test_status = servers.verifyingTestResult("Test target L rows found:", sum_cipher, table, server_id, threshold);
-	 t2 = high_resolution_clock::now();
-     trackTaskPerformance(time_track_list, "Verify ans test L (ms)", t1, t2); 
-     trackTaskStatus(time_track_list, "Test target L status", test_status);
-     
 
   
      if (argc > 1)
@@ -310,7 +257,7 @@
          fstream fout;
          if (strcmp(argv[9], "1") == 0)
          {
-             fout.open("./results/PVcollection_testV_testL_500K.csv", ios::out | ios::trunc);
+             fout.open("./results/PVcollection_500K_eta_092.csv", ios::out | ios::trunc);
              fout << "Iteration, PV Verification";
              for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
              {
@@ -321,7 +268,7 @@
          }
          else
          {
-             fout.open("./results/PVcollection_testV_testL_500K.csv", ios::out | ios::app);
+             fout.open("./results/PVcollection_500K_eta_092.csv", ios::out | ios::app);
          }
   
          // Insert the data to file

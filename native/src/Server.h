@@ -198,7 +198,7 @@ public:
  * @return an clear vector of 0 and 1, labels matched with partial view's labels
 */    
     
-    void generateServerDomain_Test_Target_Attr(ENC_Stack &pre_enc_stack); //not using pre_enc_stack at all
+    void generate_Test_Target_Attr_Clear(ENC_Stack &pre_enc_stack); //not using pre_enc_stack at all
 
 /**
  * @brief Generates the test that counts all records in the dataset 

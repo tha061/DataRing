@@ -12,6 +12,8 @@
 // #include "evaluation/runtime_new_scheme.cpp"
 // #include "evaluation/test_query_testfunction_process_question_answer_random.cpp"
 #include "evaluation/pvCollection_Verification.cpp"
+#include "evaluation/working_flow.cpp"
+#include "evaluation/cheating_detection_query_phase.cpp"
 
 
 
@@ -21,7 +23,9 @@ int main(int argc, char **argv)
 	
 	
 	srand(time(NULL));
-	// pvCollection(argc, argv);
+	pvCollection(argc, argv);
+	// working_flow(argc, argv);
+	// cheating_detection(argc, argv);
 
 
     // test_mult_opt(1, 1000);
@@ -50,11 +54,7 @@ int main(int argc, char **argv)
 	// release_answer(argc, argv);
 
 	// bench_elgamal_add_2(1,16);
-
-
 	
-
-
 	return 0;
 }
 

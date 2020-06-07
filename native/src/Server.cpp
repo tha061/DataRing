@@ -429,7 +429,7 @@ void Server::generateNormalQuery_Clear(ENC_Stack &pre_enc_stack)
 
 
 //generate clear test attribute for server to query the submitted partial view
-void Server::generateServerDomain_Test_Target_Attr(ENC_Stack &pre_enc_stack)
+void Server::generate_Test_Target_Attr_Clear(ENC_Stack &pre_enc_stack)
 {
     for (ENC_DOMAIN_MAP::iterator itr = enc_question_map_pre.begin(); itr != enc_question_map_pre.end(); itr++)
     {

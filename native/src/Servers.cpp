@@ -547,27 +547,28 @@ void Servers::open_true_PV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, in
 
 }
 
-bool Servers::verifyingTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold)
+// bool Servers::verifyingTestResult(string testName, gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold);
+bool Servers::verifyingTestResult(gamal_ciphertext_t sum_cipher, bsgs_table_t table, int serverId, int threshold)
 {
     dig_t decrypt_test_f = Servers::_fusionDecrypt(sum_cipher, table, serverId); 
     
 
-    cout << testName << " " << decrypt_test_f << endl;
+    // cout << testName << " " << decrypt_test_f << endl;
 
     // float epsilon = 0.1;
     // float sensitivity = 1.0;
 
     // int maxNoise = (int)(getLaplaceNoiseRange(sensitivity, epsilon, prob));
-    cout << "Max noise: " << maxNoise << endl;
+    // cout << "Max noise: " << maxNoise << endl;
 
     if (decrypt_test_f >= (threshold - maxNoise) && decrypt_test_f <= (threshold + maxNoise))
     {
-        cout << "Pass test function" << endl;
+        // cout << "Pass test function" << endl;
         return true;
     }
     else
     {
-        cout << "Fail test function" << endl;
+        // cout << "Fail test function" << endl;
         return false;
     }
 }
@@ -579,29 +580,29 @@ bool Servers::verifyingTestResult_Estimate(string testName, gamal_ciphertext_t s
     
     int int_PV_answer = (int)PV_answer;
 
-    cout << "PV_answer = " << PV_answer << endl;
+    // cout << "PV_answer = " << PV_answer << endl;
 
     vector<double> conf_range = Servers::estimate_conf_interval(alpha, int_PV_answer, data_size, data_size / 100); // confident interval of estimate answer
 
     int min_conf = (int)(conf_range[0]);
     int max_conf = (int)(conf_range[1]);
 
-    cout<<"test OK"<<endl;
+    // cout<<"test OK"<<endl;
 
     dig_t decrypt_test_f = Servers::_fusionDecrypt(sum_cipher, table, serverId); 
-    cout << testName << " " << decrypt_test_f << endl;
-    cout << "min_conf " << min_conf << ", "
-         << "max_conf " << max_conf << endl;
+    // cout << testName << " " << decrypt_test_f << endl;
+    // cout << "min_conf " << min_conf << ", "
+    //      << "max_conf " << max_conf << endl;
 
     // cout << "maxNoise " << (int)(maxNoise) << endl;
     if (decrypt_test_f >= min_conf - (int)(maxNoise) && decrypt_test_f <= max_conf + (int)(maxNoise))
     {
-        cout << "Pass test function estimate" << endl;
+        // cout << "Pass test function estimate" << endl;
         return true;
     }
     else
     {
-        cout << "Fail test function estimate" << endl;
+        // cout << "Fail test function estimate" << endl;
         return false;
     }
 }
