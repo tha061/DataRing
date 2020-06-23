@@ -44,21 +44,17 @@ public:
     int size_dataset; 
     ///Ratio of partial view size to dataset size
     double pv_ratio; 
-    /// Epsilon parameter for drawing a Laplacian noise
-    float epsilon_q; 
-    /// Epsilon parameter for drawing a Laplacian noise
-    float epsilon_test; 
+    /// Noise budget of a party for servers
+    float noise_budget_server; 
+    /// Noise budget of a party for another party
+    float noise_budget_other_party; 
     ///Sensitivity of a query
     float sensitivity; 
-    ///Maximum noise to add to a query answer
-    double maxNoise_q; 
-    ///Minimum noise to add to a query answer
-    double minNoise_q; 
-    ///Maximum noise to add to a test answer
-    double maxNoise_test; 
-    ///Minimum noise to add to a test answer
-    double minNoise_test; 
-    ///Number of lied answers during the query evaluation phase
+    ///Maximum noise to add to any query answer
+    double maxNoise; 
+    ///Minimum noise to add to any query answer
+    double minNoise; 
+    ///Number of cheated answers during the query evaluation phase
     int no_lied_answer;
 
     //-----------------------------------------// 
@@ -126,7 +122,7 @@ public:
  * @return an inverse permutation
 */
 
-    void getUnPermutationVector(vector<string> v, hash_pair_map map_v_permute); 
+    void getInversePermutationVector(vector<string> v, hash_pair_map map_v_permute); 
 
 
 /**
@@ -162,7 +158,7 @@ public:
     //Tham: sum query
     void computeAnswer_sum(ENC_DOMAIN_MAP &enc_question_map, gamal_ciphertext_t sum_cipher, hash_pair_map hist, gamal_key_t &coll_key, float epsilon_i, int attr_to_sum);
 
-    void getArbitraryUnPermutationVector(vector<string> v, hash_pair_map map_v_permute);
+    // void getArbitraryUnPermutationVector(vector<string> v, hash_pair_map map_v_permute);
 
     /**
  * @brief Generates a fake histgram from the true histogram.

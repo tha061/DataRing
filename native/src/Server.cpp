@@ -2,7 +2,7 @@
 
 /** 
  * @file Server.cpp
- * @brief Implementation of a single server's functions
+ * @brief Implementation of a single Server's functions
  * @author Tham Nguyen tham.nguyen@mq.edu.au, Nam Bui, Data Ring
  * @date April 2020
 */ 

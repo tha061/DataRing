@@ -1,4 +1,10 @@
-
+// #include "include/public_header.h"
+ // #include "src/Participant.h"
+ // #include "src/Server.h"
+ // #include "src/Servers.h"
+ // #include "src/process_noise.h"
+ // #include "src/time_evaluation.h"
+ // #include "public_func.h"
   
  #include "../include/public_header.h"
  #include "../src/Participant.h"
@@ -14,13 +20,7 @@
  #include <iostream> 
  #include <map>
  using namespace std; 
-
- /** 
- * @file pvCollection_Verification.cpp
- * @brief Robustness of Partial View Phase
- * @author Tham Nguyen tham.nguyen@mq.edu.au, Nam Bui, Data Ring
- * @date April 2020
-*/ 
+  
   
  int pvCollection(int argc, char **argv)
  { 
@@ -30,8 +30,7 @@
      int a = 2;                 //make it an argument to scale up the histogram for adding dummy
      double eta;                //make it an argument use to determine r0
      double alpha = 0.05;
-     double pv_ratio_1 = 0.5;
-     double pv_ratio;
+     double pv_ratio = 0.5;
      
      string dataset_directory, background_knowledge_directory;
      if (argc > 1)
@@ -41,7 +40,7 @@
              dataset_directory = argv[1]; //dataset is a csv file
              background_knowledge_directory = argv[2]; //background knolwedge is a csv file
              dataset_size = stoi(argv[3]); //size of dataset
-             pv_ratio_1 = stod(argv[4]); // pv sample rate
+             pv_ratio = stod(argv[4]); // pv sample rate
              number_servers = stoi(argv[5]);
              a = stoi(argv[6]);
              eta = stod(argv[7]); //make it an argument use to determine r0
@@ -59,20 +58,18 @@
          return -1;
      }
   
-    //  pv_ratio = double (pv_ratio_1*0.001);
-    pv_ratio = pv_ratio_1;
+     
      int PV_size = (int)dataset_size*pv_ratio; // actual V, not the PV histogram form
   
      
-    TRACK_LIST time_track_list;
-
-    
+     TRACK_LIST time_track_list;
+  
      
      srand(time(NULL)); // for randomness 
   
      // for encryption scheme
      bsgs_table_t table; // lookup table for decryption
-     gamal_init(CURVE_256_SEC); //eliptic curve provide 128bit security
+     gamal_init(CURVE_256_SEC); //eliptic curve
      gamal_init_bsgs_table(table, (dig_t)1L << 16); //table size = 2^16
   
   
@@ -82,22 +79,21 @@
   
      // PARTICIPANT CONVERT DATASET TO HISTOGRAM
      Participant part_A(dataset_directory);
-     Participant part_B(dataset_directory);
+     Participant part_B;
      part_A.pv_ratio = pv_ratio;
      // Participant represent its dataset over a histogram of <label, value(label)>; label is one of all possible records that a dataset can take
      part_A.create_OriginalHistogram(dataset_size, a);
      // part_A.addDummy_to_Histogram(a); //for reduce overhead: limit the histogram to size of aN instead of size |D|
      // part_A.print_Histogram("fake_original_Hist_keep_99K", part_A.histogram);
   
-    
      //====== strategy 2: participant generate fake histogram randomly
-    //  float amount_true = 0.5;
-    //  int keep_row = int(dataset_size*amount_true); 
-    //  int keep_row = 487641;
-    //  t1 = high_resolution_clock::now();
-    //  part_A.addDummy_FakeHist_random(keep_row, a);
-    //  t2 = high_resolution_clock::now();
-    //  trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
+     // float amount_true = 0.5;
+     // int keep_row = int(dataset_size*amount_true); 
+     int keep_row = 500000;
+     // t1 = high_resolution_clock::now();
+     part_A.addDummy_FakeHist_random(keep_row, a);
+     // t2 = high_resolution_clock::now();
+     // trackTaskPerformance(time_track_list, "Fake Dummy Histog (ms)", t1, t2);
   
      // part_A.print_Histogram("fake_Hist_keep_99K", part_A.fake_histogram);
   
@@ -140,24 +136,19 @@
      
      
      int it = 0;
-
-     // cheating
-    //  for (hash_pair_map::iterator itr = part_A.fake_histogram.begin(); itr != part_A.fake_histogram.end(); ++itr)
-    //  {
-    //   v[it] = itr->first.first + ' ' + itr->first.second;
-    //   flag[it] = itr->second;
-    //   it++;
-    //  }
+     // for (hash_pair_map::iterator itr = part_A.histogram.begin(); itr != part_A.histogram.end(); ++itr)
+     // {
+     //  v[it] = itr->first.first + ' ' + itr->first.second;
+     //  flag[it] = itr->second;
+     //  it++;
+     // }
   
-
-    // honest
-     for (hash_pair_map::iterator itr = part_A.histogram.begin(); itr != part_A.histogram.end(); ++itr)
+     for (hash_pair_map::iterator itr = part_A.fake_histogram.begin(); itr != part_A.fake_histogram.end(); ++itr)
      {
          v[it] = itr->first.first + ' ' + itr->first.second;
          flag[it] = itr->second;
          it++;
      }
-
   
      // cout<<"print v: "<<endl;
      // for(int i=0; i<n*a; i++)
@@ -210,7 +201,7 @@
      //S1 selects V 1s and encrypts all
   
     
-     
+  
      server1.pv_ratio = pv_ratio;
      server1.size_dataset = dataset_size;
   
@@ -231,7 +222,7 @@
     
     
      // t1 = high_resolution_clock::now();
-     server2.rerandomizePVSampleFromPermutedHistogram(server1.PV_sample_from_permuted_map, pre_enc_stack);
+     // server2.rerandomizePVSampleFromPermutedHistogram(server1.PV_sample_from_permuted_map, pre_enc_stack);
      // t2 = high_resolution_clock::now();
      // // time_diff = duration_cast<nanoseconds>(t2 - t1).count();
      // // cout<<"rerandomizePVSampleFromPermutedHistogram (ms) = "<<(time_diff)/1000000.0<<endl; 
@@ -256,39 +247,49 @@
      // t2 = high_resolution_clock::now();
      // trackTaskPerformance(time_track_list, "Verify PV (ms)", t1, t2);
   
-
+     
+     // double percentile_noise = 0.95;             //use to determine Laplace max_noise
+     // float noise_budget = 1.5;
+     // float sensitivity = 1.0;
+     // float epsilon_q = noise_budget/20; //if there are 20 questions
+     // float epsilon_test = epsilon_q; //if there are 20 questions
+     // float epsilon = noise_budget/20;  //if there are 20 questions
+  
+     // //Server determines maxNoise
+     // servers.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon_test, percentile_noise);
+     // servers.minNoise = -servers.maxNoise;
+  
+     // // Test target V
+     // t1 = high_resolution_clock::now();
+     // server1.generateTestBasedPartialView_opt(pre_enc_stack, server2.un_permute_PV);
+     // t2 = high_resolution_clock::now();
+     // trackTaskPerformance(time_track_list, "Gen Test V (ms)", t1, t2);
+  
+     // gamal_ciphertext_t sum_cipher;
+     // part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.fake_histogram, servers.coll_key, epsilon);
+     // int threshold;
+     // threshold = PV_size; //actual PV size = V (not the PV histogram)
+     // bool test_status;
+     // test_status = servers.verifyingTestResult("Test target V rows found:", sum_cipher, table, server_id, threshold); 
+     // trackTaskStatus(time_track_list, "Test target V status", test_status);
   
      if (argc > 1)
      {
-        
-
          fstream fout;
-         // std::ofstream fout;
-  
-         string filename = "./results/PVcollection_new_L_100_";
-     
-         stringstream ss;
-
          if (strcmp(argv[9], "1") == 0)
          {
-             ss << filename <<"dataset_"<<dataset_size <<"_PV_size_"<<PV_size<<".csv"; // add your stuff to the stream
-             fout.open(ss.str().c_str(),ios::out | ios::trunc);
-             
-            //  fout.open("./results/PVcollection_500K_L_100_rho_6pc_50runs_honest_eta_095_2.csv", ios::out | ios::trunc);
+             fout.open("./results/test_PV_verification_invalid_permutation_true_unPermute_500K_50runs_keep500000_rho_01pc.csv", ios::out | ios::trunc);
              fout << "Iteration, PV Verification";
              for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
              {
                  string column = itr->first;
                  fout << ", " << column;
              }
-        
              fout << "\n";
          }
          else
          {
-            //  fout.open("./results/PVcollection_500K_L_100_rho_6pc_50runs_honest_eta_095_2.csv", ios::out | ios::app);
-            ss << filename <<"dataset_"<<dataset_size <<"_PV_size_"<<PV_size<<".csv";
-            fout.open(ss.str().c_str(),ios::out | ios::app);
+             fout.open("./results/test_PV_verification_invalid_permutation_true_unPermute_500K_50runs_keep500000_rho_01pc.csv", ios::out | ios::app);
          }
   
          // Insert the data to file

@@ -3,7 +3,7 @@
 
 /** 
  * @file Servers.cpp
- * @brief Implementation of servers' functions
+ * @brief Implementation of Servers' functions
  * @author Tham Nguyen tham.nguyen@mq.edu.au, Nam Bui, Data Ring
  * @date April 2020
 */ 

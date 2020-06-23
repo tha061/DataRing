@@ -239,20 +239,6 @@
   
  void Participant::computeAnswer_opt(ENC_DOMAIN_MAP &enc_question_map, gamal_ciphertext_t sum_cipher, hash_pair_map hist, gamal_key_t &coll_key, float epsilon_i)
  {
-     //generatePV_opt
-     // hash_pair_map tmp_histogram = useTruth ? histogram : fake_histogram;
-  
-     // const int size_test_map = enc_question_map.size();
-     // gamal_ciphertext_t *enc_list = new gamal_ciphertext_t[size_test_map];
-  
-     // int counter = 0;
-  
-     // for (ENC_DOMAIN_MAP::iterator itr = enc_question_map.begin(); itr != enc_question_map.end(); ++itr)
-     // {
-     //     counter++;
-     // }
-  
-     // cout<<"Number of bins in question vector: "<<counter<<endl;
   
      gamal_ciphertext_t tmp, mul_tmp;
      gamal_cipher_new(tmp);
@@ -292,8 +278,7 @@
                  
      }
   
-     // cout<<"\nNumber of bins 1 in histogram when compute answer = "<<count<<endl;
-  
+     
   
      //noise generation
   
@@ -303,32 +288,18 @@
      // cout << "Party: max noise: " << maxNoise_test << endl;
      // cout << "Party: min noise: " << minNoise_test << endl;
   
-     if (epsilon_i == epsilon_test) 
-     {
-         if (randomNoise < minNoise_test)
+    
+         if (randomNoise < minNoise)
          {
-             randomNoise = (int)(minNoise_test);                
+             randomNoise = (int)(minNoise);                
          }
-         else if (randomNoise > maxNoise_test)
+         else if (randomNoise > maxNoise)
          {
-             randomNoise = (int)(maxNoise_test);  
+             randomNoise = (int)(maxNoise);  
      
          }
          
-     }
-     else
-     {
-         if (randomNoise < minNoise_q)
-         {
-             randomNoise = (int)(minNoise_q);                
-         }
-          else if (randomNoise > maxNoise_test)
-         {
-             randomNoise = (int)(maxNoise_test);  
      
-         }
-         
-     }
      
      
      // cout << "Random noise: " << randomNoise << endl;
@@ -351,19 +322,8 @@
      gamal_cipher_new(tmp);
      tmp->C1 = sum_cipher->C1;
      tmp->C2 = sum_cipher->C2;
-     gamal_add(sum_cipher, tmp, noiseEnc); //28 Jan 2020: Tham fixed the issue of negative ans because sometimes enc(ans) before add noise = enc(0)
-     
-     // if (randomNoise >= 0)
-     // {
-     //     gamal_add(sum_cipher, tmp, noiseEnc);
-     // }
-     // else{
-     //     gamal_subtract(sum_cipher, tmp, noiseEnc); //Tham fixed the issue of negative noise and enc(ans) = enc(0)
-     // }
-     
-     
-     
-     // tmp_histogram.clear();
+     gamal_add(sum_cipher, tmp, noiseEnc); 
+   
      
  }
   
@@ -479,32 +439,16 @@
      int randomNoise_to_enc;
      
   
-     if (epsilon_i == epsilon_test) 
-     {
-         if (randomNoise < minNoise_test)
+    
+         if (randomNoise < minNoise)
          {
-             randomNoise = (int)(minNoise_test);                
+             randomNoise = (int)(minNoise);                
          }
-         else if (randomNoise > maxNoise_test)
+         else if (randomNoise > maxNoise)
          {
-             randomNoise = (int)(maxNoise_test);  
+             randomNoise = (int)(maxNoise);  
      
          }
-         
-     }
-     else
-     {
-         if (randomNoise < minNoise_q)
-         {
-             randomNoise = (int)(minNoise_q);                
-         }
-          else if (randomNoise > maxNoise_test)
-         {
-             randomNoise = (int)(maxNoise_test);  
-     
-         }
-         
-     }
      
   
      if(randomNoise < 0)
@@ -524,10 +468,7 @@
      gamal_cipher_new(tmp);
      tmp->C1 = sum_cipher->C1;
      tmp->C2 = sum_cipher->C2;
-     gamal_add(sum_cipher, tmp, noiseEnc); //28 Jan 2020: Tham fixed the issue of negative ans because sometimes enc(ans) before add noise = enc(0)
-     
-     
-     // tmp_histogram.clear();
+     gamal_add(sum_cipher, tmp, noiseEnc); 
      
  }
   
@@ -607,7 +548,7 @@
      
  // Generate permutation and corresponding un-permute vector
   
- void Participant::getUnPermutationVector(vector<string> v, hash_pair_map map_v_permute) 
+ void Participant::getInversePermutationVector(vector<string> v, hash_pair_map map_v_permute) 
  { 
          
      vector<string> v_permute_sort(map_v_permute.size());
@@ -637,41 +578,41 @@
   
  // Generate permutation and arbitrary un-permute vector
   
- void Participant::getArbitraryUnPermutationVector(vector<string> v, hash_pair_map map_v_permute) 
- { 
+//  void Participant::getArbitraryUnPermutationVector(vector<string> v, hash_pair_map map_v_permute) 
+//  { 
          
-     vector<string> v_permute_sort(map_v_permute.size());
-     vector<int> match_back_to_v(map_v_permute.size());
-     // cout<<"print map_v_permute"<<endl;
-     // int i =0;
-     // for (hash_pair_map::iterator itr = map_v_permute.begin(); itr != map_v_permute.end(); ++itr) { 
+//      vector<string> v_permute_sort(map_v_permute.size());
+//      vector<int> match_back_to_v(map_v_permute.size());
+//      // cout<<"print map_v_permute"<<endl;
+//      // int i =0;
+//      // for (hash_pair_map::iterator itr = map_v_permute.begin(); itr != map_v_permute.end(); ++itr) { 
          
-     //     v_permute_sort[i] = itr->first.first;//just for check  bug
-     //  match_back_to_v[i] = itr->second; //take this to get the un-permute vector
-     //  i++;
-     // }
+//      //     v_permute_sort[i] = itr->first.first;//just for check  bug
+//      //  match_back_to_v[i] = itr->second; //take this to get the un-permute vector
+//      //  i++;
+//      // }
   
-     for(int i=0; i< map_v_permute.size();i++)
-     {
-         match_back_to_v[i] = i;
-     }
+//      for(int i=0; i< map_v_permute.size();i++)
+//      {
+//          match_back_to_v[i] = i;
+//      }
   
   
   
-     //un-permutation vector generation
-     for (int i=0; i<map_v_permute.size(); i++)
-     {
-         // int ind = match_back_to_v[map_v_permute.size() - i];
+//      //un-permutation vector generation
+//      for (int i=0; i<map_v_permute.size(); i++)
+//      {
+//          // int ind = match_back_to_v[map_v_permute.size() - i];
   
-         int ind = getRandomNumber(match_back_to_v);
-         // cout<<"ind = "<<ind<<"\n";
+//          int ind = getRandomNumber(match_back_to_v);
+//          // cout<<"ind = "<<ind<<"\n";
          
-         vector_un_permute_sort[i] = v[ind];
-         // cout<<"test = "<<v_un_permute_sort[i]<<endl;
-     }
+//          vector_un_permute_sort[i] = v[ind];
+//          // cout<<"test = "<<v_un_permute_sort[i]<<endl;
+//      }
   
     
- }
+//  }
   
   
  static void _printEncData(int index, gamal_ciphertext_t *enc_list)

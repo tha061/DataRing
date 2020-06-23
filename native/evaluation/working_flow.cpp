@@ -168,7 +168,7 @@
      trackTaskPerformance(time_track_list, "gen_permute_labs (ms)", t1, t2);
 
      t1 = high_resolution_clock::now();
-     part_A.getUnPermutationVector(part_A.vector_endcoded_label, part_A.map_v_permute);
+     part_A.getInversePermutationVector(part_A.vector_endcoded_label, part_A.map_v_permute);
      t2 = high_resolution_clock::now();
      trackTaskPerformance(time_track_list, "gen_inverse_permute (ms)", t1, t2);
   
@@ -194,10 +194,10 @@
      trackTaskPerformance(time_track_list, "genPV_from_labs (ms)", t1, t2);
     
     
-     t1 = high_resolution_clock::now();
-     server2.rerandomizePVSampleFromPermutedHistogram(server1.PV_sample_from_permuted_map, pre_enc_stack);
-     t2 = high_resolution_clock::now();
-     trackTaskPerformance(time_track_list, "re-random PV (ms)", t1, t2);
+    //  t1 = high_resolution_clock::now();
+    //  server2.rerandomizePVSampleFromPermutedHistogram(server1.PV_sample_from_permuted_map, pre_enc_stack);
+    //  t2 = high_resolution_clock::now();
+    //  trackTaskPerformance(time_track_list, "re-random PV (ms)", t1, t2);
      
      t1 = high_resolution_clock::now();
      server2.getUnPermutePV(server1.PV_sample_from_permuted_map, part_A.vector_un_permute_sort);
@@ -309,34 +309,34 @@
      //====== TEST estimation: targeting specific attributes ==========//
   
      //SERVER gen test
-     server1.prepareTestFuntion_Query_Vector(pre_enc_stack, server2.un_permute_PV);
+    //  server1.prepareTestFuntion_Query_Vector(pre_enc_stack, server2.un_permute_PV);
      
-     server1.generateMatchDomain(1); // 1: for test function; 0: for normal query
+    //  server1.generateMatchDomain(1); // 1: for test function; 0: for normal query
     
-    t1 = high_resolution_clock::now();
-    server1.generateTest_Target_Attr_opt(pre_enc_stack);
-    t2 = high_resolution_clock::now();
-    trackTaskPerformance(time_track_list, "gen_test_attr (ms)", t1, t2);
-     //PARTY compute answer:
+    // t1 = high_resolution_clock::now();
+    // server1.generateTest_Target_Attr_opt(pre_enc_stack);
+    // t2 = high_resolution_clock::now();
+    // trackTaskPerformance(time_track_list, "gen_test_attr (ms)", t1, t2);
+    //  //PARTY compute answer:
      
-     gamal_cipher_new(sum_cipher);
-     t1 = high_resolution_clock::now();
-     part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
-     t2 = high_resolution_clock::now();
-     trackTaskPerformance(time_track_list, "com_ans_V (ms)", t1, t2);
-     //SERVER verify test's answer by comparing it with estimated answer based on PV
+    //  gamal_cipher_new(sum_cipher);
+    //  t1 = high_resolution_clock::now();
+    //  part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+    //  t2 = high_resolution_clock::now();
+    //  trackTaskPerformance(time_track_list, "com_ans_V (ms)", t1, t2);
+    //  //SERVER verify test's answer by comparing it with estimated answer based on PV
      
-     gamal_ciphertext_t enc_PV_answer;
-     gamal_cipher_new(enc_PV_answer);
+    //  gamal_ciphertext_t enc_PV_answer;
+    //  gamal_cipher_new(enc_PV_answer);
 
-     t1 = high_resolution_clock::now();
-     server1.generate_Test_Target_Attr_Clear(pre_enc_stack);  
-     server1.getTestResult_fromPV(server2.un_permute_PV, enc_PV_answer);
-     test_status = servers.verifyingTestResult_Estimate("Test attr found:", sum_cipher, table, server_id, enc_PV_answer, alpha);
-     t2 = high_resolution_clock::now();
-     trackTaskPerformance(time_track_list, "verify_ans_test_attr (ms)", t1, t2);
+    //  t1 = high_resolution_clock::now();
+    //  server1.generate_Test_Target_Attr_Clear(pre_enc_stack);  
+    //  server1.getTestResult_fromPV(server2.un_permute_PV, enc_PV_answer);
+    //  test_status = servers.verifyingTestResult_Estimate("Test attr found:", sum_cipher, table, server_id, enc_PV_answer, alpha);
+    //  t2 = high_resolution_clock::now();
+    //  trackTaskPerformance(time_track_list, "verify_ans_test_attr (ms)", t1, t2);
      
-     server1.enc_question_map.clear();
+    //  server1.enc_question_map.clear();
 
      // Test target N
     t1 = high_resolution_clock::now();
@@ -381,27 +381,27 @@
   
      //======Re-encrypt query answer to participant B's public key
   
-     gamal_ciphertext_t sum_cipher_update;
+    //  gamal_ciphertext_t sum_cipher_update;
   
-     gamal_generate_keys(part_B.keys); //part_B keys pair   
+    //  gamal_generate_keys(part_B.keys); //part_B keys pair   
   
-     t1 = high_resolution_clock::now();
-     gama_key_switch_lead(sum_cipher_update, sum_cipher, server1.key, part_B.keys);
+    //  t1 = high_resolution_clock::now();
+    //  gama_key_switch_lead(sum_cipher_update, sum_cipher, server1.key, part_B.keys);
   
-     for (int i=1; i< number_servers; i++)
-     {
-         gama_key_switch_follow(sum_cipher_update, sum_cipher, servers.server_vect[server_id+i].key, part_B.keys);
-     }
-     t2 = high_resolution_clock::now();
-    trackTaskPerformance(time_track_list, "re_encryption (ms)", t1, t2);  
+    //  for (int i=1; i< number_servers; i++)
+    //  {
+    //      gama_key_switch_follow(sum_cipher_update, sum_cipher, servers.server_vect[server_id+i].key, part_B.keys);
+    //  }
+    //  t2 = high_resolution_clock::now();
+    // trackTaskPerformance(time_track_list, "re_encryption (ms)", t1, t2);  
   
-     dig_t after;
+    //  dig_t after;
 
-     t1 = high_resolution_clock::now();
-     gamal_decrypt(&after, part_B.keys, sum_cipher_update, table);   
-     t2 = high_resolution_clock::now();
-     trackTaskPerformance(time_track_list, "decryption (ms)", t1, t2);  
-     std::cout<<"Check after re-encryption: "<<after<<std::endl;
+    //  t1 = high_resolution_clock::now();
+    //  gamal_decrypt(&after, part_B.keys, sum_cipher_update, table);   
+    //  t2 = high_resolution_clock::now();
+    //  trackTaskPerformance(time_track_list, "decryption (ms)", t1, t2);  
+    //  std::cout<<"Check after re-encryption: "<<after<<std::endl;
   
   
      //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//

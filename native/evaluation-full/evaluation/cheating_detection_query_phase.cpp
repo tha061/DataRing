@@ -249,7 +249,7 @@
   
      
      part_A.getPermutationOfHistogram(part_A.vector_endcoded_label, part_A.vector_flag); 
-     part_A.getUnPermutationVector(part_A.vector_endcoded_label, part_A.map_v_permute);
+     part_A.getInversePermutationVector(part_A.vector_endcoded_label, part_A.map_v_permute);
      
      
   
