@@ -76,8 +76,8 @@ tham@SCI-9892-Ubuntu:~/Desktop/DATARING_evaluation/dataring_implementation/nativ
  create mode 100644 native/results/.~lock.runtime_cost_dataset_200000_PV_size_2000.csv#
 3/////
 tham@SCI-9892-Ubuntu:~/Desktop/DATARING_evaluation/dataring_implementation/native$ git push origin dataring-v1 
-Username for 'https://github.com': tha061
-Password for 'https://tha061@github.com': Dataring2019
+Username for 'https://github.com': 
+Password for 'https://tha061@github.com': 
 Counting objects: 9, done.
 Delta compression using up to 8 threads.
 Compressing objects: 100% (9/9), done.
