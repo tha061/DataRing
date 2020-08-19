@@ -29,10 +29,7 @@ class Servers
 public:
     /// Collective public key
     gamal_key_t coll_key; 
-    //// Collective public key used in partial view phase
-    // gamal_key_t coll_key_PV_phase; 
-    //// Collective public key used in query evaluation phase
-    // gamal_key_t coll_key_query_phase; 
+    
     /// Set of servers 
     vector<Server> server_vect; 
     /// Number of servers
@@ -82,9 +79,6 @@ public:
     void generateCollKey(gamal_key_t collective_key);
 
 
-    // void generateCollKey_projectBased(gamal_key_t collective_key, bool coll_key_phase);
-
-
 /**
  * @brief All servers to jointly decrypt a ciphertext
  * @param ciphertext to be decrypted
@@ -95,23 +89,7 @@ public:
 */
     dig_t _fusionDecrypt(gamal_ciphertext_t ciphertext, bsgs_table_t table, int serverId);
 
-// /**
-//  * @brief All servers to jointly decrypt a ciphertext
-//  * @param ciphertext to be decrypted
-//  * @param table: lookup table for mapping a EC point to original integer
-//  * @param serverID: the server initiates the threshold decryption
-//  * @param key_for_decrypt: which collective public key is used
-//  * @return the plaintext
-// */
-    // dig_t _fusionDecrypt_projectBased(gamal_ciphertext_t ciphertext, bsgs_table_t table, int serverId, bool key_for_decrypt);
 
-// /**
-//  * @brief A server to generate a encrypted sampling vector
-//  * @param pre_enc_stack: pre computed enc(0) and enc(1) stack
-//  * @return an encrypted sampling vector of size N+1 with V enc(1) and N-V enc(0) and last one is enc(0)
-// */
-
-//     void createPVsamplingVector_size_N_plus_1(ENC_Stack &pre_enc_stack);
 
 /**
  * @brief All servers verify the submitted partial view
@@ -127,14 +105,6 @@ public:
 */
     bool verifyingPV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack, double eta);
 
-// /**
-//  * @brief All servers re-encrypt the partial view to a new collective public key used for query evaluation phase
-//  * @param coll_key_for_query_phase: new collective public key
-//  * @param enc_domain_map: encrypted partial view under coll_key_for_PV_phase
-//  * @param serverId: server lead the re-encryption
-// */    
-
-    // void re_encrypt_PV(ENC_DOMAIN_MAP enc_domain_map, int serverId, gamal_key_t coll_key_for_query_phase);
 
 
 /**
@@ -174,20 +144,6 @@ public:
 
 
 
-
-//===================== Supportive functions or unused functions ====================================================//
-
-// /**
-//  * This function is for a server to create a sampling vector of size N
-//  * @param ciphertext to be decrypted
-//  * @return an encrypted sample vector of length N
-// */    
-    
-    // void createPVsamplingVector(ENC_Stack &pre_enc_stack);
-
-    // void decryptPV(ENC_DOMAIN_MAP unPermutePV, bsgs_table_t table, int serverId);
-
-
 // /**
 //  * This function saves known records in background knowledge found in the partial view
 //  * @param verified_domain_pair known records found in the PV
@@ -195,20 +151,7 @@ public:
 //  */    
 //     void save_knownRow_found_in_PV(id_domain_pair verified_domain_pair);
 
-// /**
-//  * This function saves rows were opened by the server during the partial view verification
-//  */
-    // void save_opened_rows(id_domain_pair opened_rows);
 
-// /**
-//  * This fuction saves all rows that serves know about the dataset after PV phase
-//  */    
-    // void save_knownRow_after_phase2(id_domain_pair domain_pair);    
-
-
-    // void open_true_PV(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table, int serverId, ENC_Stack &pre_enc_stack);
-
-    // void fusionDecrypt(ENC_DOMAIN_MAP enc_domain_map, bsgs_table_t table);
 
 };
 

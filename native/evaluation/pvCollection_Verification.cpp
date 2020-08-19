@@ -86,11 +86,10 @@
      part_A.pv_ratio = pv_ratio;
      // Participant represent its dataset over a histogram of <label, value(label)>; label is one of all possible records that a dataset can take
      part_A.create_OriginalHistogram(dataset_size, a);
-     // part_A.addDummy_to_Histogram(a); //for reduce overhead: limit the histogram to size of aN instead of size |D|
-     // part_A.print_Histogram("fake_original_Hist_keep_99K", part_A.histogram);
+     
   
     
-     //====== strategy 2: participant generate fake histogram randomly
+     //====== Participant generate fake histogram randomly
     //  float amount_true = 0.5;
     //  int keep_row = int(dataset_size*amount_true); 
     //  int keep_row = 487641;
@@ -159,30 +158,12 @@
      }
 
   
-     // cout<<"print v: "<<endl;
-     // for(int i=0; i<n*a; i++)
-     // {
-     //  cout<<v[i]<<"\n";
-     // }
-     // cout<<endl;
-  
-     // cout<<"print flag vector: "<<endl;
-     // for(int i=0; i<n*a; i++)
-     // {
-     //  cout<<flag[i]<<"\n";
-     // }
-     // cout<<endl;
   
      
      part_A.vector_endcoded_label = v;
      part_A.vector_flag = flag;
   
-     // cout<<"print v in partA: "<<endl;
-     // for(int i=0; i<n*a; i++)
-     // {
-     //  cout<<part_A.vector_endcoded_label[i]<<"\n";
-     // }
-     // cout<<endl;
+     
   
      vector<string> v_un_permute_sort(n*a);
      
@@ -193,7 +174,6 @@
      // t1 = high_resolution_clock::now();
      part_A.getPermutationOfHistogram(part_A.vector_endcoded_label, part_A.vector_flag); 
      part_A.getInversePermutationVector(part_A.vector_endcoded_label, part_A.map_v_permute);
-     // part_A.getArbitraryUnPermutationVector(part_A.vector_endcoded_label, part_A.map_v_permute);
      // t2 = high_resolution_clock::now();
      // double time_diff = duration_cast<nanoseconds>(t2 - t1).count();
      // cout<<"time for permutation (ms) = "<<(time_diff)/1000000.0<<endl;    
@@ -209,8 +189,6 @@
   
      //S1 selects V 1s and encrypts all
   
-    
-     
      server1.pv_ratio = pv_ratio;
      server1.size_dataset = dataset_size;
   

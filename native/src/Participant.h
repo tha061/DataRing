@@ -57,18 +57,7 @@ public:
     ///Number of cheated answers during the query evaluation phase
     int no_lied_answer;
 
-    //-----------------------------------------// 
-    // An answer has been scaled up by the participant
-    // int scale_up_answer; 
-    // hash_pair_map original_histogram, plain_domain_map;
-    // Encrrypted partial view
-    // ENC_DOMAIN_MAP enc_domain_map;
-    // Pre-computed encyption of 1
-    // gamal_ciphertext_t cipher1;  
-    // Precomputed encryption stack if participant knows a collective Public Key
-    // ENC_Stack pre_enc_stack_participant; 
-
-
+   
 /** Default constructor. Does something.
 */
     Participant();
@@ -86,26 +75,7 @@ public:
     void create_OriginalHistogram(int dataset_size, int domainCoefficient);
 
 
- // 
-//  void create_OriginalHistogram(int dataset_size);   
-
-// /**
-//  * @brief Adds dummy records to the histogram.
-//  * @param factorSize: scale_up factor to limit the domain size to a*N
-//  * @return a histgram of size = dataset size * scale_up
-// */   
-//     void addDummy_to_Histogram(int factorSize); //add dummyy '0' to the histogram
-
-
-
-// // /**
-// //  * @brief Generates a partial view by applying the sampling vector to the histogram.
-// //  * @param enc_list: encrypted sampling vector size aN from serveer
-// //  * @param hist: a histogram of the party to generate partial view
-// //  * @param dataset_size: size of the dataset
-// //  * @return a vector of size aN with V enc(1) and aN-V enc(0)
-// // */
-//     void generatePV_fixed_scheme(gamal_ciphertext_t *enc_list, hash_pair_map hist, int dataset_size);
+ 
 
 /**
  * @brief Generates a permutation of the histogram of the dataset
@@ -136,29 +106,12 @@ public:
  */
     void computeAnswer_opt(ENC_DOMAIN_MAP &enc_question_map, gamal_ciphertext_t sum_cipher, hash_pair_map hist, gamal_key_t &coll_key, float epsilon_i);
 
-    void print_Histogram(string filename, hash_pair_map histo);
-
-// // /**
-// //  * @brief Computes query answer when party doesnt know collective public key
-// //  * @details Servers send over an encryption of 1 to the participants for them to encrypt Laplace noise
-// //  * @param enc_question_map: encrypted query/test function 
-// //  * @param sum_cipher: encrypted answer
-// //  * @param hist: histogram to apply the encrypted query/test function  to
-// //  * @param cipher_1: encryption of 1 from servers, to encrypt noise
-// //  * @param epsilon_i: privacy budget for a query/test
-// //  * 
-// //  */
-//     void computeAnswer_modified(ENC_DOMAIN_MAP &enc_question_map, gamal_ciphertext_t sum_cipher, hash_pair_map hist, gamal_ciphertext_t cipher_1, float epsilon_i);   
 
 
-
-    // //party compute answer from the fake hist and scale up the answer
-    // void computeAnswer_scaled_up_answer(ENC_DOMAIN_MAP &enc_question_map, gamal_ciphertext_t sum_cipher, int scale_up_answer, hash_pair_map hist, gamal_key_t &coll_key, float epsilon_i);
-
-    //Tham: sum query
+    //Sum query
     void computeAnswer_sum(ENC_DOMAIN_MAP &enc_question_map, gamal_ciphertext_t sum_cipher, hash_pair_map hist, gamal_key_t &coll_key, float epsilon_i, int attr_to_sum);
 
-    // void getArbitraryUnPermutationVector(vector<string> v, hash_pair_map map_v_permute);
+    
 
     /**
  * @brief Generates a fake histgram from the true histogram.
@@ -184,43 +137,9 @@ public:
 
     void addDummy_ones_FakeHistogram(int factorSize, float adding_ones); //added by Tham 29 Jan
 
+    // print histogram: [(label, value)]
+    void print_Histogram(string filename, hash_pair_map histo);
 
-//===================== Supportive functions or unused functions ====================================================//
-
-
-    // // void print_Histogram(string filename);
-    
-
-    // // replace n-keepDomainS with dummy of E(1)
-    // void addDummy_FakeHist(int keepDomainS, int factorSize);
-
-    
-    // // make vector by self and make PV View without Servers
-    // void selfCreateFakePV(int fakeEnc1, int factorSize);
-    // void selfCreateFakePV_opt(bool useTruth);
-    // void self_create_PV_prepare(int fakeEnc1, int factorSize);
-
-    // // after creating PV by itself, create a histogram included V bins in PV and hide all other bins (N-V) bins
-    // void generate_Histogram_included_self_PV(bool useTruth, int PV_size, int factorSize);
-
-    
-    // void initializePreStack(gamal_key_t coll_key);
-
-
-    // void pre_process_generatePV(bool useTruth);
-    // void generatePV_opt(gamal_ciphertext_t *myPIR_enc, bool useTruth);
-    // void generatePV(int *plain_track_list, gamal_ciphertext_t *myPIR_enc, bool useTruth);
-
-
-    // void test_cleartext();
-    
-    // //RENAME THIS FUNCTION to computeAnswer()
-    // //compute query answer
-    // void computeAnswer(ENC_DOMAIN_MAP &enc_question_map, gamal_ciphertext_t sum_cipher, hash_pair_map hist, gamal_key_t &coll_key);
-
-    
-    // // party compute answer using original hist
-    // void computeAnswer_use_orig_histogram(ENC_DOMAIN_MAP &enc_question_map, gamal_ciphertext_t sum_cipher, hash_pair_map hist, gamal_key_t &coll_key, float epsilon_i);
 
     
 };

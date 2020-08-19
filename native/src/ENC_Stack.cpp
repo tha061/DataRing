@@ -40,10 +40,7 @@ void ENC_Stack::initializeStack_E0()
     for (int i = 0; i < max_size; i++)
     {
         ++top_E0;
-        // if (i%(max_size/10) == 0)
-        // {
-        //     cout << "Initialize E0 at " << i << "th iteration" << endl;
-        // }
+        
         if (i == 0)
         {
             gamal_encrypt(myPIR_enc0[i], key, plain0);

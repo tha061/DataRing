@@ -3,7 +3,7 @@
 
 /**
  * Added by Tham to generate random PIR vector in clear
- * Utility function to find ceiling of r in arr[l..h]
+ * Function to find ceiling of r in arr[l..h]
  */
 int findCeil(int arr[], int r, int l, int h)
 {

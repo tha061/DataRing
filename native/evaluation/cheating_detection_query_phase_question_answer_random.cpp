@@ -182,6 +182,10 @@ int query_evaluation_with_cheating_detection_random_query_ans(int argc, char **a
 	// PARTICIPANT 
      Participant part_A(dataset_directory);
      Participant part_B(dataset_directory);
+	 gamal_generate_keys(part_A.keys); //part_A keys pair   
+	
+	 gamal_generate_keys(part_B.keys); //part_B keys pair   
+	
      part_A.pv_ratio = pv_ratio;
      // Participant represent its dataset over a histogram of <label, value(label)>; label is one of all possible records that a dataset can take
      
@@ -362,7 +366,7 @@ int query_evaluation_with_cheating_detection_random_query_ans(int argc, char **a
 	int count_lied_ans = 0;
 	int no_lied_detected = 0;
 	int threshold;
-	gamal_ciphertext_t sum_cipher;
+	gamal_ciphertext_t sum_cipher, sum_cipher_realquery;
 
 
 	part_A.no_lied_answer = (int)(lie_freq*total_queries);
@@ -402,6 +406,7 @@ int query_evaluation_with_cheating_detection_random_query_ans(int argc, char **a
             // answer_strategy = 0;
 
             gamal_cipher_new(sum_cipher);
+			gamal_cipher_new(sum_cipher_realquery);
 
             if (answer_strategy == 0)
             {
@@ -418,7 +423,12 @@ int query_evaluation_with_cheating_detection_random_query_ans(int argc, char **a
             trackTaskStatus(time_track_list, "Query:Dataset true/false", answer_strategy);
 		
 
-            //Tham added 15 Jan, delete query at the server side
+			
+			// Servers save real query answer
+			sum_cipher_realquery->C1 = sum_cipher->C1; 
+			sum_cipher_realquery->C2 = sum_cipher->C2;
+
+            
             server1.enc_question_map.clear();
             server1.match_query_domain_vect.clear();
             itr++;
@@ -475,7 +485,7 @@ int query_evaluation_with_cheating_detection_random_query_ans(int argc, char **a
                 trackTaskStatus(time_track_list, "Test target L status", test_status);
                 // trackTaskStatus(time_track_list, "No of lied ans", count_lied_ans);
                 server1.enc_question_map_pre.clear();
-                //Tham added 15 Jan, delete test at server side
+                
                 server1.enc_question_map.clear();
                 index++;
                 // cout<< "Test L verify done" << endl;
@@ -523,7 +533,7 @@ int query_evaluation_with_cheating_detection_random_query_ans(int argc, char **a
                 
                 
                 server1.enc_question_map_pre.clear();
-                //Tham added 15 Jan, delete test at server side
+                
                 server1.enc_question_map.clear();
                 index++;
 
@@ -619,7 +629,7 @@ int query_evaluation_with_cheating_detection_random_query_ans(int argc, char **a
 
                 server1.match_query_domain_vect.clear();
                 server1.enc_question_map_pre.clear();
-                //Tham added 15 Jan, delete test at server side
+                
                 server1.enc_question_map.clear();
                 index++;
 
@@ -635,17 +645,7 @@ int query_evaluation_with_cheating_detection_random_query_ans(int argc, char **a
     trackTaskPerformance(time_track_list, "E2E delay", t1, t2);
    
 
-	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-	//                          RELEASE SHARED DATA                             //
-	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
-
-	// After mulitple tests and normal queries, servers compute the final results
-	// by aggregating answers from partiticipants,
-	// re-ecrypt the ciphertext to targeted participant's public key
-	// and send the re-encrypted result to each participant
-	// depeding on the behavior of each participant, the result
-	// is computed so that the protocol ensuring fairness for honest parties
-	// and penalizing the lied parties
+	
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 	//                          FINISHED SHARING                               //
@@ -664,6 +664,40 @@ int query_evaluation_with_cheating_detection_random_query_ans(int argc, char **a
 	trackTestAccu(time_track_list, "No. of lied answer", count_lied_ans);
 	trackTestAccu(time_track_list, "No. of lied detected", no_lied_detected);
 
+
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+	//                          RELEASE SHARED DATA                             //
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
+
+	// After mulitple tests and normal queries, servers compute the final results
+	// by aggregating answers from partiticipants,
+	// re-ecrypt the ciphertext to targeted participant's public key
+	// and send the re-encrypted result to each participant
+	// depeding on the behavior of each participant, the result
+	// is computed so that the protocol ensuring fairness for honest parties
+	// and penalizing the lied parties
+
+	if (no_lied_detected == 0)
+	{
+		//re-encryption
+		gamal_ciphertext_t sum_cipher_update;
+  		
+		gama_key_switch_lead(sum_cipher_update, sum_cipher_realquery, server1.key, part_B.keys);
+	
+		for (int i=1; i< number_servers; i++)
+		{
+			gama_key_switch_follow(sum_cipher_update, sum_cipher_realquery, servers.server_vect[server_id+i].key, part_B.keys);
+		}
+		
+	
+		dig_t after;
+		gamal_decrypt(&after, part_B.keys, sum_cipher_update, table);   
+
+		std::cout<<"Check after re-encryption: "<<after<<std::endl;
+  
+	}
+	
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
 	// storeTimeEvaluation(argc, argv, time_track_list, verify_status);
 

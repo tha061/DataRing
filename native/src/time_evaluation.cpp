@@ -3,10 +3,7 @@
 double timeEvaluate(string task_name, high_resolution_clock::time_point t1, high_resolution_clock::time_point t2)
 {
 	double time_diff = duration_cast<nanoseconds>(t2 - t1).count();
-	// cout << "\n -------------------------------------------------------------------- \n";
-	// cout << "\nTime Evaluation \n";
-	// cout << task_name << " : " << time_diff / 1000000.0 << " ms";
-	// cout << "\n -------------------------------------------------------------------- \n";
+	
 
 	return time_diff / 1000000.0;
 }

@@ -23,13 +23,9 @@
 class Server
 {
 public:
-    // static gamal_key_t coll_key;
+    
     /// A key pair
     gamal_key_t key; 
-    // //// A key pair of one server used in Partial View Phase
-    // gamal_key_t key_PV_phase; 
-    // //// A key pair of one server used in Query Evaluation Phase
-    // gamal_key_t key_query_phase; 
     /// The participant's dataset size
     int size_dataset; 
     /// ratio of partial view to dataset size
@@ -63,16 +59,7 @@ public:
     /// Vector of matching records from SQL query to query formulation
     id_domain_vector match_query_domain_vect; 
      
-    // ENC_DOMAIN_MAP enc_question_map_pre, enc_question_map_tmp; // for preprare a test funtion
     
-    // id_domain_set verified_set, known_rows_after_phase2;
-
-    // hash_pair_map plain_domain_map; 
-
-    // id_domain_vector match_query_domain_vect; // matching actual query to a query vector    
-
-    // int *plain_track_list; //used for tracking bug
-
     
 /**
  * @brief Default constructor.
@@ -282,90 +269,6 @@ public:
     void getQueryResult_fromPV(ENC_DOMAIN_MAP enc_PV, gamal_ciphertext_t enc_PV_query_answer); 
 
 
-//===============================================================================================================//
-//===================== Supportive functions or unused functions ====================================================//
-
-
-// /**
-//  * @brief Generates the test that counts all records in the dataset that are known by the servers
-//  * @details The expected answer is L+/- noise
-//  * @param pre_enc_stack: point to precomputed encryption stack of the serve
-//  * @param enc_domain_map: partial view for server to get labels
-//  * @return an encrypted vector of enc(0) and enc(1), labels matched with partial view's labels
-//  * enc(1) is placed to element with labels matched the L known records
-//  * enc(0) is placed to all other elements
-// */
-    void generateTestKnownRecords(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map); // test the existence of L known domains
-
-
-// /**
-//  * @brief Generates the test that counts all records in the dataset that have attributes satisfied given values
-//  * @details The server matches all records that have the attributes sastifing given values to labels in the pre-computed test function using a matching function inside it
-//  * Then server add enc(1) to matched labels and enc(0) to other non matched labels
-//  * @param pre_enc_stack: point to precomputed encryption stack of the serve
-//  * @return an encrypted vector of enc(0) and enc(1), labels matched with partial view's labels
-// */  
-
-    void generateTest_Target_Attr(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map); 
-
-
-// /**
-//  * @brief Generates encrypted query that counts all records in the dataset that match the query selection
-//  * @details The server matches all records that have the attributes sastifing given values using a matching function
-//  * Then server add enc(1) to matched labels, enc(0) to non matched labels
-//  * @param pre_enc_stack: point to precomputed encryption stack of the server
-//  * @param enc_domain_map: partial view for servers to get all labels
-//  * @return an encrypted vector of enc(0) and enc(1), labels matched with partial view's labels
-// */    
-
-    void generateNormalQuery(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map);
-
-
-// /**
-//  * @brief Generates the test that counts all records in the dataset that are sampled in the partial view
-//  * @details The expected answer is V+/- noise
-//  * @param pre_enc_stack: point to precomputed encryption stack of the serve
-//  * @param enc_domain_map: using the partial view with both labels and encryptions
-//  * @return an encrypted vector of enc(0) and enc(1), labels matched with partial view's labels
-//  * enc(1) becomes a new ciphertext of 1
-//  * enc(0) becomes a new ciphertext of 0
-// */
-    void generateTestBasedPartialView(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map); // test the existence of V domains
-
-
-// /**
-//  * This function is to generate encrypted test function, there are many options
-//  * if indicate 1: test for L known rows
-//  * indicate 2: test for V rows in PV
-//  * indicate 3: test for (V - r0)
-//  * indicate 4: test for arbitrary attributes
-//  */ 
-
-    void generateTestFunction(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, int type);
-
-    void save_knownRow_found_in_PV(id_domain_pair verified_domain_pair);
-    //Tham
-    void save_knownRow_after_phase2(id_domain_pair domain_pair);
-    //Tham
-    void save_opened_rows(id_domain_pair opened_rows);
-
-
-    // test func() V - r0 domains
-    void generateTestHashMap_3(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map); // test the existence of V domains
-
-
-    //Tham
-    void generateTest_known_records_after_phase2(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, id_domain_set known_rows_after_phase2);
-
-    //Tham Mar 2020
-    void generateTest_PV_r0(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, id_domain_set known_rows_in_pv);
-    void generateTest_PV_L_r0(ENC_Stack &pre_enc_stack, ENC_DOMAIN_MAP enc_domain_map, id_domain_set known_rows_in_pv, id_domain_set known_record_subset);
-
-// /**
-//  * This function for a server to create a binary vector of V 0s and N-V 1s
-//  * and encrypt them using precomputed encryption stack
-// */
-    void createRandomEncrypVector(ENC_Stack &pre_enc_stack);
 
 };
 
