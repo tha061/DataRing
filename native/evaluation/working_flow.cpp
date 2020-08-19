@@ -89,7 +89,6 @@
      trackTaskPerformance(time_track_list, "gen_Histo (ms)", t1, t2);
      
      
-      
      int size_dataset = part_A.size_dataset;
   
      

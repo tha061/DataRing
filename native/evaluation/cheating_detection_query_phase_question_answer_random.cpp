@@ -14,7 +14,7 @@
  * @date April 2020
 */ 
 
-int query_evaluation_with_cheating_detection_random_query_ans(int argc, char **argv)
+int query_evaluation_with_cheating_detection_random_query_anser_strategy(int argc, char **argv)
 {
 	int dataset_size = 500000; //make it an argument to use to determine dataset_size
 	int number_servers = 3;	   //make it an argument use to setup number of servers
