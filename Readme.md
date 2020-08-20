@@ -1,4 +1,4 @@
-#NOTE: 
+#NOTE: This implementation is tested with Ubuntu 16-04 version only.
 For dataring, we only work with the native folder currently. The files for implementing and testing new features of our cryptosystem in dataring are ecelgamal.h, ecelgamal.c and testing.cpp!!!
 
 # EC-ElGamal
