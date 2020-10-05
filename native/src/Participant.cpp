@@ -120,6 +120,8 @@
   
      
  }
+
+
     
   
  void Participant::addDummy_FakeHist_random(int keepDomainS, int factorSize)
@@ -410,17 +412,17 @@
   
   
  // Generate a permutation of the domain 
- void Participant::getPermutationOfHistogram(vector<string> v, vector<int> flag) 
+ void Participant::getPermutationOfHistogram(vector<string> public_data_domain, vector<int> flag) 
  { 
      
      int index=0;
      string temp;
   
-     vector<string> v_temp = v;
+     vector<string> public_data_domain_temp = public_data_domain;
      
-     while (v_temp.size()) 
+     while (public_data_domain_temp.size()) 
      { 
-         temp=getString(v_temp);
+         temp=getString(public_data_domain_temp);
          
          
          string id, name;
@@ -429,9 +431,9 @@
          getline(iss, name);
          
          
-         map_v_permute.insert({make_pair(id, name), index}); //keep this for un-permutation vector generation
+         map_public_data_domain_permute.insert({make_pair(id, name), index}); //keep this for un-permutation vector generation
          
-         map_v_permute_to_send_flag.insert({make_pair(id, name), flag[index]});//send this to S1: id,label and corresponding flag
+         map_public_data_domain_permute_to_send_flag.insert({make_pair(id, name), flag[index]});//send this to S1: id,label and corresponding flag
            
          index++;
      } 
@@ -441,28 +443,28 @@
      
  // Generate permutation and corresponding inverse permutation vector
   
- void Participant::getInversePermutationVector(vector<string> v, hash_pair_map map_v_permute) 
+ void Participant::getInversePermutationVector(vector<string> public_data_domain, hash_pair_map map_public_data_domain_permute) 
  { 
          
-     vector<string> v_permute_sort(map_v_permute.size());
-     vector<int> match_back_to_v(map_v_permute.size());
+     vector<string> public_data_domain_permute_sort(map_public_data_domain_permute.size());
+     vector<int> match_back_to_public_data_domain(map_public_data_domain_permute.size());
      
      int i =0;
-     for (hash_pair_map::iterator itr = map_v_permute.begin(); itr != map_v_permute.end(); ++itr) { 
+     for (hash_pair_map::iterator itr = map_public_data_domain_permute.begin(); itr != map_public_data_domain_permute.end(); ++itr) { 
          
-         v_permute_sort[i] = itr->first.first;//just for check  bug
-         match_back_to_v[i] = itr->second; //take this to get the un-permute vector
+         public_data_domain_permute_sort[i] = itr->first.first;//just for check  bug
+         match_back_to_public_data_domain[i] = itr->second; //take this to get the un-permute vector
          i++;
      }
   
   
   
      //inverse permutation vector generation
-     for (int i=0; i<map_v_permute.size(); i++)
+     for (int i=0; i<map_public_data_domain_permute.size(); i++)
      {
-         int ind = match_back_to_v[i];
+         int ind = match_back_to_public_data_domain[i];
          
-         vector_un_permute_sort[i] = v[ind];
+         vector_un_permute_sort[i] = public_data_domain[ind];
          
      }
   
@@ -560,5 +562,195 @@
   
      printf("\n");
  }
+
+/////////////////////////////// added Oct 2020
+
+void Participant::get_data_domain_and_data_flag(hash_pair_map hist)
+{
+    int it =0;
+    for (hash_pair_map::iterator itr = hist.begin(); itr != hist.end(); ++itr)
+    {
+        vector_endcoded_label[it] = itr->first.first + ' ' + itr->first.second;
+        vector_flag[it] = itr->second;
+        it++;
+    }
   
+}
  
+ 
+void Participant::prepare_Real_Query(ENC_Stack &pre_enc_stack, vector<string> public_data_domain)
+{
+    enc_real_query_map_pre.clear();
+       
+    for (int i=0; i <= public_data_domain.size()-1; i++)
+    {
+        // cout<<"test prep real OK where i = "<< i<<endl;
+        string id, name;
+        istringstream iss(public_data_domain[i]);
+        getline(iss, id, ' ');
+        getline(iss, name);
+        
+        gamal_ciphertext_t *enc_0 = new gamal_ciphertext_t[1];
+        pre_enc_stack.pop_E0(enc_0[0]);
+       
+        enc_real_query_map_pre.insert({make_pair(id, name), enc_0[0]}); 
+    }
+
+    // // for (int i=0; i<1; i++)
+    // // {
+    // //     cout<<"test ok" <<endl;
+    // //     ENC_DOMAIN_MAP::iterator itr = party_enc_real_query_map_pre.begin();
+    // //     cout<<itr->first.first<<endl;
+    // //     cout<<itr->first.second<<endl;
+    // //     cout<<itr->second<<endl;
+    // //     cout<<"test ok" <<endl;
+
+    // // }
+    // int i =0;
+    // for (ENC_DOMAIN_MAP::iterator itr = party_enc_real_query_map_pre.begin(); itr != party_enc_real_query_map_pre.end(); itr++)
+    // {
+        
+    //     // cout<<"test ok" <<endl;
+    //     // ENC_DOMAIN_MAP::iterator itr = party_enc_real_query_map_pre.begin();
+    //     cout<<itr->first.first<<endl;
+    //     cout<<itr->first.second<<endl;
+    //     cout<<itr->second<<endl;
+    //     // cout<<"test ok" <<endl;
+
+    // }
+
+   
+}
+
+
+void Participant::matchDomainForQuery(string query_directory)
+{
+    map<int, string> columns_map;
+
+   //gen test estimation function
+    std::ifstream data(query_directory);
+    if (!data.is_open())
+    {
+        cout << "Query File is not defined" << endl;
+        std::exit(EXIT_FAILURE);
+    }
+    std::string str;
+    std::getline(data, str); // skip the first line
+    while (!data.eof())
+    {
+        getline(data, str);
+        if (str.empty())
+        {
+            continue;
+        }
+
+        string value;
+        int col_id;
+
+        istringstream iss(str);
+        getline(iss, value, ',');
+        iss >> col_id;
+        columns_map.insert({col_id, value});
+        // cout<<"col_id = " <<col_id<<endl;
+        // cout<<"value = "<<value<<endl;
+    }
+
+
+    matching_query_domain_vec.clear();
+    int counter = 0;
+     int no_match =0;
+    
+    // cout<<"i = "<<i<<endl;
+    int i=0;
+    for (ENC_DOMAIN_MAP::iterator itr = enc_real_query_map_pre.begin(); itr != enc_real_query_map_pre.end(); itr++)
+    {
+        
+        i++;
+        // cout<<"test ok" <<endl;
+        bool match = true;
+
+        // cout<<itr->first.first<<"\t"<<itr->first.second<<endl;
+    //     cout<<itr->first.second<<endl;
+    //     cout<<itr->second<<endl;
+
+        vector<string> col_arr;
+        id_domain_pair domain_pair = itr->first;
+        string domain = domain_pair.second;
+        char delim = ' ';
+        stringstream ss(domain);
+        string token;
+        while (getline(ss, token, delim))
+        {
+            col_arr.push_back(token);
+        }
+       
+        for (map<int, string>::iterator colItr = columns_map.begin(); colItr != columns_map.end(); colItr++)
+        {
+            
+            vector<string> query_arr;
+            
+            string query = colItr->second;
+            char delim = ' ';
+            stringstream ss(query);
+            string token;
+            while (getline(ss, token, delim))
+            {
+                query_arr.push_back(token);
+            }
+            
+            
+            int col_index = colItr->first;
+
+           
+            int col_value_int_min = stoi(query_arr[0]);
+            int col_value_int_max = stoi(query_arr[1]);
+            int o_col_value_int = stoi(col_arr[col_index]);
+
+            //matched when in a range 
+            if (o_col_value_int < col_value_int_min || o_col_value_int > col_value_int_max)
+            {
+                match = false;
+                no_match++;
+                break; 
+            }
+        }
+
+       
+
+        if (match)
+        {
+            matching_query_domain_vec.push_back(domain_pair);
+            counter++;
+        }
+    }
+
+    // cout<<"i = "<<i<<endl;
+    //  cout<<"no of o_match = "<<no_match<<endl;
+
+}
+
+void Participant::generate_Real_Query(ENC_Stack &pre_enc_stack)
+{
+    enc_real_query_map.clear();
+    enc_real_query_map = enc_real_query_map_pre;
+
+    gamal_ciphertext_t encrypt_1;
+    gamal_cipher_new(encrypt_1);
+    pre_enc_stack.pop_E1(encrypt_1);
+
+    int counter = 0;
+
+    for (int i = 0; i < matching_query_domain_vec.size(); i++)
+    {
+        id_domain_pair match_domain = matching_query_domain_vec[i];
+        ENC_DOMAIN_MAP::iterator find = enc_real_query_map.find(match_domain);
+        if (find != enc_real_query_map.end())
+        {
+            counter++;
+            gamal_add(find->second, find->second, encrypt_1);
+        }
+    }
+
+    
+}
+

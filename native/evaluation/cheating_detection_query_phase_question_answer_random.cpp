@@ -309,7 +309,7 @@ int query_evaluation_with_cheating_detection_random_query_anser_strategy(int arg
 
      part_A.getPermutationOfHistogram(part_A.vector_endcoded_label, part_A.vector_flag); 
      
-     part_A.getInversePermutationVector(part_A.vector_endcoded_label, part_A.map_v_permute);
+     part_A.getInversePermutationVector(part_A.vector_endcoded_label, part_A.map_public_data_domain_permute);
      
 	
   
@@ -320,7 +320,7 @@ int query_evaluation_with_cheating_detection_random_query_anser_strategy(int arg
      server1.createEncryptedPVSamplingVector(pre_enc_stack, server1.server_sample_vector_clear);
        
      
-     server1.generatePVfromPermutedHistogram(part_A.map_v_permute_to_send_flag,
+     server1.generatePVfromPermutedHistogram(part_A.map_public_data_domain_permute_to_send_flag,
                                                  server1.server_sample_vector_encrypted, pre_enc_stack);
      
     

@@ -120,32 +120,23 @@
      //-----------------------------------------------------------------------------------//
      //extract the id and label from the pair<id,name> and the flag from the <count> for permutation,
      
-     vector<string> v(dataset_size*a);
-     vector<string> v_temp(dataset_size*a);
-     vector<int> flag(dataset_size*a);
+     vector<string> public_data_domain(dataset_size*a);
+     vector<string> public_data_domain_temp(dataset_size*a);
+     vector<int> data_flag(dataset_size*a);
+     vector<string> public_data_domain_un_permute_sort(dataset_size*a);
      
      
      int it = 0;
-     
-  
-     for (hash_pair_map::iterator itr = part_A.histogram.begin(); itr != part_A.histogram.end(); ++itr)
-     {
-         v[it] = itr->first.first + ' ' + itr->first.second;
-         flag[it] = itr->second;
-         it++;
-     }
+        
+    
+    part_A.vector_endcoded_label = public_data_domain; //only including the id and the corresponding label of data domain
+    part_A.vector_flag = data_flag;
 
-  
-     
-     
-     part_A.vector_endcoded_label = v;
-     part_A.vector_flag = flag;
-  
-     
-  
-     vector<string> v_un_permute_sort(dataset_size*a);
-     
-     part_A.vector_un_permute_sort = v_un_permute_sort;
+    part_A.get_data_domain_and_data_flag(part_A.histogram); 
+
+    // part_A.get_data_domain_and_data_flag(part_A.histogram, part_A.vector_endcoded_label, part_A.vector_flag);    
+        
+    part_A.vector_un_permute_sort = public_data_domain_un_permute_sort;
   
      
   
@@ -155,7 +146,7 @@
      trackTaskPerformance(time_track_list, "gen_permute_labs (ms)", t1, t2);
 
      t1 = high_resolution_clock::now();
-     part_A.getInversePermutationVector(part_A.vector_endcoded_label, part_A.map_v_permute);
+     part_A.getInversePermutationVector(part_A.vector_endcoded_label, part_A.map_public_data_domain_permute);
      t2 = high_resolution_clock::now();
      trackTaskPerformance(time_track_list, "gen_inverse_permute (ms)", t1, t2);
   
@@ -165,7 +156,6 @@
      //-----------------------------------------------------------------------------------//
   
     
-  
      server1.pv_ratio = pv_ratio;
      server1.size_dataset = dataset_size;
   
@@ -175,7 +165,7 @@
      trackTaskPerformance(time_track_list, "create_PV_vector (ms)", t1, t2);
   
      t1 = high_resolution_clock::now();
-     server1.generatePVfromPermutedHistogram(part_A.map_v_permute_to_send_flag,
+     server1.generatePVfromPermutedHistogram(part_A.map_public_data_domain_permute_to_send_flag,
                                                  server1.server_sample_vector_encrypted, pre_enc_stack);
      t2 = high_resolution_clock::now();
      trackTaskPerformance(time_track_list, "genPV_from_labs (ms)", t1, t2);
@@ -228,6 +218,59 @@
      //Server determines maxNoise
      servers.maxNoise = getLaplaceNoiseRange(sensitivity, epsilon, percentile_noise);
      servers.minNoise = -servers.maxNoise;
+
+
+     // // //========= NORMAL QUERY ============//
+
+    // part_B.prepare_Real_Query(pre_enc_stack, part_A.vector_endcoded_label, part_B.enc_real_query_map_pre); 
+    part_B.prepare_Real_Query(pre_enc_stack, part_A.vector_endcoded_label); 
+    
+    string QUERY_DIR = "./data/query_data.csv";
+    // part_B.matchDomainForQuery(part_B.enc_real_query_map_pre, QUERY_DIR, part_B.matching_query_domain_vec);
+    part_B.matchDomainForQuery(QUERY_DIR);
+   
+    t1 = high_resolution_clock::now();
+   
+    // part_B.generate_Real_Query(pre_enc_stack, part_B.enc_real_query_map_pre, part_B.matching_query_domain_vec, part_B.enc_real_query_map);
+    part_B.generate_Real_Query(pre_enc_stack);
+    t2 = high_resolution_clock::now();
+    trackTaskPerformance(time_track_list, "gen_normal_query (ms)", t1, t2);
+     // PARTY compute query's answer
+    gamal_cipher_new(sum_cipher);
+
+    t1 = high_resolution_clock::now();
+    
+    part_A.computeAnswer_opt(part_B.enc_real_query_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+    t2 = high_resolution_clock::now();
+    trackTaskPerformance(time_track_list, "com_ans_normal_query (ms)", t1, t2);  
+  
+  
+    //  //====== Re-encrypt query answer to participant B's public key===========//
+  
+     gamal_ciphertext_t sum_cipher_update;
+  
+     gamal_generate_keys(part_B.keys); //part_B keys pair   
+  
+     t1 = high_resolution_clock::now();
+     gama_key_switch_lead(sum_cipher_update, sum_cipher, server1.key, part_B.keys);
+  
+     for (int i=1; i< number_servers; i++)
+     {
+         gama_key_switch_follow(sum_cipher_update, sum_cipher, servers.server_vect[server_id+i].key, part_B.keys);
+     }
+     t2 = high_resolution_clock::now();
+    trackTaskPerformance(time_track_list, "re_encryption (ms)", t1, t2);  
+  
+     dig_t after;
+
+     t1 = high_resolution_clock::now();
+     gamal_decrypt(&after, part_B.keys, sum_cipher_update, table);   
+     t2 = high_resolution_clock::now();
+     trackTaskPerformance(time_track_list, "decryption (ms)", t1, t2);  
+     std::cout<<"Check after re-encryption: "<<after<<std::endl;
+
+
+
   
       
      //==== TEST L: TEST FUNCTION KNOWN RECORDS NEW USING PRE_COMPUTE TEST FUCTION =====//
@@ -262,7 +305,7 @@
   
   
   
-     // //===== TEST FUNCTION BASED PV OPTIMAL =====
+    //  // //===== TEST FUNCTION BASED PV OPTIMAL =====
   
      //SERVER gen test V:
      t1 = high_resolution_clock::now();
@@ -291,39 +334,39 @@
   
      
      
-     //====== TEST estimation: targeting specific attributes ==========//
+    // //  //====== TEST estimation: targeting specific attributes ==========//
   
-     //SERVER gen test
-     server1.prepareTestFuntion_Query_Vector(pre_enc_stack, server2.un_permute_PV);
+    // //  //SERVER gen test
+    // //  server1.prepareTestFuntion_Query_Vector(pre_enc_stack, server2.un_permute_PV);
      
-     server1.generateMatchDomain(1); // 1: for test function; 0: for normal query
+    // //  server1.generateMatchDomain(1); // 1: for test function; 0: for normal query
     
-    t1 = high_resolution_clock::now();
-    server1.generateTest_Target_Attr_opt(pre_enc_stack);
-    t2 = high_resolution_clock::now();
-    trackTaskPerformance(time_track_list, "gen_test_attr (ms)", t1, t2);
-     //PARTY compute answer:
+    // // t1 = high_resolution_clock::now();
+    // // server1.generateTest_Target_Attr_opt(pre_enc_stack);
+    // // t2 = high_resolution_clock::now();
+    // // trackTaskPerformance(time_track_list, "gen_test_attr (ms)", t1, t2);
+    // //  //PARTY compute answer:
      
-     gamal_cipher_new(sum_cipher);
-     t1 = high_resolution_clock::now();
-     part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
-     t2 = high_resolution_clock::now();
-     trackTaskPerformance(time_track_list, "com_ans_V (ms)", t1, t2);
-     //SERVER verify test's answer by comparing it with estimated answer based on PV
+    // //  gamal_cipher_new(sum_cipher);
+    // //  t1 = high_resolution_clock::now();
+    // //  part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+    // //  t2 = high_resolution_clock::now();
+    // //  trackTaskPerformance(time_track_list, "com_ans_V (ms)", t1, t2);
+    // //  //SERVER verify test's answer by comparing it with estimated answer based on PV
      
-     gamal_ciphertext_t enc_PV_answer;
-     gamal_cipher_new(enc_PV_answer);
+    // //  gamal_ciphertext_t enc_PV_answer;
+    // //  gamal_cipher_new(enc_PV_answer);
 
-     t1 = high_resolution_clock::now();
-     server1.generate_Test_Target_Attr_Clear(pre_enc_stack);  
-     server1.getTestResult_fromPV(server2.un_permute_PV, enc_PV_answer);
-     test_status = servers.verifyingTestResult_Estimate("Test attr found:", sum_cipher, table, server_id, enc_PV_answer, alpha);
-     t2 = high_resolution_clock::now();
-     trackTaskPerformance(time_track_list, "verify_ans_test_attr (ms)", t1, t2);
+    // //  t1 = high_resolution_clock::now();
+    // //  server1.generate_Test_Target_Attr_Clear(pre_enc_stack);  
+    // //  server1.getTestResult_fromPV(server2.un_permute_PV, enc_PV_answer);
+    // //  test_status = servers.verifyingTestResult_Estimate("Test attr found:", sum_cipher, table, server_id, enc_PV_answer, alpha);
+    // //  t2 = high_resolution_clock::now();
+    // //  trackTaskPerformance(time_track_list, "verify_ans_test_attr (ms)", t1, t2);
      
-     server1.enc_question_map.clear();
+    // //  server1.enc_question_map.clear();
 
-     //================ Test target N ====================//
+    // //  //================ Test target N ====================//
 
     t1 = high_resolution_clock::now();
     server1.generateTest_Target_All_Records(pre_enc_stack, server2.un_permute_PV);
@@ -346,48 +389,48 @@
     trackTaskStatus(time_track_list, "Test target N status", test_status);
 
 
-    // //========= NORMAL QUERY ============//
+    // // //========= NORMAL QUERY ============//
   
-     // SERVER gen query
-     server1.prepareTestFuntion_Query_Vector(pre_enc_stack, server2.un_permute_PV);
+    //  // SERVER gen query
+    //  server1.prepareTestFuntion_Query_Vector(pre_enc_stack, server2.un_permute_PV);
      
-     server1.generateMatchDomain(0); // 1: for test function; 0: for normal query
-    t1 = high_resolution_clock::now();
-    server1.generateNormalQuery_opt(pre_enc_stack);
-    t2 = high_resolution_clock::now();
-    trackTaskPerformance(time_track_list, "gen_normal_query (ms)", t1, t2);
-     // PARTY compute query's answer
-     gamal_cipher_new(sum_cipher);
+    //  server1.generateMatchDomain(0); // 1: for test function; 0: for normal query
+    // t1 = high_resolution_clock::now();
+    // server1.generateNormalQuery_opt(pre_enc_stack);
+    // t2 = high_resolution_clock::now();
+    // trackTaskPerformance(time_track_list, "gen_normal_query (ms)", t1, t2);
+    //  // PARTY compute query's answer
+    //  gamal_cipher_new(sum_cipher);
 
-    t1 = high_resolution_clock::now();
-    part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
-    t2 = high_resolution_clock::now();
-    trackTaskPerformance(time_track_list, "com_ans_normal_query (ms)", t1, t2);  
+    // t1 = high_resolution_clock::now();
+    // part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);
+    // t2 = high_resolution_clock::now();
+    // trackTaskPerformance(time_track_list, "com_ans_normal_query (ms)", t1, t2);  
   
   
-     //====== Re-encrypt query answer to participant B's public key===========//
+    //  //====== Re-encrypt query answer to participant B's public key===========//
   
-     gamal_ciphertext_t sum_cipher_update;
+    // //  gamal_ciphertext_t sum_cipher_update;
   
-     gamal_generate_keys(part_B.keys); //part_B keys pair   
+    //  gamal_generate_keys(part_B.keys); //part_B keys pair   
   
-     t1 = high_resolution_clock::now();
-     gama_key_switch_lead(sum_cipher_update, sum_cipher, server1.key, part_B.keys);
+    //  t1 = high_resolution_clock::now();
+    //  gama_key_switch_lead(sum_cipher_update, sum_cipher, server1.key, part_B.keys);
   
-     for (int i=1; i< number_servers; i++)
-     {
-         gama_key_switch_follow(sum_cipher_update, sum_cipher, servers.server_vect[server_id+i].key, part_B.keys);
-     }
-     t2 = high_resolution_clock::now();
-    trackTaskPerformance(time_track_list, "re_encryption (ms)", t1, t2);  
+    //  for (int i=1; i< number_servers; i++)
+    //  {
+    //      gama_key_switch_follow(sum_cipher_update, sum_cipher, servers.server_vect[server_id+i].key, part_B.keys);
+    //  }
+    //  t2 = high_resolution_clock::now();
+    // trackTaskPerformance(time_track_list, "re_encryption (ms)", t1, t2);  
   
-     dig_t after;
+    // //  dig_t after;
 
-     t1 = high_resolution_clock::now();
-     gamal_decrypt(&after, part_B.keys, sum_cipher_update, table);   
-     t2 = high_resolution_clock::now();
-     trackTaskPerformance(time_track_list, "decryption (ms)", t1, t2);  
-     std::cout<<"Check after re-encryption: "<<after<<std::endl;
+    //  t1 = high_resolution_clock::now();
+    //  gamal_decrypt(&after, part_B.keys, sum_cipher_update, table);   
+    //  t2 = high_resolution_clock::now();
+    //  trackTaskPerformance(time_track_list, "decryption (ms)", t1, t2);  
+    //  std::cout<<"Check after re-encryption: "<<after<<std::endl;
   
   
      //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
@@ -399,14 +442,14 @@
          fstream fout;
          // std::ofstream fout;
   
-         string filename = "./results/runtime_cost_";
+         string filename = "./results/impact_of_domain_cap_on_runtime_with_L_500_";
      
          stringstream ss;
      
          if (strcmp(argv[9], "1") == 0)
          {
              
-             ss << filename <<"dataset_"<<dataset_size <<"_PV_size_"<<PV_size<<".csv"; // add your stuff to the stream
+             ss << filename <<"dataset_"<<dataset_size <<"_PV_size_"<<PV_size<<"_domain_cap_"<<a<<".csv";// add your stuff to the stream
              fout.open(ss.str().c_str(),ios::out | ios::trunc);
          
              fout << "Iteration, PV Verification";
@@ -420,7 +463,7 @@
          else
          {
              
-             ss << filename <<"dataset_"<<dataset_size <<"_PV_size_"<<PV_size<<".csv";
+             ss << filename <<"dataset_"<<dataset_size <<"_PV_size_"<<PV_size<<"_domain_cap_"<<a<<".csv";
               
              fout.open(ss.str().c_str(),ios::out | ios::app);
              
@@ -436,6 +479,10 @@
          fout << "\n";
          fout.close();
      }
+
+
+
+
   
      return 0;
  }

@@ -136,19 +136,19 @@
      
      
      int it = 0;
-     // for (hash_pair_map::iterator itr = part_A.histogram.begin(); itr != part_A.histogram.end(); ++itr)
-     // {
-     //  v[it] = itr->first.first + ' ' + itr->first.second;
-     //  flag[it] = itr->second;
-     //  it++;
-     // }
-  
-     for (hash_pair_map::iterator itr = part_A.fake_histogram.begin(); itr != part_A.fake_histogram.end(); ++itr)
+     for (hash_pair_map::iterator itr = part_A.histogram.begin(); itr != part_A.histogram.end(); ++itr)
      {
-         v[it] = itr->first.first + ' ' + itr->first.second;
-         flag[it] = itr->second;
-         it++;
+      v[it] = itr->first.first + ' ' + itr->first.second;
+      flag[it] = itr->second;
+      it++;
      }
+  
+    //  for (hash_pair_map::iterator itr = part_A.fake_histogram.begin(); itr != part_A.fake_histogram.end(); ++itr)
+    //  {
+    //      v[it] = itr->first.first + ' ' + itr->first.second;
+    //      flag[it] = itr->second;
+    //      it++;
+    //  }
   
      // cout<<"print v: "<<endl;
      // for(int i=0; i<n*a; i++)
@@ -278,7 +278,7 @@
          fstream fout;
          if (strcmp(argv[9], "1") == 0)
          {
-             fout.open("./results/test_PV_verification_invalid_permutation_true_unPermute_500K_50runs_keep500000_rho_01pc.csv", ios::out | ios::trunc);
+             fout.open("./results/test_PV_verification_true_permutation_true_unPermute_500K_50runs_rho_01pc_L_400.csv", ios::out | ios::trunc);
              fout << "Iteration, PV Verification";
              for (auto itr = time_track_list.begin(); itr != time_track_list.end(); itr++)
              {
@@ -289,7 +289,7 @@
          }
          else
          {
-             fout.open("./results/test_PV_verification_invalid_permutation_true_unPermute_500K_50runs_keep500000_rho_01pc.csv", ios::out | ios::app);
+             fout.open("./results/test_PV_verification_true_permutation_true_unPermute_500K_50runs_rho_01pc_L_400.csv", ios::out | ios::app);
          }
   
          // Insert the data to file

@@ -173,7 +173,7 @@
   
      // t1 = high_resolution_clock::now();
      part_A.getPermutationOfHistogram(part_A.vector_endcoded_label, part_A.vector_flag); 
-     part_A.getInversePermutationVector(part_A.vector_endcoded_label, part_A.map_v_permute);
+     part_A.getInversePermutationVector(part_A.vector_endcoded_label, part_A.map_public_data_domain_permute);
      // t2 = high_resolution_clock::now();
      // double time_diff = duration_cast<nanoseconds>(t2 - t1).count();
      // cout<<"time for permutation (ms) = "<<(time_diff)/1000000.0<<endl;    
@@ -200,7 +200,7 @@
      // trackTaskPerformance(time_track_list, "createEncSamplVect (ms)", t1, t2); 
   
      // t1 = high_resolution_clock::now();
-     server1.generatePVfromPermutedHistogram(part_A.map_v_permute_to_send_flag,
+     server1.generatePVfromPermutedHistogram(part_A.map_public_data_domain_permute_to_send_flag,
                                                  server1.server_sample_vector_encrypted, pre_enc_stack);
      // t2 = high_resolution_clock::now();
      // time_diff = duration_cast<nanoseconds>(t2 - t1).count();

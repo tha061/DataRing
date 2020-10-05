@@ -25,10 +25,10 @@ int main(int argc, char **argv)
 	// pvCollection(argc, argv);
 
 	// ===== for cheating detection within query phase
-	query_evaluation_with_cheating_detection_random_query_anser_strategy(argc, argv);
+	// query_evaluation_with_cheating_detection_random_query_anser_strategy(argc, argv);
 	
 	//===== for runtime evaluation:
-	// working_flow(argc, argv);
+	working_flow(argc, argv);
 	
   
 	
