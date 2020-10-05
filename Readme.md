@@ -1,4 +1,4 @@
-#NOTE: 
+#NOTE: This implementation is tested with Ubuntu 16-04 version only.
 For dataring, we only work with the native folder currently. The files for implementing and testing new features of our cryptosystem in dataring are ecelgamal.h, ecelgamal.c and testing.cpp!!!
 
 # EC-ElGamal
@@ -16,6 +16,7 @@ Make sure you have the following installed:
  * [OpenSSL](http://www.openssl.org/source/)
  * [Maven](https://maven.apache.org/)
  * Java JDK 1.8
+ * Boost C++ Libraries (http://www.boost.org)
 
 ### C Library
 The C library contains two versions of EC-Elgamal, a basic version and a Chinese Remainder Thereom (CRT) based optimized version, as introduced by [Pilatus](http://www.vs.inf.ethz.ch/publ/papers/mshafagh_SenSys17_Pilatus.pdf). The library builds with cmake. To compile the library and run the benchmark run: 
