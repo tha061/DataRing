@@ -64,7 +64,8 @@ public:
 
     id_domain_vector matching_query_domain_vec; 
 
-
+    /// Indicating which attribute to be summed in a sum query
+    int party_index_attr_sum; 
    
 /** Default constructor. Does something.
 */
@@ -172,6 +173,8 @@ void prepare_Real_Query(ENC_Stack &pre_enc_stack, vector<string> public_data_dom
 void matchDomainForQuery(string query_directoryc);
 
 void generate_Real_Query(ENC_Stack &pre_enc_stack);
+
+int generate_Real_Query_sum(ENC_Stack &pre_enc_stack, int index_attr_to_sum);
 
 
 void get_data_domain_and_data_flag(hash_pair_map hist);

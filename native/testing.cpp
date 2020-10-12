@@ -14,7 +14,7 @@
 #include "evaluation/pvCollection_Verification.cpp"
 #include "evaluation/working_flow.cpp"
 #include "evaluation/cheating_detection_query_phase_question_answer_random.cpp"
-
+#include "evaluation/compare_Unlyn_drynx.cpp"
 
 
 int main(int argc, char **argv)
@@ -28,7 +28,9 @@ int main(int argc, char **argv)
 	// query_evaluation_with_cheating_detection_random_query_anser_strategy(argc, argv);
 	
 	//===== for runtime evaluation:
-	working_flow(argc, argv);
+	// working_flow(argc, argv);
+
+	runtime_compare_unlyn_dryn(argc, argv);
 	
   
 	

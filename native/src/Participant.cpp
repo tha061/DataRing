@@ -754,3 +754,31 @@ void Participant::generate_Real_Query(ENC_Stack &pre_enc_stack)
     
 }
 
+int Participant::generate_Real_Query_sum(ENC_Stack &pre_enc_stack, int index_attr_to_sum)
+{
+    enc_real_query_map.clear();
+    enc_real_query_map = enc_real_query_map_pre;
+
+    gamal_ciphertext_t encrypt_1;
+    gamal_cipher_new(encrypt_1);
+    pre_enc_stack.pop_E1(encrypt_1);
+
+    int counter = 0;
+
+    for (int i = 0; i < matching_query_domain_vec.size(); i++)
+    {
+        id_domain_pair match_domain = matching_query_domain_vec[i];
+        ENC_DOMAIN_MAP::iterator find = enc_real_query_map.find(match_domain);
+        if (find != enc_real_query_map.end())
+        {
+            counter++;
+            gamal_add(find->second, find->second, encrypt_1);
+        }
+    }
+
+    party_index_attr_sum = index_attr_to_sum;
+    return party_index_attr_sum;
+
+    
+}
+
