@@ -1,0 +1,91 @@
+Running Data Ring experiments on EC2 instance (e.g., m5.4xlarge)
+
+- Login to EC2 services in AWS.
+- Choose on-demand service
+- Launch instance: for Ubuntu
+- Clone the project to the instance
+- Download and Install required packages: Cmake, OpenSSL, Boost C++ Libraries (https://www.boost.org); Maven, Java JDK 1.8 (optional)
+
+Copy the .ssh files including ec2_ubuntu.ppk; known_hosts; NJKey.pem
+
+
+
+
+----------- To modify code file in EC2 instance and download the result file:----------
+    1.  install the FileZilla Client tool 
+    2. Setup the site manager: Choose Protocol: SFTP-SSH File Transfer Protocol
+// Enter the host addess to Host (by Copying the Public DNS (IPV4) in the Description of the EC2 instance)//Logon Type: Normal// User: ubuntu//Click Connect
+--------- To run the code from local:-------------
+    1. Git bash here
+    2. From the EC2 website, Click on Connect and Copy the ssh access “ssh -i “NJKey.pem” ubuntu@ec2…
+    3. Enter this ssh command to git bash
+    4. Yes
+    5. promt to compile and run
+
+---------Compile the library:----------------
+cd native
+cmake . (usually need to delete the CmakeCache.txt file to fix the error of directory)
+make 
+
+
+------------To run the experiment:----------
+
+./out/ecelgamal ---enter arguments based on the test.cpp file
+
+
+1. Run the PV collection and verification:
+
+./out/ ecelgamal path_to_data_csv_file path_to_known_rows_csv_file dataset_size pv_dataset_ratio no_of_servers domain_cap_factor eta_for_false_positive_rate DP_noise_percentile save_result_to_file_must_be_set_to_1
+
+example:
+tham@SCI-9892-Ubuntu:~/Desktop/DATARING_evaluation/dataring_implementation/native$ ./out/ecelgamal ./data/unique_domains.csv ./data/known_domains_n_200K_L_1000.csv 200000 0.01 3 2 0.05 0.05 1
+
+2. Run the performance evaluation: runtime cost:
+./out/ ecelgamal path_to_data_csv_file path_to_known_rows_csv_file dataset_size pv_dataset_ratio no_of_servers domain_cap_factor eta_for_false_positive_rate DP_noise_percentile save_result_to_file_must_be_set_to_1
+
+example:
+tham@SCI-9892-Ubuntu:~/Desktop/DATARING_evaluation/dataring_implementation/native$ ./out/ecelgamal ./data/unique_domains.csv ./data/known_domains_n_200K_L_1000.csv 200000 0.01 3 2 0.05 0.05 1
+
+
+3. Run the cheating detection during query phase:
+./out/ecelgamal path_to_data_csv_file path_to_known_rows_csv_file dataset_size pv_dataset_ratio no_of_servers domain_cap_factor eta_for_false_positive_rate DP_noise_percentile no_of_queries test_query_ratio fake_answer_ratio save_result_to_file_must_be_set_to_1
+
+example:
+tham@SCI-9892-Ubuntu:~/Desktop/DATARING_evaluation/dataring_implementation/native$ ./out/ecelgamal ./data/unique_domains.csv ./data/known_domains_n_200K_L_1000.csv 200000 0.01 3 2 0.05 0.05 5 0.5 0 1
+
+/////////// Running with bash to run many times repeatedly////////
+example:
+bash --posix
+for ((i=1; i<=10; i++)); do echo "Run $i"; ./out/ecelgamal ./data/unique_domains.csv ./data/known_domains_n_200K_L_1000.csv 200000 0.01 3 2 0.05 0.05 $i; done
+
+
+Keep running in EC2 after ending ssh session: https://askubuntu.com/questions/8653/how-to-keep-processes-running-after-ending-ssh-session
+
+tmux
+
+---------- Push to dataring repo in github-----------
+repo:
+dataring-v1: is the up-to-date branch
+1//// 
+tham@SCI-9892-Ubuntu:~/Desktop/DATARING_evaluation/dataring_implementation/native$ git add .
+
+2////
+tham@SCI-9892-Ubuntu:~/Desktop/DATARING_evaluation/dataring_implementation/native$ git commit -m "change testing.cpp file"
+[dataring-v1 0b642d0] change testing.cpp file
+ 4 files changed, 10 insertions(+), 9 deletions(-)
+ create mode 100644 native/results/.~lock.runtime_cost_dataset_200000_PV_size_2000.csv#
+3/////
+tham@SCI-9892-Ubuntu:~/Desktop/DATARING_evaluation/dataring_implementation/native$ git push origin dataring-v1 
+Username for 'https://github.com': 
+Password for 'https://tha061@github.com': 
+Counting objects: 9, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (9/9), done.
+Writing objects: 100% (9/9), 944 bytes | 472.00 KiB/s, done.
+Total 9 (delta 7), reused 0 (delta 0)
+remote: Resolving deltas: 100% (7/7), completed with 7 local objects.
+To https://github.com/tha061/dataring_implementation.git
+   04d678a..0b642d0  dataring-v1 -> dataring-v1
+
+
+
