@@ -1,4 +1,4 @@
-#NOTE: This implementation is tested with Ubuntu 16-04 version.
+
 
 # EC-ElGamal
 
@@ -27,6 +27,8 @@ cmake .
 make
 ./out/ecelgamal
 ```
+
+#NOTE: This implementation is tested with Ubuntu 16-04 version. It shoudl work with newer version too.
 
 ## Security
 This library is for academic purposes, gives no security guarantees and may contain implementation vulnerabilities.
