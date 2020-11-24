@@ -1,0 +1,719 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.17"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>DataRing: Servers Class Reference</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="classServers-members.html">List of all members</a>  </div>
+  <div class="headertitle">
+<div class="title">Servers Class Reference</div>  </div>
+</div><!--header-->
+<div class="contents">
+
+<p>This class provides functions for servers to jointly perform activities in the DataRing system.  
+ <a href="classServers.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="Servers_8h_source.html">Servers.h</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a665751f7dfc721b13c2a271526ab5d7b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#a665751f7dfc721b13c2a271526ab5d7b">Servers</a> ()</td></tr>
+<tr class="memdesc:a665751f7dfc721b13c2a271526ab5d7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor function.  <a href="classServers.html#a665751f7dfc721b13c2a271526ab5d7b">More...</a><br /></td></tr>
+<tr class="separator:a665751f7dfc721b13c2a271526ab5d7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11cd25f57d09caef0346aabf0ee9d2a4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#a11cd25f57d09caef0346aabf0ee9d2a4">Servers</a> (int <a class="el" href="classServers.html#a6c7fb70dfd6fb5441b88c92f17830b0f">server_size</a>, int <a class="el" href="classServers.html#a80aad8a676fc4c078691f1eb31766eb4">data_size</a>, string background_knowledge_dir, int <a class="el" href="classServers.html#ac0547a3f79aa2dfe33ebfd732c1559c7">domain_coefficient</a>)</td></tr>
+<tr class="memdesc:a11cd25f57d09caef0346aabf0ee9d2a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initiate a vector of servers.  <a href="classServers.html#a11cd25f57d09caef0346aabf0ee9d2a4">More...</a><br /></td></tr>
+<tr class="separator:a11cd25f57d09caef0346aabf0ee9d2a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab1b30730ca106cac9fa1c41aef08c45b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#ab1b30730ca106cac9fa1c41aef08c45b">generateCollKey</a> (<a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> collective_key)</td></tr>
+<tr class="memdesc:ab1b30730ca106cac9fa1c41aef08c45b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate a collective public key from a set of servers.  <a href="classServers.html#ab1b30730ca106cac9fa1c41aef08c45b">More...</a><br /></td></tr>
+<tr class="separator:ab1b30730ca106cac9fa1c41aef08c45b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b1338b4758cf4ec440f76ce5739f90d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#a5b1338b4758cf4ec440f76ce5739f90d">_fusionDecrypt</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext, <a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> table, int serverId)</td></tr>
+<tr class="memdesc:a5b1338b4758cf4ec440f76ce5739f90d"><td class="mdescLeft">&#160;</td><td class="mdescRight">All servers to jointly decrypt a ciphertext.  <a href="classServers.html#a5b1338b4758cf4ec440f76ce5739f90d">More...</a><br /></td></tr>
+<tr class="separator:a5b1338b4758cf4ec440f76ce5739f90d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a30d26af48a15932e5817266ff27bde44"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#a30d26af48a15932e5817266ff27bde44">verifyingPV</a> (ENC_DOMAIN_MAP enc_domain_map, <a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> table, int serverId, <a class="el" href="classENC__Stack.html">ENC_Stack</a> &amp;pre_enc_stack, double eta)</td></tr>
+<tr class="memdesc:a30d26af48a15932e5817266ff27bde44"><td class="mdescLeft">&#160;</td><td class="mdescRight">All servers verify the submitted partial view.  <a href="classServers.html#a30d26af48a15932e5817266ff27bde44">More...</a><br /></td></tr>
+<tr class="separator:a30d26af48a15932e5817266ff27bde44"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03de317c0128fbd5d898fc8c3e507bcf"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#a03de317c0128fbd5d898fc8c3e507bcf">verifyingTestResult</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> sum_cipher, <a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> table, int serverId, int threshold)</td></tr>
+<tr class="memdesc:a03de317c0128fbd5d898fc8c3e507bcf"><td class="mdescLeft">&#160;</td><td class="mdescRight">All servers jointly decrypt the test answer from the participant and check if the decrypted answer satisfies the condition of the test.  <a href="classServers.html#a03de317c0128fbd5d898fc8c3e507bcf">More...</a><br /></td></tr>
+<tr class="separator:a03de317c0128fbd5d898fc8c3e507bcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56ef3eef210d1bd18754900b9f0413ac"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#a56ef3eef210d1bd18754900b9f0413ac">verifyingTestResult_Estimate</a> (string testName, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> sum_cipher, <a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> table, int serverId, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> enc_PV_answer, double alpha)</td></tr>
+<tr class="memdesc:a56ef3eef210d1bd18754900b9f0413ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verify if the test answer from the participant is within the confidence interval +/- noise.  <a href="classServers.html#a56ef3eef210d1bd18754900b9f0413ac">More...</a><br /></td></tr>
+<tr class="separator:a56ef3eef210d1bd18754900b9f0413ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15ff7f109a424780136d549c048ff399"><td class="memItemLeft" align="right" valign="top">vector&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#a15ff7f109a424780136d549c048ff399">estimate_conf_interval</a> (double alpha, int PV_answer, int dataset_size, int PV_size)</td></tr>
+<tr class="memdesc:a15ff7f109a424780136d549c048ff399"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function to estimate the test results computed over the dataset based on the result the servers achieved from the encrypted PV.  <a href="classServers.html#a15ff7f109a424780136d549c048ff399">More...</a><br /></td></tr>
+<tr class="separator:a15ff7f109a424780136d549c048ff399"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:aa0d824a6ae5721cac58827b011719faf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#aa0d824a6ae5721cac58827b011719faf">coll_key</a></td></tr>
+<tr class="memdesc:aa0d824a6ae5721cac58827b011719faf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collective public key.  <a href="classServers.html#aa0d824a6ae5721cac58827b011719faf">More...</a><br /></td></tr>
+<tr class="separator:aa0d824a6ae5721cac58827b011719faf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55f306c511869de742728903495d21ed"><td class="memItemLeft" align="right" valign="top">vector&lt; <a class="el" href="classServer.html">Server</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#a55f306c511869de742728903495d21ed">server_vect</a></td></tr>
+<tr class="memdesc:a55f306c511869de742728903495d21ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set of servers.  <a href="classServers.html#a55f306c511869de742728903495d21ed">More...</a><br /></td></tr>
+<tr class="separator:a55f306c511869de742728903495d21ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c7fb70dfd6fb5441b88c92f17830b0f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#a6c7fb70dfd6fb5441b88c92f17830b0f">server_size</a></td></tr>
+<tr class="memdesc:a6c7fb70dfd6fb5441b88c92f17830b0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of servers.  <a href="classServers.html#a6c7fb70dfd6fb5441b88c92f17830b0f">More...</a><br /></td></tr>
+<tr class="separator:a6c7fb70dfd6fb5441b88c92f17830b0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80aad8a676fc4c078691f1eb31766eb4"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#a80aad8a676fc4c078691f1eb31766eb4">data_size</a></td></tr>
+<tr class="memdesc:a80aad8a676fc4c078691f1eb31766eb4"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classParticipant.html" title="This class provides functions for a participant in the DataRing system.">Participant</a>'s dataset size.  <a href="classServers.html#a80aad8a676fc4c078691f1eb31766eb4">More...</a><br /></td></tr>
+<tr class="separator:a80aad8a676fc4c078691f1eb31766eb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0547a3f79aa2dfe33ebfd732c1559c7"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#ac0547a3f79aa2dfe33ebfd732c1559c7">domain_coefficient</a></td></tr>
+<tr class="memdesc:ac0547a3f79aa2dfe33ebfd732c1559c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scaled-up factor of histogram size.  <a href="classServers.html#ac0547a3f79aa2dfe33ebfd732c1559c7">More...</a><br /></td></tr>
+<tr class="separator:ac0547a3f79aa2dfe33ebfd732c1559c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad75f2cca9e2120f9708add370c42ef3b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#ad75f2cca9e2120f9708add370c42ef3b">domain_size</a></td></tr>
+<tr class="memdesc:ad75f2cca9e2120f9708add370c42ef3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Total number of possible records of a dataset.  <a href="classServers.html#ad75f2cca9e2120f9708add370c42ef3b">More...</a><br /></td></tr>
+<tr class="separator:ad75f2cca9e2120f9708add370c42ef3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae2dc0bec6de747d33ede95becd6b5966"><td class="memItemLeft" align="right" valign="top"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#ae2dc0bec6de747d33ede95becd6b5966">s_myPIR_enc</a></td></tr>
+<tr class="memdesc:ae2dc0bec6de747d33ede95becd6b5966"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encrypted sampling vector.  <a href="classServers.html#ae2dc0bec6de747d33ede95becd6b5966">More...</a><br /></td></tr>
+<tr class="separator:ae2dc0bec6de747d33ede95becd6b5966"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a8cf7078047ffb761373b08dd7aaeb3"><td class="memItemLeft" align="right" valign="top">int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#a3a8cf7078047ffb761373b08dd7aaeb3">s_plain_track_list</a></td></tr>
+<tr class="memdesc:a3a8cf7078047ffb761373b08dd7aaeb3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear sampling vector.  <a href="classServers.html#a3a8cf7078047ffb761373b08dd7aaeb3">More...</a><br /></td></tr>
+<tr class="separator:a3a8cf7078047ffb761373b08dd7aaeb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f1163a148bcade324e92cd8ecf305d8"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#a2f1163a148bcade324e92cd8ecf305d8">maxNoise</a></td></tr>
+<tr class="memdesc:a2f1163a148bcade324e92cd8ecf305d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum noise can be added to participant's answer for DP guarantee.  <a href="classServers.html#a2f1163a148bcade324e92cd8ecf305d8">More...</a><br /></td></tr>
+<tr class="separator:a2f1163a148bcade324e92cd8ecf305d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8b2d865f42f560ab77bc5835d8fc538"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#aa8b2d865f42f560ab77bc5835d8fc538">minNoise</a></td></tr>
+<tr class="memdesc:aa8b2d865f42f560ab77bc5835d8fc538"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimum noise can be added to participant's answer.  <a href="classServers.html#aa8b2d865f42f560ab77bc5835d8fc538">More...</a><br /></td></tr>
+<tr class="separator:aa8b2d865f42f560ab77bc5835d8fc538"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8b2e01a317638c29c761c01485fe9e7"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#ad8b2e01a317638c29c761c01485fe9e7">pv_ratio</a></td></tr>
+<tr class="memdesc:ad8b2e01a317638c29c761c01485fe9e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ratio of partial view size to dataset size.  <a href="classServers.html#ad8b2e01a317638c29c761c01485fe9e7">More...</a><br /></td></tr>
+<tr class="separator:ad8b2e01a317638c29c761c01485fe9e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a52a551909e52b7cf398f421298b9bb"><td class="memItemLeft" align="right" valign="top">id_domain_set&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classServers.html#a1a52a551909e52b7cf398f421298b9bb">known_record_set</a></td></tr>
+<tr class="memdesc:a1a52a551909e52b7cf398f421298b9bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set of records included in the servers' background knowledge.  <a href="classServers.html#a1a52a551909e52b7cf398f421298b9bb">More...</a><br /></td></tr>
+<tr class="separator:a1a52a551909e52b7cf398f421298b9bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This class provides functions for servers to jointly perform activities in the DataRing system. </p>
+<p>Functions include generating a collective public key from all servers; threshold decrypt of a ciphertext; creating a sampling vector for a participant to sample a partial view from its dataset; verfifying the partial view from a participant; verifying an answer for a test function from the participant. </p><dl class="section author"><dt>Author</dt><dd>Tham Nguyen <a href="#" onclick="location.href='mai'+'lto:'+'tha'+'m.'+'ngu'+'ye'+'n@m'+'q.'+'edu'+'.a'+'u'; return false;">tham.<span style="display: none;">.nosp@m.</span>nguy<span style="display: none;">.nosp@m.</span>en@mq<span style="display: none;">.nosp@m.</span>.edu<span style="display: none;">.nosp@m.</span>.au</a>, Nam Bui, DataRing </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>April 2020 </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8h_source.html#l00027">27</a> of file <a class="el" href="Servers_8h_source.html">Servers.h</a>.</p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a665751f7dfc721b13c2a271526ab5d7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a665751f7dfc721b13c2a271526ab5d7b">&#9670;&nbsp;</a></span>Servers() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Servers::Servers </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Constructor function. </p>
+
+</div>
+</div>
+<a id="a11cd25f57d09caef0346aabf0ee9d2a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11cd25f57d09caef0346aabf0ee9d2a4">&#9670;&nbsp;</a></span>Servers() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Servers::Servers </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>server_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>data_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>background_knowledge_dir</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>domain_coefficient</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initiate a vector of servers. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">server_size</td><td>number of servers </td></tr>
+    <tr><td class="paramname">data_size</td><td>participant's dataset size </td></tr>
+    <tr><td class="paramname">known_domain_dir</td><td>directory to the background knowledge subset </td></tr>
+    <tr><td class="paramname">scale_up_factor</td><td>"a" used by participant to make a histogram of size aN </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8cpp_source.html#l00012">12</a> of file <a class="el" href="Servers_8cpp_source.html">Servers.cpp</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a5b1338b4758cf4ec440f76ce5739f90d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5b1338b4758cf4ec440f76ce5739f90d">&#9670;&nbsp;</a></span>_fusionDecrypt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a> Servers::_fusionDecrypt </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>table</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>serverId</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>All servers to jointly decrypt a ciphertext. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ciphertext</td><td>to be decrypted </td></tr>
+    <tr><td class="paramname">table</td><td>lookup table for mapping a EC point to original integer </td></tr>
+    <tr><td class="paramname">serverID</td><td>the server initiates the threshold decryption </td></tr>
+    <tr><td class="paramname">key_for_decrypt</td><td>which collective public key is used </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the plaintext </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8cpp_source.html#l00052">52</a> of file <a class="el" href="Servers_8cpp_source.html">Servers.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a15ff7f109a424780136d549c048ff399"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a15ff7f109a424780136d549c048ff399">&#9670;&nbsp;</a></span>estimate_conf_interval()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">vector&lt; double &gt; Servers::estimate_conf_interval </td>
+          <td>(</td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>alpha</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>PV_answer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>dataset_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>PV_size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Helper function to estimate the test results computed over the dataset based on the result the servers achieved from the encrypted PV. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">alpha</td><td>confidence level </td></tr>
+    <tr><td class="paramname">PV_answer</td><td>query answer computed from the partial view </td></tr>
+    <tr><td class="paramname">dataset_size</td><td>dataset's size </td></tr>
+    <tr><td class="paramname">PV_size</td><td>size of the partial view </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8cpp_source.html#l00209">209</a> of file <a class="el" href="Servers_8cpp_source.html">Servers.cpp</a>.</p>
+
+</div>
+</div>
+<a id="ab1b30730ca106cac9fa1c41aef08c45b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1b30730ca106cac9fa1c41aef08c45b">&#9670;&nbsp;</a></span>generateCollKey()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Servers::generateCollKey </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>collective_key</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generate a collective public key from a set of servers. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">collective_key</td><td>generated collective public key </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8cpp_source.html#l00033">33</a> of file <a class="el" href="Servers_8cpp_source.html">Servers.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a30d26af48a15932e5817266ff27bde44"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a30d26af48a15932e5817266ff27bde44">&#9670;&nbsp;</a></span>verifyingPV()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Servers::verifyingPV </td>
+          <td>(</td>
+          <td class="paramtype">ENC_DOMAIN_MAP&#160;</td>
+          <td class="paramname"><em>enc_domain_map</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>table</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>serverId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classENC__Stack.html">ENC_Stack</a> &amp;&#160;</td>
+          <td class="paramname"><em>pre_enc_stack</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>eta</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>All servers verify the submitted partial view. </p>
+<p>Condition for passing the verification is generated inside the function </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">enc_domain_map</td><td>encrypted partial view sent be a participant </td></tr>
+    <tr><td class="paramname">table</td><td>a lookup table for decryption </td></tr>
+    <tr><td class="paramname">serverID</td><td>the server to initiate the threshold decryption </td></tr>
+    <tr><td class="paramname">pre_enc_stack</td><td>stack of precomputed encryption of servers to get an enc(0) for the special case where there is no known record found in the PV, we need to decrypt the encrypted total number of known records found in PV, the encrypted total number of known records is initiated with enc(0) </td></tr>
+    <tr><td class="paramname">eta</td><td>the tolerated false positve rate that the verification can have </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a true/fale boolean: 1=pass; 0=fail </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8cpp_source.html#l00087">87</a> of file <a class="el" href="Servers_8cpp_source.html">Servers.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a03de317c0128fbd5d898fc8c3e507bcf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a03de317c0128fbd5d898fc8c3e507bcf">&#9670;&nbsp;</a></span>verifyingTestResult()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Servers::verifyingTestResult </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>sum_cipher</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>table</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>serverId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>threshold</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>All servers jointly decrypt the test answer from the participant and check if the decrypted answer satisfies the condition of the test. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">testName</td><td>specify the test to the server </td></tr>
+    <tr><td class="paramname">sum_cipher</td><td>the encrypted noisy answer from participant </td></tr>
+    <tr><td class="paramname">table</td><td>lookup table for decryption </td></tr>
+    <tr><td class="paramname">serverID</td><td>the server which initiate (lead) the decryption </td></tr>
+    <tr><td class="paramname">threshold</td><td>expected answer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a status that pass/fail the test </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8cpp_source.html#l00163">163</a> of file <a class="el" href="Servers_8cpp_source.html">Servers.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a56ef3eef210d1bd18754900b9f0413ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a56ef3eef210d1bd18754900b9f0413ac">&#9670;&nbsp;</a></span>verifyingTestResult_Estimate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Servers::verifyingTestResult_Estimate </td>
+          <td>(</td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>testName</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>sum_cipher</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>table</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>serverId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>enc_PV_answer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>alpha</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Verify if the test answer from the participant is within the confidence interval +/- noise. </p>
+<p>The servers decrypt answer from participant, then find conf_interval +- maxnoise. The answer from participant must be in [min_interval - maxnoise; max_interval + maxnoise] </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">testName</td><td>specify the test to the server </td></tr>
+    <tr><td class="paramname">sum_cipher</td><td>encrypted answer from participant </td></tr>
+    <tr><td class="paramname">table</td><td>lookup table for decryption </td></tr>
+    <tr><td class="paramname">enc_PV_answer</td><td>encrypted answer from the function getTestResult_fromPV() </td></tr>
+    <tr><td class="paramname">alpha</td><td>= 0.05 // 95% confidence level </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a status that pass/fail the test </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8cpp_source.html#l00181">181</a> of file <a class="el" href="Servers_8cpp_source.html">Servers.cpp</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="aa0d824a6ae5721cac58827b011719faf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa0d824a6ae5721cac58827b011719faf">&#9670;&nbsp;</a></span>coll_key</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> Servers::coll_key</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Collective public key. </p>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8h_source.html#l00031">31</a> of file <a class="el" href="Servers_8h_source.html">Servers.h</a>.</p>
+
+</div>
+</div>
+<a id="a80aad8a676fc4c078691f1eb31766eb4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a80aad8a676fc4c078691f1eb31766eb4">&#9670;&nbsp;</a></span>data_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Servers::data_size</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classParticipant.html" title="This class provides functions for a participant in the DataRing system.">Participant</a>'s dataset size. </p>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8h_source.html#l00038">38</a> of file <a class="el" href="Servers_8h_source.html">Servers.h</a>.</p>
+
+</div>
+</div>
+<a id="ac0547a3f79aa2dfe33ebfd732c1559c7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0547a3f79aa2dfe33ebfd732c1559c7">&#9670;&nbsp;</a></span>domain_coefficient</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Servers::domain_coefficient</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Scaled-up factor of histogram size. </p>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8h_source.html#l00040">40</a> of file <a class="el" href="Servers_8h_source.html">Servers.h</a>.</p>
+
+</div>
+</div>
+<a id="ad75f2cca9e2120f9708add370c42ef3b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad75f2cca9e2120f9708add370c42ef3b">&#9670;&nbsp;</a></span>domain_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Servers::domain_size</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Total number of possible records of a dataset. </p>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8h_source.html#l00042">42</a> of file <a class="el" href="Servers_8h_source.html">Servers.h</a>.</p>
+
+</div>
+</div>
+<a id="a1a52a551909e52b7cf398f421298b9bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a52a551909e52b7cf398f421298b9bb">&#9670;&nbsp;</a></span>known_record_set</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">id_domain_set Servers::known_record_set</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set of records included in the servers' background knowledge. </p>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8h_source.html#l00055">55</a> of file <a class="el" href="Servers_8h_source.html">Servers.h</a>.</p>
+
+</div>
+</div>
+<a id="a2f1163a148bcade324e92cd8ecf305d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f1163a148bcade324e92cd8ecf305d8">&#9670;&nbsp;</a></span>maxNoise</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Servers::maxNoise</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Maximum noise can be added to participant's answer for DP guarantee. </p>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8h_source.html#l00048">48</a> of file <a class="el" href="Servers_8h_source.html">Servers.h</a>.</p>
+
+</div>
+</div>
+<a id="aa8b2d865f42f560ab77bc5835d8fc538"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8b2d865f42f560ab77bc5835d8fc538">&#9670;&nbsp;</a></span>minNoise</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Servers::minNoise</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Minimum noise can be added to participant's answer. </p>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8h_source.html#l00050">50</a> of file <a class="el" href="Servers_8h_source.html">Servers.h</a>.</p>
+
+</div>
+</div>
+<a id="ad8b2e01a317638c29c761c01485fe9e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad8b2e01a317638c29c761c01485fe9e7">&#9670;&nbsp;</a></span>pv_ratio</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Servers::pv_ratio</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ratio of partial view size to dataset size. </p>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8h_source.html#l00052">52</a> of file <a class="el" href="Servers_8h_source.html">Servers.h</a>.</p>
+
+</div>
+</div>
+<a id="ae2dc0bec6de747d33ede95becd6b5966"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae2dc0bec6de747d33ede95becd6b5966">&#9670;&nbsp;</a></span>s_myPIR_enc</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>* Servers::s_myPIR_enc</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Encrypted sampling vector. </p>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8h_source.html#l00044">44</a> of file <a class="el" href="Servers_8h_source.html">Servers.h</a>.</p>
+
+</div>
+</div>
+<a id="a3a8cf7078047ffb761373b08dd7aaeb3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3a8cf7078047ffb761373b08dd7aaeb3">&#9670;&nbsp;</a></span>s_plain_track_list</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int* Servers::s_plain_track_list</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Clear sampling vector. </p>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8h_source.html#l00046">46</a> of file <a class="el" href="Servers_8h_source.html">Servers.h</a>.</p>
+
+</div>
+</div>
+<a id="a6c7fb70dfd6fb5441b88c92f17830b0f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c7fb70dfd6fb5441b88c92f17830b0f">&#9670;&nbsp;</a></span>server_size</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Servers::server_size</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Number of servers. </p>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8h_source.html#l00036">36</a> of file <a class="el" href="Servers_8h_source.html">Servers.h</a>.</p>
+
+</div>
+</div>
+<a id="a55f306c511869de742728903495d21ed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a55f306c511869de742728903495d21ed">&#9670;&nbsp;</a></span>server_vect</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">vector&lt;<a class="el" href="classServer.html">Server</a>&gt; Servers::server_vect</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set of servers. </p>
+
+<p class="definition">Definition at line <a class="el" href="Servers_8h_source.html#l00034">34</a> of file <a class="el" href="Servers_8h_source.html">Servers.h</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li>dataring_implementation/native/src/<a class="el" href="Servers_8h_source.html">Servers.h</a></li>
+<li>dataring_implementation/native/src/<a class="el" href="Servers_8cpp_source.html">Servers.cpp</a></li>
+</ul>
+</div><!-- contents -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+
+</small></address>
+</body>
+</html>

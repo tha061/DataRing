@@ -1,0 +1,2034 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.17"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>DataRing: dataring_implementation/native/cryptoSystem/ecelgamal.c File Reference</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="header">
+  <div class="summary">
+<a href="#define-members">Macros</a> &#124;
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
+  <div class="headertitle">
+<div class="title">ecelgamal.c File Reference</div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><code>#include &quot;<a class="el" href="ecelgamal_8h_source.html">ecelgamal.h</a>&quot;</code><br />
+<code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;math.h&gt;</code><br />
+</div>
+<p><a href="ecelgamal_8c_source.html">Go to the source code of this file.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a134fb8c06f1ad8159b852b0210c33816"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a134fb8c06f1ad8159b852b0210c33816">KEY_UNCOMPRESSED</a>&#160;&#160;&#160;0</td></tr>
+<tr class="separator:a134fb8c06f1ad8159b852b0210c33816"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68f44b7d2f6b0ca6e0547900866fef25"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a68f44b7d2f6b0ca6e0547900866fef25">KEY_COMPRESSED</a>&#160;&#160;&#160;1</td></tr>
+<tr class="separator:a68f44b7d2f6b0ca6e0547900866fef25"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad92b7926b6e615533155c7ba9a70bb0c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#ad92b7926b6e615533155c7ba9a70bb0c">KEY_PUBLIC</a>&#160;&#160;&#160;2</td></tr>
+<tr class="separator:ad92b7926b6e615533155c7ba9a70bb0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a5dd6be186884ad6c729ce66d0bbc1a7d"><td class="memItemLeft" align="right" valign="top">EC_POINT *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a5dd6be186884ad6c729ce66d0bbc1a7d">multiply_constant</a> (const EC_POINT *in, const BIGNUM *n, EC_GROUP *curve_group)</td></tr>
+<tr class="separator:a5dd6be186884ad6c729ce66d0bbc1a7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8aad9fe09674a827c0dffe01c13788b2"><td class="memItemLeft" align="right" valign="top">EC_POINT *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a8aad9fe09674a827c0dffe01c13788b2">multiply_generator</a> (const BIGNUM *n, EC_GROUP *curve_group)</td></tr>
+<tr class="separator:a8aad9fe09674a827c0dffe01c13788b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0c8b290db4cf124d3ed961489bd0768f"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a0c8b290db4cf124d3ed961489bd0768f">point_to_string</a> (EC_GROUP *curve_group, const EC_POINT *point)</td></tr>
+<tr class="separator:a0c8b290db4cf124d3ed961489bd0768f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6400de477129e31e0997e22b046cfc4"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#af6400de477129e31e0997e22b046cfc4">add_value_to_table</a> (<a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> table, EC_POINT *point, uint32_t value)</td></tr>
+<tr class="separator:af6400de477129e31e0997e22b046cfc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8d51113c223b6ae629fd3fc23ad8524"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#ab8d51113c223b6ae629fd3fc23ad8524">bsgs_table_init</a> (EC_GROUP *curve_group, <a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> table, <a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a> t_size)</td></tr>
+<tr class="separator:ab8d51113c223b6ae629fd3fc23ad8524"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3bc0806fe087b530dde26aefacd4e3ba"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a3bc0806fe087b530dde26aefacd4e3ba">bsgs_table_get_size</a> (<a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> bsgs_table)</td></tr>
+<tr class="separator:a3bc0806fe087b530dde26aefacd4e3ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f5929142d6e2a55b3d8c1f16fb701f0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a5f5929142d6e2a55b3d8c1f16fb701f0">bsgs_table_free</a> (<a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> bsgs_table)</td></tr>
+<tr class="separator:a5f5929142d6e2a55b3d8c1f16fb701f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba68fa081cc7116e4270da96eada988a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#aba68fa081cc7116e4270da96eada988a">get_power_from_table</a> (uint64_t *power, <a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> bsgs_table, EC_POINT *lookup_point)</td></tr>
+<tr class="separator:aba68fa081cc7116e4270da96eada988a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03460e02dbae60a43277eca951b7a0fe"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a03460e02dbae60a43277eca951b7a0fe">solve_ecdlp_bsgs</a> (<a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> bsgs_table, uint64_t *result, EC_POINT *M, int64_t maxIt)</td></tr>
+<tr class="separator:a03460e02dbae60a43277eca951b7a0fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a178e15e516972c601d4d13b708ec981c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a178e15e516972c601d4d13b708ec981c">solve_dlog_brute</a> (EC_GROUP *curve_group, EC_POINT *M, uint64_t *x, <a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a> max_it)</td></tr>
+<tr class="separator:a178e15e516972c601d4d13b708ec981c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af581959288aea25d4e86f4da0270ce55"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#af581959288aea25d4e86f4da0270ce55">gamal_init</a> (int curve_id)</td></tr>
+<tr class="memdesc:af581959288aea25d4e86f4da0270ce55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inits the library with the given curve.  <a href="ecelgamal_8c.html#af581959288aea25d4e86f4da0270ce55">More...</a><br /></td></tr>
+<tr class="separator:af581959288aea25d4e86f4da0270ce55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a748fd010e497a7c660c045e14453c900"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a748fd010e497a7c660c045e14453c900">gamal_deinit</a> ()</td></tr>
+<tr class="memdesc:a748fd010e497a7c660c045e14453c900"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deinits the library.  <a href="ecelgamal_8c.html#a748fd010e497a7c660c045e14453c900">More...</a><br /></td></tr>
+<tr class="separator:a748fd010e497a7c660c045e14453c900"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20abad4bb599201f1fbe7a59578ae2aa"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a20abad4bb599201f1fbe7a59578ae2aa">gamal_init_bsgs_table</a> (<a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> table, <a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a> size)</td></tr>
+<tr class="memdesc:a20abad4bb599201f1fbe7a59578ae2aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inititlaizes the baby-step-giant-step table.  <a href="ecelgamal_8c.html#a20abad4bb599201f1fbe7a59578ae2aa">More...</a><br /></td></tr>
+<tr class="separator:a20abad4bb599201f1fbe7a59578ae2aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae486c356b74b709bbf12384299ef888b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#ae486c356b74b709bbf12384299ef888b">gamal_free_bsgs_table</a> (<a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> table)</td></tr>
+<tr class="memdesc:ae486c356b74b709bbf12384299ef888b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees the memory of the table.  <a href="ecelgamal_8c.html#ae486c356b74b709bbf12384299ef888b">More...</a><br /></td></tr>
+<tr class="separator:ae486c356b74b709bbf12384299ef888b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ac2ec2c67fb8d0ce8b9fd2023010e77"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a0ac2ec2c67fb8d0ce8b9fd2023010e77">gamal_key_clear</a> (<a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> key)</td></tr>
+<tr class="memdesc:a0ac2ec2c67fb8d0ce8b9fd2023010e77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear a key pair.  <a href="ecelgamal_8c.html#a0ac2ec2c67fb8d0ce8b9fd2023010e77">More...</a><br /></td></tr>
+<tr class="separator:a0ac2ec2c67fb8d0ce8b9fd2023010e77"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1095ca1c36b141318f51f56b5ac6577"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#aa1095ca1c36b141318f51f56b5ac6577">gamal_key_to_public</a> (<a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> pub, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> priv)</td></tr>
+<tr class="separator:aa1095ca1c36b141318f51f56b5ac6577"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0db98f08b7b0d49ee723eeb7ca8160d5"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a0db98f08b7b0d49ee723eeb7ca8160d5">gamal_cipher_clear</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> cipher)</td></tr>
+<tr class="separator:a0db98f08b7b0d49ee723eeb7ca8160d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1b6b17d3a33733f7e9da11175b8b3bb"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#ad1b6b17d3a33733f7e9da11175b8b3bb">gamal_cipher_new</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> cipher)</td></tr>
+<tr class="memdesc:ad1b6b17d3a33733f7e9da11175b8b3bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new ciphertext.  <a href="ecelgamal_8c.html#ad1b6b17d3a33733f7e9da11175b8b3bb">More...</a><br /></td></tr>
+<tr class="separator:ad1b6b17d3a33733f7e9da11175b8b3bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a74dc74f95e15b85703a204f897bcb8c0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a74dc74f95e15b85703a204f897bcb8c0">gamal_generate_keys</a> (<a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keys)</td></tr>
+<tr class="memdesc:a74dc74f95e15b85703a204f897bcb8c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates an EC-Elgamal key pair.  <a href="ecelgamal_8c.html#a74dc74f95e15b85703a204f897bcb8c0">More...</a><br /></td></tr>
+<tr class="separator:a74dc74f95e15b85703a204f897bcb8c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ddfcc673e21b058420e80607e4351a0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a0ddfcc673e21b058420e80607e4351a0">gamal_encrypt</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> key, <a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a> plaintext)</td></tr>
+<tr class="memdesc:a0ddfcc673e21b058420e80607e4351a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encrypts an Integer with additadive homomorphic EC-ElGamal.  <a href="ecelgamal_8c.html#a0ddfcc673e21b058420e80607e4351a0">More...</a><br /></td></tr>
+<tr class="separator:a0ddfcc673e21b058420e80607e4351a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab57e8b44a7e2a3e28d19af8baaae1714"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#ab57e8b44a7e2a3e28d19af8baaae1714">gamal_decrypt</a> (<a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a> *res, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> key, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext, <a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> table)</td></tr>
+<tr class="memdesc:ab57e8b44a7e2a3e28d19af8baaae1714"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decrypts an EC-Elgamal ciphertext.  <a href="ecelgamal_8c.html#ab57e8b44a7e2a3e28d19af8baaae1714">More...</a><br /></td></tr>
+<tr class="separator:ab57e8b44a7e2a3e28d19af8baaae1714"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab1a7882d48648e68a7e8e7b2f3f43e91"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#ab1a7882d48648e68a7e8e7b2f3f43e91">gamal_add</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> res, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext1, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext2)</td></tr>
+<tr class="memdesc:ab1a7882d48648e68a7e8e7b2f3f43e91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds two EC-Elgamal ciphertext and stores it in res.  <a href="ecelgamal_8c.html#ab1a7882d48648e68a7e8e7b2f3f43e91">More...</a><br /></td></tr>
+<tr class="separator:ab1a7882d48648e68a7e8e7b2f3f43e91"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad30cf7c6b081e02aa394955d7305c76d"><td class="memItemLeft" align="right" valign="top">EC_GROUP *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#ad30cf7c6b081e02aa394955d7305c76d">gamal_get_current_group</a> ()</td></tr>
+<tr class="memdesc:ad30cf7c6b081e02aa394955d7305c76d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the EC_Group (elliptic curve group) struct if initialized.  <a href="ecelgamal_8c.html#ad30cf7c6b081e02aa394955d7305c76d">More...</a><br /></td></tr>
+<tr class="separator:ad30cf7c6b081e02aa394955d7305c76d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f903abd1183ad521f8ae71a118a0417"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a3f903abd1183ad521f8ae71a118a0417">gamal_get_point_compressed_size</a> ()</td></tr>
+<tr class="memdesc:a3f903abd1183ad521f8ae71a118a0417"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the encded size of an EC-Point in this group.  <a href="ecelgamal_8c.html#a3f903abd1183ad521f8ae71a118a0417">More...</a><br /></td></tr>
+<tr class="separator:a3f903abd1183ad521f8ae71a118a0417"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa5907785c1a73e913dfeb7dcf736e449"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#aa5907785c1a73e913dfeb7dcf736e449">write_size</a> (unsigned char *buffer, size_t size)</td></tr>
+<tr class="separator:aa5907785c1a73e913dfeb7dcf736e449"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abfdb49fbd44e33d06db2b46b6ddd0058"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#abfdb49fbd44e33d06db2b46b6ddd0058">read_size</a> (unsigned char *buffer)</td></tr>
+<tr class="separator:abfdb49fbd44e33d06db2b46b6ddd0058"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a312b29259047960c48cf5b167732b40f"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a312b29259047960c48cf5b167732b40f">get_encoded_ciphertext_size</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext)</td></tr>
+<tr class="memdesc:a312b29259047960c48cf5b167732b40f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the size of the encoded ciphertext.  <a href="ecelgamal_8c.html#a312b29259047960c48cf5b167732b40f">More...</a><br /></td></tr>
+<tr class="separator:a312b29259047960c48cf5b167732b40f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add318d98ca897d353cbf9a7510225a2f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#add318d98ca897d353cbf9a7510225a2f">encode_ciphertext</a> (unsigned char *buff, int size, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext)</td></tr>
+<tr class="memdesc:add318d98ca897d353cbf9a7510225a2f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode a ciphertext.  <a href="ecelgamal_8c.html#add318d98ca897d353cbf9a7510225a2f">More...</a><br /></td></tr>
+<tr class="separator:add318d98ca897d353cbf9a7510225a2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91f0565166855946d3647dfdab7a3157"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a91f0565166855946d3647dfdab7a3157">decode_ciphertext</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext, unsigned char *buff, int size)</td></tr>
+<tr class="memdesc:a91f0565166855946d3647dfdab7a3157"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a ciphertext.  <a href="ecelgamal_8c.html#a91f0565166855946d3647dfdab7a3157">More...</a><br /></td></tr>
+<tr class="separator:a91f0565166855946d3647dfdab7a3157"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55da5654451ad4e78c4ba6bda02c9e07"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a55da5654451ad4e78c4ba6bda02c9e07">get_encoded_key_size</a> (<a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> key, int compressed)</td></tr>
+<tr class="memdesc:a55da5654451ad4e78c4ba6bda02c9e07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the size of the encoded key.  <a href="ecelgamal_8c.html#a55da5654451ad4e78c4ba6bda02c9e07">More...</a><br /></td></tr>
+<tr class="separator:a55da5654451ad4e78c4ba6bda02c9e07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe153e6252b5a06310d967f609a8e2fa"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#abe153e6252b5a06310d967f609a8e2fa">encode_key</a> (unsigned char *buff, int size, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> key, int compressed)</td></tr>
+<tr class="memdesc:abe153e6252b5a06310d967f609a8e2fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encode a key.  <a href="ecelgamal_8c.html#abe153e6252b5a06310d967f609a8e2fa">More...</a><br /></td></tr>
+<tr class="separator:abe153e6252b5a06310d967f609a8e2fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a345fccdc2facac6565ae023b41735749"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a345fccdc2facac6565ae023b41735749">decode_key</a> (<a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> key, unsigned char *buff, int size)</td></tr>
+<tr class="memdesc:a345fccdc2facac6565ae023b41735749"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decode a key.  <a href="ecelgamal_8c.html#a345fccdc2facac6565ae023b41735749">More...</a><br /></td></tr>
+<tr class="separator:a345fccdc2facac6565ae023b41735749"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2db8d515b3226d0261643313e77685ce"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a2db8d515b3226d0261643313e77685ce">gamal_mult_opt</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> res, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext, <a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a> pt)</td></tr>
+<tr class="memdesc:a2db8d515b3226d0261643313e77685ce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Multiplication of a ciphertext by a scalar.  <a href="ecelgamal_8c.html#a2db8d515b3226d0261643313e77685ce">More...</a><br /></td></tr>
+<tr class="separator:a2db8d515b3226d0261643313e77685ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8cb0ebd5607e1c026839538f522bc347"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a8cb0ebd5607e1c026839538f522bc347">gamal_mult</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> res, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext1, <a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a> pt)</td></tr>
+<tr class="separator:a8cb0ebd5607e1c026839538f522bc347"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf3a255be1a2cdfb3512b00ed8350132"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#aaf3a255be1a2cdfb3512b00ed8350132">gamal_subtract</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> res, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext1, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext2)</td></tr>
+<tr class="separator:aaf3a255be1a2cdfb3512b00ed8350132"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5429cde99bff5251b3b00b8d63733ca4"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a5429cde99bff5251b3b00b8d63733ca4">gamal_fusion_decrypt</a> (<a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a> *res, int num_server, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> key_lead, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> key_follow[], <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext_update, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext, <a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> table)</td></tr>
+<tr class="memdesc:a5429cde99bff5251b3b00b8d63733ca4"><td class="mdescLeft">&#160;</td><td class="mdescRight">All servers jointly compute the final plaintext of a ciphertext from the threshold decryption.  <a href="ecelgamal_8c.html#a5429cde99bff5251b3b00b8d63733ca4">More...</a><br /></td></tr>
+<tr class="separator:a5429cde99bff5251b3b00b8d63733ca4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3125a8c5d02d7ccea7a50349195d5b87"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a3125a8c5d02d7ccea7a50349195d5b87">gamal_coll_decrypt_lead</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext_update, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keys, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext, <a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> table)</td></tr>
+<tr class="memdesc:a3125a8c5d02d7ccea7a50349195d5b87"><td class="mdescLeft">&#160;</td><td class="mdescRight">A leading server initiate the threshold decryption.  <a href="ecelgamal_8c.html#a3125a8c5d02d7ccea7a50349195d5b87">More...</a><br /></td></tr>
+<tr class="separator:a3125a8c5d02d7ccea7a50349195d5b87"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b7418d725340e8e681207960dd23c2b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a1b7418d725340e8e681207960dd23c2b">gamal_coll_decrypt_follow</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext_update, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keys, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext, <a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> table)</td></tr>
+<tr class="memdesc:a1b7418d725340e8e681207960dd23c2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Following servers join the threshold decryption.  <a href="ecelgamal_8c.html#a1b7418d725340e8e681207960dd23c2b">More...</a><br /></td></tr>
+<tr class="separator:a1b7418d725340e8e681207960dd23c2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abfdde5bdb3c5f770685df98da810668a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#abfdde5bdb3c5f770685df98da810668a">gamal_coll_decrypt</a> (<a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a> *res, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keys1, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keys2, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keys3, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> ciphertext, <a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a> table)</td></tr>
+<tr class="separator:abfdde5bdb3c5f770685df98da810668a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a882ef9569e075e4f6c45d2db258b60eb"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a882ef9569e075e4f6c45d2db258b60eb">gama_key_switch_lead</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> cipher_update, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> cipher, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keys_lead, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keysNew)</td></tr>
+<tr class="memdesc:a882ef9569e075e4f6c45d2db258b60eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">A leading server initiates the key switching of an encryption to under a new collective public key.  <a href="ecelgamal_8c.html#a882ef9569e075e4f6c45d2db258b60eb">More...</a><br /></td></tr>
+<tr class="separator:a882ef9569e075e4f6c45d2db258b60eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad4f67df871a92ca75c93c90a38a2c321"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#ad4f67df871a92ca75c93c90a38a2c321">gama_key_switch_follow</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> cipher_update, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> cipher, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keys_follow, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keysNew)</td></tr>
+<tr class="memdesc:ad4f67df871a92ca75c93c90a38a2c321"><td class="mdescLeft">&#160;</td><td class="mdescRight">A following server operations in the key switching of an encryption to under a new collective public key.  <a href="ecelgamal_8c.html#ad4f67df871a92ca75c93c90a38a2c321">More...</a><br /></td></tr>
+<tr class="separator:ad4f67df871a92ca75c93c90a38a2c321"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3e0adede231b2d2d6a91e58f17dca4b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#ad3e0adede231b2d2d6a91e58f17dca4b">gamal_key_switching</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> new_cipher, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> cipher, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keys1, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keys2, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keys3, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keysNew)</td></tr>
+<tr class="separator:ad3e0adede231b2d2d6a91e58f17dca4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa45b941b0f583791b15c9de0b1fd3dad"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#aa45b941b0f583791b15c9de0b1fd3dad">gamal_re_encrypt</a> (<a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> new_cipher, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> cipher, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keys, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keysNew)</td></tr>
+<tr class="memdesc:aa45b941b0f583791b15c9de0b1fd3dad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simple re-encrytion function.  <a href="ecelgamal_8c.html#aa45b941b0f583791b15c9de0b1fd3dad">More...</a><br /></td></tr>
+<tr class="separator:aa45b941b0f583791b15c9de0b1fd3dad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa5d7fe3f7ab6943c5a677b10961e1c41"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#aa5d7fe3f7ab6943c5a677b10961e1c41">gamal_collective_publickey_gen</a> (<a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> coll_keys, EC_POINT **p_key_list, int size_key_list)</td></tr>
+<tr class="memdesc:aa5d7fe3f7ab6943c5a677b10961e1c41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate a collective public key from a set of public keys.  <a href="ecelgamal_8c.html#aa5d7fe3f7ab6943c5a677b10961e1c41">More...</a><br /></td></tr>
+<tr class="separator:aa5d7fe3f7ab6943c5a677b10961e1c41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3697e1cb391f70da0540cc810d4a47d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#ae3697e1cb391f70da0540cc810d4a47d">gamal_collective_key_gen</a> (<a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> coll_keys, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keys1, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keys2, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> keys3)</td></tr>
+<tr class="separator:ae3697e1cb391f70da0540cc810d4a47d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae3eec0c878d615fad09d825e0e98e4d"><td class="memItemLeft" align="right" valign="top">int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#aae3eec0c878d615fad09d825e0e98e4d">convert_to_bin</a> (int binary_arr[64], <a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a> number, int bit_num)</td></tr>
+<tr class="memdesc:aae3eec0c878d615fad09d825e0e98e4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function for the scalar multiplication.  <a href="ecelgamal_8c.html#aae3eec0c878d615fad09d825e0e98e4d">More...</a><br /></td></tr>
+<tr class="separator:aae3eec0c878d615fad09d825e0e98e4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d0c7980f70a2179cc71c50406b5c004"><td class="memItemLeft" align="right" valign="top">int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#a4d0c7980f70a2179cc71c50406b5c004">convert_to_NAF</a> (int naf_arr[64], <a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a> number, int bit_num[2])</td></tr>
+<tr class="memdesc:a4d0c7980f70a2179cc71c50406b5c004"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function for the scalar multiplication.  <a href="ecelgamal_8c.html#a4d0c7980f70a2179cc71c50406b5c004">More...</a><br /></td></tr>
+<tr class="separator:a4d0c7980f70a2179cc71c50406b5c004"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa06c1c64ab5df988a45ee41c3c0051f6"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#aa06c1c64ab5df988a45ee41c3c0051f6">mods_func</a> (int number)</td></tr>
+<tr class="memdesc:aa06c1c64ab5df988a45ee41c3c0051f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Helper function for the scalar multiplication.  <a href="ecelgamal_8c.html#aa06c1c64ab5df988a45ee41c3c0051f6">More...</a><br /></td></tr>
+<tr class="separator:aa06c1c64ab5df988a45ee41c3c0051f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:aaa80b22c16b03c74dac75960d72eb2bc"><td class="memItemLeft" align="right" valign="top">EC_GROUP *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ecelgamal_8c.html#aaa80b22c16b03c74dac75960d72eb2bc">init_group</a> = NULL</td></tr>
+<tr class="separator:aaa80b22c16b03c74dac75960d72eb2bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a68f44b7d2f6b0ca6e0547900866fef25"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a68f44b7d2f6b0ca6e0547900866fef25">&#9670;&nbsp;</a></span>KEY_COMPRESSED</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define KEY_COMPRESSED&#160;&#160;&#160;1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00040">40</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="ad92b7926b6e615533155c7ba9a70bb0c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad92b7926b6e615533155c7ba9a70bb0c">&#9670;&nbsp;</a></span>KEY_PUBLIC</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define KEY_PUBLIC&#160;&#160;&#160;2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00041">41</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a134fb8c06f1ad8159b852b0210c33816"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a134fb8c06f1ad8159b852b0210c33816">&#9670;&nbsp;</a></span>KEY_UNCOMPRESSED</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define KEY_UNCOMPRESSED&#160;&#160;&#160;0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00039">39</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="af6400de477129e31e0997e22b046cfc4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af6400de477129e31e0997e22b046cfc4">&#9670;&nbsp;</a></span>add_value_to_table()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int add_value_to_table </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>table</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">EC_POINT *&#160;</td>
+          <td class="paramname"><em>point</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00076">76</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a5f5929142d6e2a55b3d8c1f16fb701f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f5929142d6e2a55b3d8c1f16fb701f0">&#9670;&nbsp;</a></span>bsgs_table_free()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int bsgs_table_free </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>bsgs_table</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00132">132</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a3bc0806fe087b530dde26aefacd4e3ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3bc0806fe087b530dde26aefacd4e3ba">&#9670;&nbsp;</a></span>bsgs_table_get_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t bsgs_table_get_size </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>bsgs_table</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00127">127</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="ab8d51113c223b6ae629fd3fc23ad8524"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab8d51113c223b6ae629fd3fc23ad8524">&#9670;&nbsp;</a></span>bsgs_table_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int bsgs_table_init </td>
+          <td>(</td>
+          <td class="paramtype">EC_GROUP *&#160;</td>
+          <td class="paramname"><em>curve_group</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>table</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a>&#160;</td>
+          <td class="paramname"><em>t_size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00093">93</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="aae3eec0c878d615fad09d825e0e98e4d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae3eec0c878d615fad09d825e0e98e4d">&#9670;&nbsp;</a></span>convert_to_bin()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int* convert_to_bin </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>binary_arr</em>[64], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a>&#160;</td>
+          <td class="paramname"><em>number</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>bit_num</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Helper function for the scalar multiplication. </p>
+<p>Implemented by authors of DataRing. For utility functions </p>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l01245">1245</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a4d0c7980f70a2179cc71c50406b5c004"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d0c7980f70a2179cc71c50406b5c004">&#9670;&nbsp;</a></span>convert_to_NAF()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int* convert_to_NAF </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>naf_arr</em>[64], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a>&#160;</td>
+          <td class="paramname"><em>number</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>bit_num</em>[2]&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Helper function for the scalar multiplication. </p>
+<p>Implemented by authors of DataRing. For utility functions </p>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l01291">1291</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a91f0565166855946d3647dfdab7a3157"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a91f0565166855946d3647dfdab7a3157">&#9670;&nbsp;</a></span>decode_ciphertext()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int decode_ciphertext </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned char *&#160;</td>
+          <td class="paramname"><em>buff</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decode a ciphertext. </p>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00459">459</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a345fccdc2facac6565ae023b41735749"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a345fccdc2facac6565ae023b41735749">&#9670;&nbsp;</a></span>decode_key()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int decode_key </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned char *&#160;</td>
+          <td class="paramname"><em>buff</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decode a key. </p>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00558">558</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="add318d98ca897d353cbf9a7510225a2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#add318d98ca897d353cbf9a7510225a2f">&#9670;&nbsp;</a></span>encode_ciphertext()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int encode_ciphertext </td>
+          <td>(</td>
+          <td class="paramtype">unsigned char *&#160;</td>
+          <td class="paramname"><em>buff</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Encode a ciphertext. </p>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00440">440</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="abe153e6252b5a06310d967f609a8e2fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe153e6252b5a06310d967f609a8e2fa">&#9670;&nbsp;</a></span>encode_key()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int encode_key </td>
+          <td>(</td>
+          <td class="paramtype">unsigned char *&#160;</td>
+          <td class="paramname"><em>buff</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>compressed</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Encode a key. </p>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00498">498</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="ad4f67df871a92ca75c93c90a38a2c321"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad4f67df871a92ca75c93c90a38a2c321">&#9670;&nbsp;</a></span>gama_key_switch_follow()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gama_key_switch_follow </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>cipher_update</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>cipher</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keys_follow</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keysNew</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>A following server operations in the key switching of an encryption to under a new collective public key. </p>
+<p>Implemented by authors of DataRing. This function for a leading server to continue the key switching for re-encryption. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cipher_update</td><td>partially re-encrypted cipher </td></tr>
+    <tr><td class="paramname">cipher</td><td>original ciphertext to be re-encrypted </td></tr>
+    <tr><td class="paramname">keys_follow</td><td>key pair of the following servers (both public key and secret key) </td></tr>
+    <tr><td class="paramname">ketsNew</td><td>new public key </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00993">993</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a882ef9569e075e4f6c45d2db258b60eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a882ef9569e075e4f6c45d2db258b60eb">&#9670;&nbsp;</a></span>gama_key_switch_lead()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gama_key_switch_lead </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>cipher_update</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>cipher</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keys_lead</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keysNew</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>A leading server initiates the key switching of an encryption to under a new collective public key. </p>
+<p>Implemented by authors of DataRing. This function for a leading server to intitiate the key switching for re-encryption </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cipher_update</td><td>partially re-encrypted cipher </td></tr>
+    <tr><td class="paramname">cipher</td><td>original ciphertext to be re-encrypted </td></tr>
+    <tr><td class="paramname">keys_lead</td><td>key pair of the leading server (both public key and secret key) </td></tr>
+    <tr><td class="paramname">ketsNew</td><td>new public key </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00954">954</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="ab1a7882d48648e68a7e8e7b2f3f43e91"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1a7882d48648e68a7e8e7b2f3f43e91">&#9670;&nbsp;</a></span>gamal_add()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_add </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>res</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext2</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Adds two EC-Elgamal ciphertext and stores it in res. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">res</td><td>the resulting ciphertext </td></tr>
+    <tr><td class="paramname">ciphertext1</td><td></td></tr>
+    <tr><td class="paramname">ciphertext2</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00386">386</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a0db98f08b7b0d49ee723eeb7ca8160d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0db98f08b7b0d49ee723eeb7ca8160d5">&#9670;&nbsp;</a></span>gamal_cipher_clear()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_cipher_clear </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>cipher</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00290">290</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="ad1b6b17d3a33733f7e9da11175b8b3bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad1b6b17d3a33733f7e9da11175b8b3bb">&#9670;&nbsp;</a></span>gamal_cipher_new()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_cipher_new </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>cipher</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create a new ciphertext. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cipher</td><td>new cipher text, C1 and C2 is the \O point of the x0y </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00297">297</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="abfdde5bdb3c5f770685df98da810668a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abfdde5bdb3c5f770685df98da810668a">&#9670;&nbsp;</a></span>gamal_coll_decrypt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_coll_decrypt </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a> *&#160;</td>
+          <td class="paramname"><em>res</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keys1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keys2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keys3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>table</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00913">913</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a1b7418d725340e8e681207960dd23c2b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b7418d725340e8e681207960dd23c2b">&#9670;&nbsp;</a></span>gamal_coll_decrypt_follow()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_coll_decrypt_follow </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext_update</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keys</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>table</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Following servers join the threshold decryption. </p>
+<p>Implemented by authors of DataRing. Collective decrypts an EC-ElGamal ciphertext by all parties This function for a following server to continue the threshold decryption </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ciphertext_update</td><td>partially decrypted by the leading server </td></tr>
+    <tr><td class="paramname">keys</td><td>the key pair of the following servers (pk and sk) </td></tr>
+    <tr><td class="paramname">ciphertext</td><td>original ciphertext to be decrypted </td></tr>
+    <tr><td class="paramname">table</td><td>lookup table for decryption </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00893">893</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a3125a8c5d02d7ccea7a50349195d5b87"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3125a8c5d02d7ccea7a50349195d5b87">&#9670;&nbsp;</a></span>gamal_coll_decrypt_lead()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_coll_decrypt_lead </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext_update</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keys</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>table</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>A leading server initiate the threshold decryption. </p>
+<p>Implemented by authors of DataRing. Collective decrypts an EC-ElGamal ciphertext by all parties This function for a leading server to initiate the threshold decryption </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ciphertext_update</td><td>partially decrypted by the leading server </td></tr>
+    <tr><td class="paramname">keys</td><td>the key pair of the leading server (pk and sk) </td></tr>
+    <tr><td class="paramname">ciphertext</td><td>original ciphertext to be decrypted </td></tr>
+    <tr><td class="paramname">table</td><td>lookup table for decryption </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00886">886</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="ae3697e1cb391f70da0540cc810d4a47d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae3697e1cb391f70da0540cc810d4a47d">&#9670;&nbsp;</a></span>gamal_collective_key_gen()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_collective_key_gen </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>coll_keys</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keys1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keys2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keys3</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l01204">1204</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="aa5d7fe3f7ab6943c5a677b10961e1c41"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa5d7fe3f7ab6943c5a677b10961e1c41">&#9670;&nbsp;</a></span>gamal_collective_publickey_gen()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_collective_publickey_gen </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>coll_keys</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">EC_POINT **&#160;</td>
+          <td class="paramname"><em>p_key_list</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>size_key_list</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generate a collective public key from a set of public keys. </p>
+<p>Implemented by authors of DataRing. Generates an collective EC-ElGamal key pair from number of parties. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">coll_keys</td><td>the collective keypair </td></tr>
+    <tr><td class="paramname">p_key_list</td><td>point to the list of public keys of servers </td></tr>
+    <tr><td class="paramname">size_key_list</td><td>number of public keys = number of servers </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a colective </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l01165">1165</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="ab57e8b44a7e2a3e28d19af8baaae1714"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab57e8b44a7e2a3e28d19af8baaae1714">&#9670;&nbsp;</a></span>gamal_decrypt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_decrypt </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a> *&#160;</td>
+          <td class="paramname"><em>res</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>table</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Decrypts an EC-Elgamal ciphertext. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">res</td><td>the resulting plaintext integer </td></tr>
+    <tr><td class="paramname">key</td><td></td></tr>
+    <tr><td class="paramname">ciphertext</td><td></td></tr>
+    <tr><td class="paramname">table</td><td>if NULL bruteforce is used </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00356">356</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a748fd010e497a7c660c045e14453c900"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a748fd010e497a7c660c045e14453c900">&#9670;&nbsp;</a></span>gamal_deinit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_deinit </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Deinits the library. </p>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00252">252</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a0ddfcc673e21b058420e80607e4351a0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0ddfcc673e21b058420e80607e4351a0">&#9670;&nbsp;</a></span>gamal_encrypt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_encrypt </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a>&#160;</td>
+          <td class="paramname"><em>plaintext</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Encrypts an Integer with additadive homomorphic EC-ElGamal. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">ciphertext</td><td></td></tr>
+    <tr><td class="paramname">key</td><td></td></tr>
+    <tr><td class="paramname">plaintext</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00326">326</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="ae486c356b74b709bbf12384299ef888b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae486c356b74b709bbf12384299ef888b">&#9670;&nbsp;</a></span>gamal_free_bsgs_table()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_free_bsgs_table </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>table</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Frees the memory of the table. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">table</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00267">267</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a5429cde99bff5251b3b00b8d63733ca4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5429cde99bff5251b3b00b8d63733ca4">&#9670;&nbsp;</a></span>gamal_fusion_decrypt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_fusion_decrypt </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a> *&#160;</td>
+          <td class="paramname"><em>res</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num_server</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>key_lead</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>key_follow</em>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext_update</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>table</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>All servers jointly compute the final plaintext of a ciphertext from the threshold decryption. </p>
+<p>Implemented by authors of DataRing. Collective decrypts an EC-ElGamal ciphertext by all parties This function for all server to join and decrypt a ciphertext this function will call the <a class="el" href="ecelgamal_8h.html#a3125a8c5d02d7ccea7a50349195d5b87" title="A leading server initiate the threshold decryption.">gamal_coll_decrypt_lead()</a> and <a class="el" href="ecelgamal_8h.html#a3125a8c5d02d7ccea7a50349195d5b87" title="A leading server initiate the threshold decryption.">gamal_coll_decrypt_lead()</a> functions </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">res</td><td>result is a plaintext </td></tr>
+    <tr><td class="paramname">num_server</td><td>the number of servers to jointly decrypt </td></tr>
+    <tr><td class="paramname">ciphertext_update</td><td>partially decrypted by the leading server </td></tr>
+    <tr><td class="paramname">key_lead</td><td>the key pair of the leading server (pk and sk) </td></tr>
+    <tr><td class="paramname">key_follow[]</td><td>the set of key pair of the following servers (pk and sk) </td></tr>
+    <tr><td class="paramname">ciphertext</td><td>original ciphertext to be decrypted </td></tr>
+    <tr><td class="paramname">table</td><td>lookup table for decryption </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00847">847</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a74dc74f95e15b85703a204f897bcb8c0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a74dc74f95e15b85703a204f897bcb8c0">&#9670;&nbsp;</a></span>gamal_generate_keys()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_generate_keys </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keys</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generates an EC-Elgamal key pair. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">keys</td><td>the EC-ElGamal keypair </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00304">304</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="ad30cf7c6b081e02aa394955d7305c76d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad30cf7c6b081e02aa394955d7305c76d">&#9670;&nbsp;</a></span>gamal_get_current_group()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">EC_GROUP* gamal_get_current_group </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the EC_Group (elliptic curve group) struct if initialized. </p>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00408">408</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a3f903abd1183ad521f8ae71a118a0417"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f903abd1183ad521f8ae71a118a0417">&#9670;&nbsp;</a></span>gamal_get_point_compressed_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_get_point_compressed_size </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the encded size of an EC-Point in this group. </p>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00413">413</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="af581959288aea25d4e86f4da0270ce55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af581959288aea25d4e86f4da0270ce55">&#9670;&nbsp;</a></span>gamal_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_init </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>curve_id</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inits the library with the given curve. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cure_id</td><td>ID of given elliptic curve </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00246">246</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a20abad4bb599201f1fbe7a59578ae2aa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a20abad4bb599201f1fbe7a59578ae2aa">&#9670;&nbsp;</a></span>gamal_init_bsgs_table()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_init_bsgs_table </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>table</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a>&#160;</td>
+          <td class="paramname"><em>size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inititlaizes the baby-step-giant-step table. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">the</td><td>table </td></tr>
+    <tr><td class="paramname">the</td><td>number of elemnts to store in the table </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd></dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00262">262</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a0ac2ec2c67fb8d0ce8b9fd2023010e77"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0ac2ec2c67fb8d0ce8b9fd2023010e77">&#9670;&nbsp;</a></span>gamal_key_clear()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_key_clear </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>key</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Clear a key pair. </p>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00273">273</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="ad3e0adede231b2d2d6a91e58f17dca4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3e0adede231b2d2d6a91e58f17dca4b">&#9670;&nbsp;</a></span>gamal_key_switching()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_key_switching </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>new_cipher</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>cipher</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keys1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keys2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keys3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keysNew</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l01033">1033</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="aa1095ca1c36b141318f51f56b5ac6577"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa1095ca1c36b141318f51f56b5ac6577">&#9670;&nbsp;</a></span>gamal_key_to_public()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_key_to_public </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>pub</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>priv</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00283">283</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a8cb0ebd5607e1c026839538f522bc347"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8cb0ebd5607e1c026839538f522bc347">&#9670;&nbsp;</a></span>gamal_mult()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_mult </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>res</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a>&#160;</td>
+          <td class="paramname"><em>pt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00759">759</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a2db8d515b3226d0261643313e77685ce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2db8d515b3226d0261643313e77685ce">&#9670;&nbsp;</a></span>gamal_mult_opt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_mult_opt </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>res</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a>&#160;</td>
+          <td class="paramname"><em>pt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Multiplication of a ciphertext by a scalar. </p>
+<p>Implemented by authors of DataRing. This function use the double-and-add scheme to provide the scalar multipication of a ciphertext. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">res</td><td>the resulted ciphertext </td></tr>
+    <tr><td class="paramname">ciphertext</td><td>ciphertext to be scalar </td></tr>
+    <tr><td class="paramname">pt</td><td>scalar is an integer &gt;=1 </td></tr>
+  </table>
+  </dd>
+</dl>
+<p>&zwj;** n-1 doublings and m - 1 additions: double-and-add binary-correct</p>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00627">627</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="aa45b941b0f583791b15c9de0b1fd3dad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa45b941b0f583791b15c9de0b1fd3dad">&#9670;&nbsp;</a></span>gamal_re_encrypt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_re_encrypt </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>new_cipher</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>cipher</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keys</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>keysNew</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Simple re-encrytion function. </p>
+<p>Implemented by authors of DataRing. Re-encrypt a ciphertext under one (1) server's public key to a ciphertext under a new public key </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">new_cipher</td><td></td></tr>
+    <tr><td class="paramname">cipher</td><td>ciphertext under server's public key </td></tr>
+    <tr><td class="paramname">keys</td><td>server's key pair </td></tr>
+    <tr><td class="paramname">keySNew</td><td>new public key </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l01120">1120</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="aaf3a255be1a2cdfb3512b00ed8350132"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaf3a255be1a2cdfb3512b00ed8350132">&#9670;&nbsp;</a></span>gamal_subtract()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int gamal_subtract </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>res</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext2</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00819">819</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a312b29259047960c48cf5b167732b40f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a312b29259047960c48cf5b167732b40f">&#9670;&nbsp;</a></span>get_encoded_ciphertext_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t get_encoded_ciphertext_size </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>ciphertext</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the size of the encoded ciphertext. </p>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00435">435</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a55da5654451ad4e78c4ba6bda02c9e07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a55da5654451ad4e78c4ba6bda02c9e07">&#9670;&nbsp;</a></span>get_encoded_key_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t get_encoded_key_size </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>compressed</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the size of the encoded key. </p>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00479">479</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="aba68fa081cc7116e4270da96eada988a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba68fa081cc7116e4270da96eada988a">&#9670;&nbsp;</a></span>get_power_from_table()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int get_power_from_table </td>
+          <td>(</td>
+          <td class="paramtype">uint64_t *&#160;</td>
+          <td class="paramname"><em>power</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>bsgs_table</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">EC_POINT *&#160;</td>
+          <td class="paramname"><em>lookup_point</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00146">146</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="aa06c1c64ab5df988a45ee41c3c0051f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa06c1c64ab5df988a45ee41c3c0051f6">&#9670;&nbsp;</a></span>mods_func()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int mods_func </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>number</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Helper function for the scalar multiplication. </p>
+<p>Implemented by authors of DataRing. For utility functions </p>
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l01326">1326</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a5dd6be186884ad6c729ce66d0bbc1a7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5dd6be186884ad6c729ce66d0bbc1a7d">&#9670;&nbsp;</a></span>multiply_constant()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">EC_POINT* multiply_constant </td>
+          <td>(</td>
+          <td class="paramtype">const EC_POINT *&#160;</td>
+          <td class="paramname"><em>in</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const BIGNUM *&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">EC_GROUP *&#160;</td>
+          <td class="paramname"><em>curve_group</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00043">43</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a8aad9fe09674a827c0dffe01c13788b2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8aad9fe09674a827c0dffe01c13788b2">&#9670;&nbsp;</a></span>multiply_generator()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">EC_POINT* multiply_generator </td>
+          <td>(</td>
+          <td class="paramtype">const BIGNUM *&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">EC_GROUP *&#160;</td>
+          <td class="paramname"><em>curve_group</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00060">60</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a0c8b290db4cf124d3ed961489bd0768f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0c8b290db4cf124d3ed961489bd0768f">&#9670;&nbsp;</a></span>point_to_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* point_to_string </td>
+          <td>(</td>
+          <td class="paramtype">EC_GROUP *&#160;</td>
+          <td class="paramname"><em>curve_group</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const EC_POINT *&#160;</td>
+          <td class="paramname"><em>point</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00065">65</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="abfdb49fbd44e33d06db2b46b6ddd0058"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abfdb49fbd44e33d06db2b46b6ddd0058">&#9670;&nbsp;</a></span>read_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t read_size </td>
+          <td>(</td>
+          <td class="paramtype">unsigned char *&#160;</td>
+          <td class="paramname"><em>buffer</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00430">430</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a178e15e516972c601d4d13b708ec981c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a178e15e516972c601d4d13b708ec981c">&#9670;&nbsp;</a></span>solve_dlog_brute()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int solve_dlog_brute </td>
+          <td>(</td>
+          <td class="paramtype">EC_GROUP *&#160;</td>
+          <td class="paramname"><em>curve_group</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">EC_POINT *&#160;</td>
+          <td class="paramname"><em>M</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t *&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a020deff602315de6e1a3652d16b63a5b">dig_t</a>&#160;</td>
+          <td class="paramname"><em>max_it</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00207">207</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="a03460e02dbae60a43277eca951b7a0fe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a03460e02dbae60a43277eca951b7a0fe">&#9670;&nbsp;</a></span>solve_ecdlp_bsgs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int solve_ecdlp_bsgs </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a0db6828e45e50899115d040a0b3e9f57">bsgs_table_t</a>&#160;</td>
+          <td class="paramname"><em>bsgs_table</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t *&#160;</td>
+          <td class="paramname"><em>result</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">EC_POINT *&#160;</td>
+          <td class="paramname"><em>M</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int64_t&#160;</td>
+          <td class="paramname"><em>maxIt</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00165">165</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<a id="aa5907785c1a73e913dfeb7dcf736e449"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa5907785c1a73e913dfeb7dcf736e449">&#9670;&nbsp;</a></span>write_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void write_size </td>
+          <td>(</td>
+          <td class="paramtype">unsigned char *&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00424">424</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="aaa80b22c16b03c74dac75960d72eb2bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaa80b22c16b03c74dac75960d72eb2bc">&#9670;&nbsp;</a></span>init_group</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">EC_GROUP* init_group = NULL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ecelgamal_8c_source.html#l00244">244</a> of file <a class="el" href="ecelgamal_8c_source.html">ecelgamal.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+
+</small></address>
+</body>
+</html>

@@ -1,0 +1,232 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.17"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>DataRing: dataring_implementation/native/src/generate_enc_vectors.h File Reference</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="header">
+  <div class="summary">
+<a href="#func-members">Functions</a>  </div>
+  <div class="headertitle">
+<div class="title">generate_enc_vectors.h File Reference</div>  </div>
+</div><!--header-->
+<div class="contents">
+
+<p>Helper functions to generate a vector of binary value.  
+<a href="#details">More...</a></p>
+
+<p><a href="generate__enc__vectors_8h_source.html">Go to the source code of this file.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:aae07176b4162284716cd134bcf16c79a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="generate__enc__vectors_8h.html#aae07176b4162284716cd134bcf16c79a">findCeil</a> (int arr[], int r, int l, int h)</td></tr>
+<tr class="separator:aae07176b4162284716cd134bcf16c79a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a670a8fd746558ece65166864063c73cf"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="generate__enc__vectors_8h.html#a670a8fd746558ece65166864063c73cf">myRand</a> (int arr[], int freq[], int n)</td></tr>
+<tr class="separator:a670a8fd746558ece65166864063c73cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab51936a51dc12ed398d2c619595586c0"><td class="memItemLeft" align="right" valign="top">int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="generate__enc__vectors_8h.html#ab51936a51dc12ed398d2c619595586c0">hist_gen</a> (int histogr[], int arr[], int freq[], int datasize, int scale_up)</td></tr>
+<tr class="separator:ab51936a51dc12ed398d2c619595586c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1859dde8e1058abf744e6eecc5085ed6"><td class="memItemLeft" align="right" valign="top">int *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="generate__enc__vectors_8h.html#a1859dde8e1058abf744e6eecc5085ed6">pir_gen</a> (int *myPIR_arr, int arr[], int freq[], int datasize, double pv_ratio)</td></tr>
+<tr class="separator:a1859dde8e1058abf744e6eecc5085ed6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Helper functions to generate a vector of binary value. </p>
+<p>The generated binary vector is then encrypted to serve as the sampling vector </p><dl class="section author"><dt>Author</dt><dd>Tham Nguyen <a href="#" onclick="location.href='mai'+'lto:'+'tha'+'m.'+'ngu'+'ye'+'n@m'+'q.'+'edu'+'.a'+'u'; return false;">tham.<span style="display: none;">.nosp@m.</span>nguy<span style="display: none;">.nosp@m.</span>en@mq<span style="display: none;">.nosp@m.</span>.edu<span style="display: none;">.nosp@m.</span>.au</a>, Nam Bui, DataRing </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>April 2020 </dd></dl>
+
+<p class="definition">Definition in file <a class="el" href="generate__enc__vectors_8h_source.html">generate_enc_vectors.h</a>.</p>
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="aae07176b4162284716cd134bcf16c79a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae07176b4162284716cd134bcf16c79a">&#9670;&nbsp;</a></span>findCeil()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int findCeil </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>arr</em>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>r</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>l</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>h</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Added by Tham to generate random PIR vector in clear Function to find ceiling of r in arr[l..h] </p>
+
+<p class="definition">Definition at line <a class="el" href="generate__enc__vectors_8c_source.html#l00008">8</a> of file <a class="el" href="generate__enc__vectors_8c_source.html">generate_enc_vectors.c</a>.</p>
+
+</div>
+</div>
+<a id="ab51936a51dc12ed398d2c619595586c0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab51936a51dc12ed398d2c619595586c0">&#9670;&nbsp;</a></span>hist_gen()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int* hist_gen </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>histogr</em>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>arr</em>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>freq</em>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>datasize</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>scale_up</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="generate__enc__vectors_8c_source.html#l00046">46</a> of file <a class="el" href="generate__enc__vectors_8c_source.html">generate_enc_vectors.c</a>.</p>
+
+</div>
+</div>
+<a id="a670a8fd746558ece65166864063c73cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a670a8fd746558ece65166864063c73cf">&#9670;&nbsp;</a></span>myRand()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int myRand </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>arr</em>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>freq</em>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>n</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Added by Tham to generate random PIR vector in clear The main function that returns a random number from arr[] according to distribution array defined by freq[]. n is size of arrays. </p>
+
+<p class="definition">Definition at line <a class="el" href="generate__enc__vectors_8c_source.html#l00025">25</a> of file <a class="el" href="generate__enc__vectors_8c_source.html">generate_enc_vectors.c</a>.</p>
+
+</div>
+</div>
+<a id="a1859dde8e1058abf744e6eecc5085ed6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1859dde8e1058abf744e6eecc5085ed6">&#9670;&nbsp;</a></span>pir_gen()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int* pir_gen </td>
+          <td>(</td>
+          <td class="paramtype">int *&#160;</td>
+          <td class="paramname"><em>myPIR_arr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>arr</em>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>freq</em>[], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>datasize</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>pv_ratio</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="generate__enc__vectors_8c_source.html#l00085">85</a> of file <a class="el" href="generate__enc__vectors_8c_source.html">generate_enc_vectors.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+
+</small></address>
+</body>
+</html>

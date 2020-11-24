@@ -1,0 +1,826 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.8.17"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>DataRing: Participant Class Reference</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div class="header">
+  <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="classParticipant-members.html">List of all members</a>  </div>
+  <div class="headertitle">
+<div class="title">Participant Class Reference</div>  </div>
+</div><!--header-->
+<div class="contents">
+
+<p>This class provides functions for a participant in the DataRing system.  
+ <a href="classParticipant.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="Participant_8h_source.html">Participant.h</a>&gt;</code></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:ad0eb953c5992f199cf7a9f3df1d0beea"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#ad0eb953c5992f199cf7a9f3df1d0beea">Participant</a> ()</td></tr>
+<tr class="separator:ad0eb953c5992f199cf7a9f3df1d0beea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8a17ff676662513d7bee0465ab133e9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#ac8a17ff676662513d7bee0465ab133e9">Participant</a> (string data_dir)</td></tr>
+<tr class="separator:ac8a17ff676662513d7bee0465ab133e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3609f66bc13e6bd67385568dc42e319d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#a3609f66bc13e6bd67385568dc42e319d">create_OriginalHistogram</a> (int dataset_size, int domainCoefficient)</td></tr>
+<tr class="memdesc:a3609f66bc13e6bd67385568dc42e319d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tranfers the original dataset into a histogram.  <a href="classParticipant.html#a3609f66bc13e6bd67385568dc42e319d">More...</a><br /></td></tr>
+<tr class="separator:a3609f66bc13e6bd67385568dc42e319d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5370017d3a14071a30cf50967b5c1cf2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#a5370017d3a14071a30cf50967b5c1cf2">getPermutationOfHistogram</a> (vector&lt; string &gt; v, vector&lt; int &gt; flag)</td></tr>
+<tr class="memdesc:a5370017d3a14071a30cf50967b5c1cf2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a permutation of the histogram of the dataset.  <a href="classParticipant.html#a5370017d3a14071a30cf50967b5c1cf2">More...</a><br /></td></tr>
+<tr class="separator:a5370017d3a14071a30cf50967b5c1cf2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8570203a3c0872755264f50f95015b7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#af8570203a3c0872755264f50f95015b7">getInversePermutationVector</a> (vector&lt; string &gt; v, hash_pair_map <a class="el" href="classParticipant.html#ae9a35106aeabd86cf0beea8d95492999">map_v_permute</a>)</td></tr>
+<tr class="memdesc:af8570203a3c0872755264f50f95015b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores the un-permutation corresponding to the permutation used for shuffling labels' order.  <a href="classParticipant.html#af8570203a3c0872755264f50f95015b7">More...</a><br /></td></tr>
+<tr class="separator:af8570203a3c0872755264f50f95015b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac10aa50b0252e2de96c930bc698bee47"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#ac10aa50b0252e2de96c930bc698bee47">computeAnswer_opt</a> (ENC_DOMAIN_MAP &amp;enc_question_map, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> sum_cipher, hash_pair_map hist, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> &amp;coll_key, float epsilon_i)</td></tr>
+<tr class="memdesc:ac10aa50b0252e2de96c930bc698bee47"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes query answer.  <a href="classParticipant.html#ac10aa50b0252e2de96c930bc698bee47">More...</a><br /></td></tr>
+<tr class="separator:ac10aa50b0252e2de96c930bc698bee47"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:accff75d61274bdf13f4df87b9160e3d4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#accff75d61274bdf13f4df87b9160e3d4">computeAnswer_sum</a> (ENC_DOMAIN_MAP &amp;enc_question_map, <a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a> sum_cipher, hash_pair_map hist, <a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> &amp;coll_key, float epsilon_i, int attr_to_sum)</td></tr>
+<tr class="separator:accff75d61274bdf13f4df87b9160e3d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a926160ceccbcd9548ff69b0e5474245a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#a926160ceccbcd9548ff69b0e5474245a">addDummy_FakeHist_random</a> (int keepDomainS, int factorSize)</td></tr>
+<tr class="memdesc:a926160ceccbcd9548ff69b0e5474245a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a fake histgram from the true histogram.  <a href="classParticipant.html#a926160ceccbcd9548ff69b0e5474245a">More...</a><br /></td></tr>
+<tr class="separator:a926160ceccbcd9548ff69b0e5474245a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10007f69ca24f8558a099ca72efc2117"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#a10007f69ca24f8558a099ca72efc2117">addDummy_ones_FakeHistogram</a> (int factorSize, float adding_ones)</td></tr>
+<tr class="memdesc:a10007f69ca24f8558a099ca72efc2117"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate a fake histogram where many dummy labels have binvalue = 1.  <a href="classParticipant.html#a10007f69ca24f8558a099ca72efc2117">More...</a><br /></td></tr>
+<tr class="separator:a10007f69ca24f8558a099ca72efc2117"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65243860845c3b95f7d94d2da5738934"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#a65243860845c3b95f7d94d2da5738934">print_Histogram</a> (string filename, hash_pair_map histo)</td></tr>
+<tr class="separator:a65243860845c3b95f7d94d2da5738934"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:aee5dd154035106ebc584360949f848c8"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#aee5dd154035106ebc584360949f848c8">DATA_DIR</a></td></tr>
+<tr class="memdesc:aee5dd154035106ebc584360949f848c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dataset's directory.  <a href="classParticipant.html#aee5dd154035106ebc584360949f848c8">More...</a><br /></td></tr>
+<tr class="separator:aee5dd154035106ebc584360949f848c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae9a35106aeabd86cf0beea8d95492999"><td class="memItemLeft" align="right" valign="top">hash_pair_map&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#ae9a35106aeabd86cf0beea8d95492999">map_v_permute</a></td></tr>
+<tr class="memdesc:ae9a35106aeabd86cf0beea8d95492999"><td class="mdescLeft">&#160;</td><td class="mdescRight">Permutation of the histogram map.  <a href="classParticipant.html#ae9a35106aeabd86cf0beea8d95492999">More...</a><br /></td></tr>
+<tr class="separator:ae9a35106aeabd86cf0beea8d95492999"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3465572d958d20a4f875e281e7227ccb"><td class="memItemLeft" align="right" valign="top">hash_pair_map&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#a3465572d958d20a4f875e281e7227ccb">map_v_permute_to_send_flag</a></td></tr>
+<tr class="memdesc:a3465572d958d20a4f875e281e7227ccb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Permutation sorted with flags of datapoints.  <a href="classParticipant.html#a3465572d958d20a4f875e281e7227ccb">More...</a><br /></td></tr>
+<tr class="separator:a3465572d958d20a4f875e281e7227ccb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10dcb741edb28f5a182d8d13428d4156"><td class="memItemLeft" align="right" valign="top">vector&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#a10dcb741edb28f5a182d8d13428d4156">vector_endcoded_label</a></td></tr>
+<tr class="memdesc:a10dcb741edb28f5a182d8d13428d4156"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vector of encoded labels.  <a href="classParticipant.html#a10dcb741edb28f5a182d8d13428d4156">More...</a><br /></td></tr>
+<tr class="separator:a10dcb741edb28f5a182d8d13428d4156"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac00eb3571693ba9106b60634b7c56d7c"><td class="memItemLeft" align="right" valign="top">vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#ac00eb3571693ba9106b60634b7c56d7c">vector_flag</a></td></tr>
+<tr class="memdesc:ac00eb3571693ba9106b60634b7c56d7c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vector of flags to datapoints: 1 or 0.  <a href="classParticipant.html#ac00eb3571693ba9106b60634b7c56d7c">More...</a><br /></td></tr>
+<tr class="separator:ac00eb3571693ba9106b60634b7c56d7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afaa0529f77d9c5763e9a00aec9924b74"><td class="memItemLeft" align="right" valign="top">vector&lt; string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#afaa0529f77d9c5763e9a00aec9924b74">vector_un_permute_sort</a></td></tr>
+<tr class="memdesc:afaa0529f77d9c5763e9a00aec9924b74"><td class="mdescLeft">&#160;</td><td class="mdescRight">vector of un-permutation of encoded labels  <a href="classParticipant.html#afaa0529f77d9c5763e9a00aec9924b74">More...</a><br /></td></tr>
+<tr class="separator:afaa0529f77d9c5763e9a00aec9924b74"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3c95a3de83086d72ff6ea922e766ad8"><td class="memItemLeft" align="right" valign="top">hash_pair_map&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#ab3c95a3de83086d72ff6ea922e766ad8">histogram</a></td></tr>
+<tr class="memdesc:ab3c95a3de83086d72ff6ea922e766ad8"><td class="mdescLeft">&#160;</td><td class="mdescRight">True Histogram.  <a href="classParticipant.html#ab3c95a3de83086d72ff6ea922e766ad8">More...</a><br /></td></tr>
+<tr class="separator:ab3c95a3de83086d72ff6ea922e766ad8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a17b2fd9e174b48ef2e26710b30784ec5"><td class="memItemLeft" align="right" valign="top">hash_pair_map&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#a17b2fd9e174b48ef2e26710b30784ec5">fake_histogram</a></td></tr>
+<tr class="memdesc:a17b2fd9e174b48ef2e26710b30784ec5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fake Histogram.  <a href="classParticipant.html#a17b2fd9e174b48ef2e26710b30784ec5">More...</a><br /></td></tr>
+<tr class="separator:a17b2fd9e174b48ef2e26710b30784ec5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5287cd3f3da565d35280f6cad43e9741"><td class="memItemLeft" align="right" valign="top"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#a5287cd3f3da565d35280f6cad43e9741">keys</a></td></tr>
+<tr class="memdesc:a5287cd3f3da565d35280f6cad43e9741"><td class="mdescLeft">&#160;</td><td class="mdescRight">Key pair.  <a href="classParticipant.html#a5287cd3f3da565d35280f6cad43e9741">More...</a><br /></td></tr>
+<tr class="separator:a5287cd3f3da565d35280f6cad43e9741"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca089e1049058c274ca7714094b779b0"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#aca089e1049058c274ca7714094b779b0">size_dataset</a></td></tr>
+<tr class="memdesc:aca089e1049058c274ca7714094b779b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size of the dataset.  <a href="classParticipant.html#aca089e1049058c274ca7714094b779b0">More...</a><br /></td></tr>
+<tr class="separator:aca089e1049058c274ca7714094b779b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8631aed584fa5728c8917d41a8aca374"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#a8631aed584fa5728c8917d41a8aca374">pv_ratio</a></td></tr>
+<tr class="memdesc:a8631aed584fa5728c8917d41a8aca374"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ratio of partial view size to dataset size.  <a href="classParticipant.html#a8631aed584fa5728c8917d41a8aca374">More...</a><br /></td></tr>
+<tr class="separator:a8631aed584fa5728c8917d41a8aca374"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abfa851e450889cf7d73dadb593f4a173"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#abfa851e450889cf7d73dadb593f4a173">noise_budget_server</a></td></tr>
+<tr class="memdesc:abfa851e450889cf7d73dadb593f4a173"><td class="mdescLeft">&#160;</td><td class="mdescRight">Noise budget of a party for servers.  <a href="classParticipant.html#abfa851e450889cf7d73dadb593f4a173">More...</a><br /></td></tr>
+<tr class="separator:abfa851e450889cf7d73dadb593f4a173"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a333d5bb98789d6d9aa85332eb7493f83"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#a333d5bb98789d6d9aa85332eb7493f83">noise_budget_other_party</a></td></tr>
+<tr class="memdesc:a333d5bb98789d6d9aa85332eb7493f83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Noise budget of a party for another party.  <a href="classParticipant.html#a333d5bb98789d6d9aa85332eb7493f83">More...</a><br /></td></tr>
+<tr class="separator:a333d5bb98789d6d9aa85332eb7493f83"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a913752b4a632d3f8f2474e1c00f7fbc1"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#a913752b4a632d3f8f2474e1c00f7fbc1">sensitivity</a></td></tr>
+<tr class="memdesc:a913752b4a632d3f8f2474e1c00f7fbc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sensitivity of a query.  <a href="classParticipant.html#a913752b4a632d3f8f2474e1c00f7fbc1">More...</a><br /></td></tr>
+<tr class="separator:a913752b4a632d3f8f2474e1c00f7fbc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e23924a12df040cf3bf9daa7acd7da4"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#a3e23924a12df040cf3bf9daa7acd7da4">maxNoise</a></td></tr>
+<tr class="memdesc:a3e23924a12df040cf3bf9daa7acd7da4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum noise to add to any query answer.  <a href="classParticipant.html#a3e23924a12df040cf3bf9daa7acd7da4">More...</a><br /></td></tr>
+<tr class="separator:a3e23924a12df040cf3bf9daa7acd7da4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acccc2a02993bda09fb2ffb47a26a16f9"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#acccc2a02993bda09fb2ffb47a26a16f9">minNoise</a></td></tr>
+<tr class="memdesc:acccc2a02993bda09fb2ffb47a26a16f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimum noise to add to any query answer.  <a href="classParticipant.html#acccc2a02993bda09fb2ffb47a26a16f9">More...</a><br /></td></tr>
+<tr class="separator:acccc2a02993bda09fb2ffb47a26a16f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acca85f06a6a3ed22feee768d53573c39"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classParticipant.html#acca85f06a6a3ed22feee768d53573c39">no_lied_answer</a></td></tr>
+<tr class="memdesc:acca85f06a6a3ed22feee768d53573c39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of cheated answers during the query evaluation phase.  <a href="classParticipant.html#acca85f06a6a3ed22feee768d53573c39">More...</a><br /></td></tr>
+<tr class="separator:acca85f06a6a3ed22feee768d53573c39"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This class provides functions for a participant in the DataRing system. </p>
+<p>The class implements functions for participant to convert its dataset in to a histogram, generate a partial view and compute query answer. </p><dl class="section author"><dt>Author</dt><dd>Tham Nguyen <a href="#" onclick="location.href='mai'+'lto:'+'tha'+'m.'+'ngu'+'ye'+'n@m'+'q.'+'edu'+'.a'+'u'; return false;">tham.<span style="display: none;">.nosp@m.</span>nguy<span style="display: none;">.nosp@m.</span>en@mq<span style="display: none;">.nosp@m.</span>.edu<span style="display: none;">.nosp@m.</span>.au</a>, Nam Bui, DataRing </dd></dl>
+<dl class="section date"><dt>Date</dt><dd>April 2020 </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00021">21</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="ad0eb953c5992f199cf7a9f3df1d0beea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad0eb953c5992f199cf7a9f3df1d0beea">&#9670;&nbsp;</a></span>Participant() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Participant::Participant </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Default constructor. Does something. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8cpp_source.html#l00013">13</a> of file <a class="el" href="Participant_8cpp_source.html">Participant.cpp</a>.</p>
+
+</div>
+</div>
+<a id="ac8a17ff676662513d7bee0465ab133e9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac8a17ff676662513d7bee0465ab133e9">&#9670;&nbsp;</a></span>Participant() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Participant::Participant </td>
+          <td>(</td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>data_dir</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>My constructor. Initializes the coordinates. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8cpp_source.html#l00018">18</a> of file <a class="el" href="Participant_8cpp_source.html">Participant.cpp</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a926160ceccbcd9548ff69b0e5474245a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a926160ceccbcd9548ff69b0e5474245a">&#9670;&nbsp;</a></span>addDummy_FakeHist_random()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Participant::addDummy_FakeHist_random </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>keepDomainS</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>factorSize</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generates a fake histgram from the true histogram. </p>
+<p>To simulate a cheating participant in Partial View Collection, cheating participant generates a fake histgram from the true histogram by replacing n-keepDomainS by 0 and making n-keepDomainS dummy 1 </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">keepDomainS</td><td>the true records to be kept in the fake histogram </td></tr>
+    <tr><td class="paramname">factorSize</td><td>scale_up factor to limit the domain size to a*N </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a fake histgram of size = dataset size * scale_up including only keepDomainS bins are true a map with aN elements of &lt;label, binValue={1,0}&gt; </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8cpp_source.html#l00125">125</a> of file <a class="el" href="Participant_8cpp_source.html">Participant.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a10007f69ca24f8558a099ca72efc2117"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a10007f69ca24f8558a099ca72efc2117">&#9670;&nbsp;</a></span>addDummy_ones_FakeHistogram()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Participant::addDummy_ones_FakeHistogram </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>factorSize</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>adding_ones</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generate a fake histogram where many dummy labels have binvalue = 1. </p>
+<p>To simulate a cheating participant in PV Collection </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">factorSize</td><td>scaled-up factor (a) to limit the histogram size to aN </td></tr>
+    <tr><td class="paramname">adding_ones</td><td>the number of dummy bins are added which have binValue=1 </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a fake histogram where there are more than N labels having binValue =1, the original data records are kept, adding more arbitrary records with label = 1 then the query answer is scaled up </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8cpp_source.html#l00167">167</a> of file <a class="el" href="Participant_8cpp_source.html">Participant.cpp</a>.</p>
+
+</div>
+</div>
+<a id="ac10aa50b0252e2de96c930bc698bee47"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac10aa50b0252e2de96c930bc698bee47">&#9670;&nbsp;</a></span>computeAnswer_opt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Participant::computeAnswer_opt </td>
+          <td>(</td>
+          <td class="paramtype">ENC_DOMAIN_MAP &amp;&#160;</td>
+          <td class="paramname"><em>enc_question_map</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>sum_cipher</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">hash_pair_map&#160;</td>
+          <td class="paramname"><em>hist</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>coll_key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>epsilon_i</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Computes query answer. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">enc_question_map</td><td>encrypted query/test function </td></tr>
+    <tr><td class="paramname">sum_cipher</td><td>encrypted answer </td></tr>
+    <tr><td class="paramname">hist</td><td>histogram to apply the encrypted query to </td></tr>
+    <tr><td class="paramname">coll_key</td><td>collective public key of servers used for encryption </td></tr>
+    <tr><td class="paramname">epsilon_i</td><td>privacy budget for a query/test </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8cpp_source.html#l00191">191</a> of file <a class="el" href="Participant_8cpp_source.html">Participant.cpp</a>.</p>
+
+</div>
+</div>
+<a id="accff75d61274bdf13f4df87b9160e3d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#accff75d61274bdf13f4df87b9160e3d4">&#9670;&nbsp;</a></span>computeAnswer_sum()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Participant::computeAnswer_sum </td>
+          <td>(</td>
+          <td class="paramtype">ENC_DOMAIN_MAP &amp;&#160;</td>
+          <td class="paramname"><em>enc_question_map</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a7ae7fb2f843f29e6c50849cc89399a5e">gamal_ciphertext_t</a>&#160;</td>
+          <td class="paramname"><em>sum_cipher</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">hash_pair_map&#160;</td>
+          <td class="paramname"><em>hist</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> &amp;&#160;</td>
+          <td class="paramname"><em>coll_key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>epsilon_i</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>attr_to_sum</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="Participant_8cpp_source.html#l00272">272</a> of file <a class="el" href="Participant_8cpp_source.html">Participant.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a3609f66bc13e6bd67385568dc42e319d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3609f66bc13e6bd67385568dc42e319d">&#9670;&nbsp;</a></span>create_OriginalHistogram()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Participant::create_OriginalHistogram </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>dataset_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>domainCoefficient</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Tranfers the original dataset into a histogram. </p>
+<p>Each data record is represented by a label. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">dataset_size</td><td>dataset size </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a map including N elements of &lt;label, binValue = 1&gt; </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8cpp_source.html#l00062">62</a> of file <a class="el" href="Participant_8cpp_source.html">Participant.cpp</a>.</p>
+
+</div>
+</div>
+<a id="af8570203a3c0872755264f50f95015b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af8570203a3c0872755264f50f95015b7">&#9670;&nbsp;</a></span>getInversePermutationVector()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Participant::getInversePermutationVector </td>
+          <td>(</td>
+          <td class="paramtype">vector&lt; string &gt;&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">hash_pair_map&#160;</td>
+          <td class="paramname"><em>map_v_permute</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Stores the un-permutation corresponding to the permutation used for shuffling labels' order. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">v</td><td>a vector of encoded labels corresponding to possible records </td></tr>
+    <tr><td class="paramname">map_v_permute</td><td>the permutation </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>an inverse permutation </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8cpp_source.html#l00444">444</a> of file <a class="el" href="Participant_8cpp_source.html">Participant.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a5370017d3a14071a30cf50967b5c1cf2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5370017d3a14071a30cf50967b5c1cf2">&#9670;&nbsp;</a></span>getPermutationOfHistogram()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Participant::getPermutationOfHistogram </td>
+          <td>(</td>
+          <td class="paramtype">vector&lt; string &gt;&#160;</td>
+          <td class="paramname"><em>v</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">vector&lt; int &gt;&#160;</td>
+          <td class="paramname"><em>flag</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Generates a permutation of the histogram of the dataset. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">v</td><td>a vector of encoded labels corresponding to possible records </td></tr>
+    <tr><td class="paramname">flag</td><td>a binary vector indicates the which position in the pemutation refering a data point </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a permutation of the histogram (labels of data records are shuffled) </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8cpp_source.html#l00413">413</a> of file <a class="el" href="Participant_8cpp_source.html">Participant.cpp</a>.</p>
+
+</div>
+</div>
+<a id="a65243860845c3b95f7d94d2da5738934"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65243860845c3b95f7d94d2da5738934">&#9670;&nbsp;</a></span>print_Histogram()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Participant::print_Histogram </td>
+          <td>(</td>
+          <td class="paramtype">string&#160;</td>
+          <td class="paramname"><em>filename</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">hash_pair_map&#160;</td>
+          <td class="paramname"><em>histo</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="Participant_8cpp_source.html#l00511">511</a> of file <a class="el" href="Participant_8cpp_source.html">Participant.cpp</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="aee5dd154035106ebc584360949f848c8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aee5dd154035106ebc584360949f848c8">&#9670;&nbsp;</a></span>DATA_DIR</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">string Participant::DATA_DIR</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Dataset's directory. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00026">26</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<a id="a17b2fd9e174b48ef2e26710b30784ec5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a17b2fd9e174b48ef2e26710b30784ec5">&#9670;&nbsp;</a></span>fake_histogram</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">hash_pair_map Participant::fake_histogram</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Fake Histogram. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00040">40</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<a id="ab3c95a3de83086d72ff6ea922e766ad8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab3c95a3de83086d72ff6ea922e766ad8">&#9670;&nbsp;</a></span>histogram</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">hash_pair_map Participant::histogram</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>True Histogram. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00038">38</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<a id="a5287cd3f3da565d35280f6cad43e9741"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5287cd3f3da565d35280f6cad43e9741">&#9670;&nbsp;</a></span>keys</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="ecelgamal_8h.html#a9a9e74ea3e48cb25776d5bf7c339dfb1">gamal_key_t</a> Participant::keys</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Key pair. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00042">42</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<a id="ae9a35106aeabd86cf0beea8d95492999"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae9a35106aeabd86cf0beea8d95492999">&#9670;&nbsp;</a></span>map_v_permute</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">hash_pair_map Participant::map_v_permute</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Permutation of the histogram map. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00028">28</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<a id="a3465572d958d20a4f875e281e7227ccb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3465572d958d20a4f875e281e7227ccb">&#9670;&nbsp;</a></span>map_v_permute_to_send_flag</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">hash_pair_map Participant::map_v_permute_to_send_flag</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Permutation sorted with flags of datapoints. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00030">30</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<a id="a3e23924a12df040cf3bf9daa7acd7da4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e23924a12df040cf3bf9daa7acd7da4">&#9670;&nbsp;</a></span>maxNoise</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Participant::maxNoise</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Maximum noise to add to any query answer. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00054">54</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<a id="acccc2a02993bda09fb2ffb47a26a16f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acccc2a02993bda09fb2ffb47a26a16f9">&#9670;&nbsp;</a></span>minNoise</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Participant::minNoise</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Minimum noise to add to any query answer. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00056">56</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<a id="acca85f06a6a3ed22feee768d53573c39"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acca85f06a6a3ed22feee768d53573c39">&#9670;&nbsp;</a></span>no_lied_answer</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Participant::no_lied_answer</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Number of cheated answers during the query evaluation phase. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00058">58</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<a id="a333d5bb98789d6d9aa85332eb7493f83"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a333d5bb98789d6d9aa85332eb7493f83">&#9670;&nbsp;</a></span>noise_budget_other_party</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float Participant::noise_budget_other_party</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Noise budget of a party for another party. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00050">50</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<a id="abfa851e450889cf7d73dadb593f4a173"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abfa851e450889cf7d73dadb593f4a173">&#9670;&nbsp;</a></span>noise_budget_server</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float Participant::noise_budget_server</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Noise budget of a party for servers. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00048">48</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<a id="a8631aed584fa5728c8917d41a8aca374"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8631aed584fa5728c8917d41a8aca374">&#9670;&nbsp;</a></span>pv_ratio</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double Participant::pv_ratio</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ratio of partial view size to dataset size. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00046">46</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<a id="a913752b4a632d3f8f2474e1c00f7fbc1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a913752b4a632d3f8f2474e1c00f7fbc1">&#9670;&nbsp;</a></span>sensitivity</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float Participant::sensitivity</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Sensitivity of a query. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00052">52</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<a id="aca089e1049058c274ca7714094b779b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca089e1049058c274ca7714094b779b0">&#9670;&nbsp;</a></span>size_dataset</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int Participant::size_dataset</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Size of the dataset. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00044">44</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<a id="a10dcb741edb28f5a182d8d13428d4156"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a10dcb741edb28f5a182d8d13428d4156">&#9670;&nbsp;</a></span>vector_endcoded_label</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">vector&lt;string&gt; Participant::vector_endcoded_label</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vector of encoded labels. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00032">32</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<a id="ac00eb3571693ba9106b60634b7c56d7c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac00eb3571693ba9106b60634b7c56d7c">&#9670;&nbsp;</a></span>vector_flag</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">vector&lt;int&gt; Participant::vector_flag</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vector of flags to datapoints: 1 or 0. </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00034">34</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<a id="afaa0529f77d9c5763e9a00aec9924b74"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afaa0529f77d9c5763e9a00aec9924b74">&#9670;&nbsp;</a></span>vector_un_permute_sort</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">vector&lt;string&gt; Participant::vector_un_permute_sort</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>vector of un-permutation of encoded labels </p>
+
+<p class="definition">Definition at line <a class="el" href="Participant_8h_source.html#l00036">36</a> of file <a class="el" href="Participant_8h_source.html">Participant.h</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li>dataring_implementation/native/src/<a class="el" href="Participant_8h_source.html">Participant.h</a></li>
+<li>dataring_implementation/native/src/<a class="el" href="Participant_8cpp_source.html">Participant.cpp</a></li>
+</ul>
+</div><!-- contents -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+
+</small></address>
+</body>
+</html>
