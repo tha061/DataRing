@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Development - DataRing Api</title>
+    <link rel="stylesheet" href="./Content/bootstrap.css">
+    <link rel="stylesheet" href="./Content/Site.css">
+
+    <script type="text/javascript" src="./Scripts/modernizr-2.8.3.js"></script>
+</head>
+<body>
+    <div class="navbar bg-info navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle bg-info" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="./index.html">DataRing</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="./index.html">Home</a></li>
+                    <li><a href="./documentation.html">Development</a></li>
+                    <li><a href="./api.html">API</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        <!--start body-->
+        <div class="row">
+            <div class="text-center">
+                <h1 class="display-4">Development</h1>
+            </div>
+            <ul class="toc_list">
+                <li>
+                    <a href="#Overview">Overview</a>
+                </li>
+                <li>
+                    <a href="#Introduction">Introduction</a>
+                    <ul>
+                        <li><a href="#Howtodefinethecryptosystemsparameters">1. Defining underlying cryptosystem parameters</a></li>
+                        <li><a href="#HowtoinitiateServersandParticipants">2. Initiate Servers and Participants</a></li>
+                        <li><a href="#Definingdatasetoverhistogramrepresentationgeneratehistogram">3. Defining dataset over histogram representation, generate histogram</a></li>
+                        <li><a href="#Setupphase">4. Setup Phase</a></li>
+                        <li><a href="#PartialViewPhase">5. Partial View Phase</a></li>
+                        <li><a href="#Query-ResponsePhase"> 6. Query-Response Phase</a></li>
+                    </ul>
+                </li>
+                <!-- <li>
+                    <a href="#DifferentialPrivacy">Differential Privacy</a>
+                </li> -->
+                <li>
+                    <a href="#Examples">Examples</a>
+                    <ul>
+                        <li><a href="#WorkingFlow">Working Flow</a></li>
+                        <li><a href="#PartialViewCollectionVerification">Partial View Collection &amp; Verification</a></li>
+                        <li><a href="#CheatingDetection">Cheating Detection</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#APIDocumentation">API Documentation</a>
+                </li>
+            </ul>
+            <article>
+    
+                <h2 id="Overview">Overview</h2>
+                <!-- <div>
+                    DataRing, a system that allows a set of data custodians to perform data analysis on each other's dataset as well as  joint analysis <br>
+                    on their shared data in a controlled setting, which we refer to a ``ring'', with guarantee of data privacy and shared data's robustness/accuracy.
+                </div>
+                <div></div>
+                <div> </div>
+    
+                
+                <p><img src="./html/system_model_in_paper.png" align="middle" class="img-responsive"></p> -->
+                <div> This document provides a brief overview over the DataRing API.</div>
+                <div>
+                    It includes six different modules: cryptosystem module, participant's functionalities module, 
+                    single server's functionalities module, collective authority's functionalities module (executed by all servers),
+                    differential privacy module, and supportive module (mathematic packages and evaluation facilities).
+                </div>
+            
+            </article>
+            <div class="contents">
+                <!-- <div> This document provides a brief overview over the DataRing API.</div>
+                <div>
+                    It includes six different modules: cryptosystem module, participant's functionalities module, <br>
+                    single server's functionalities module, collective authority's functionalities module (executed by all servers),<br>
+                    and differential privacy module, and supportive module (mathematic packages and evaluation facilities).
+                </div> -->
+    
+                <!---------------------------------------------------------------------------->
+                <article>
+    
+                    <h2 id="Introduction">Introduction</h2>
+                    <div> The data sharing protocol in DataRing consists of four sequential phases. In each phase, there are functions defined for Server and Participant action.</div>
+                    <div> In the following, a step-by-step of how to use the API for simulating an example of a data sharing from begining to end is presented. </div>
+                    <!--<div> Following steps instruct how to use the API calls for each operation of entities in each phase.</div>-->
+                    
+                    <p><img src="./html/working_flow_in_paper.png" alt="Protocol working flow" align="middle" class="img-responsive"></p>
+                </article>
+    
+                <!---------------------------------------------------------------------------->
+                <article>
+                    <h3 id="Howtodefinethecryptosystemsparameters">1. Defining underlying cryptosystem parameters
+                    </h3>
+                    <div> DataRing system relies on Elliptic Curve (EC) ElGamal encryption scheme which is implemented by 
+                        <a href="https://github.com/lubux/ecelgamal">EC-ElGamal Library.</a> </div>
+                    <div> In DataRing, we develop collective public key, additive homomorphic encryption, threshold decryption, re-encryption schemes on top of the EC-ElGamal library.
+                          Specifically, the collective public key is generated from public keys of all servers where the associate
+                          secrete key is never recontructed unless all servers participate in. 
+                          The additive homomorphic property provided by EC-ElGamal scheme enables confidential computations in DataRing.
+                          The threshold encryption scheme ensures that any ciphertext can only be decrypted if all servers take part in the decryption.
+                          Finally, the re-encryption scheme anables servers to re-encrypt a ciphertext of a message to the same message under another public key. 
+                          In particular, DataRing enables servers to collectively re-encrypt a ciphertext under the collective public key to
+                          under a participant's public key so that the participant can decrypt the ciphertext using its own private key.
+                    </div>
+                    <p></p>
+                    <div> Parameters for EC-ElGamal encryption scheme.</div>
+                    <div> • Lookup table for decryption: </div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;bsgs_table_t table; <br>
+                    </code>
+                    <p></p>
+                    <div> • Eliptic curve:</div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gamal_init(CURVE_256_SEC); <br>
+                    </code>
+                    <p></p>
+                    <div> • Table size = 2^16</div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gamal_init_bsgs_table(table, (dig_t)1L &lt;&lt; 16); <br>
+                    </code>
+    
+                </article>
+                <!---------------------------------------------------------------------------->
+                <article>
+                    <h2 id="HowtoinitiateServersandParticipants">2. Initiating Servers and Participants </h2>
+                    <div> • Participants: A and B </div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;Participant part_A(A's dataset_directory);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;Participant part_B(B's dataset_directory);<br>
+                    </code>
+                    <p></p>
+                    <div> • A set of Servers</div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;Servers(server_size, data_size, background_knowledge_dir, domain_cap);<br>
+                    </code>
+                    <p></p>
+                    <div> Define two saparate un-empty sets of servers </div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;Server server1 = servers.server_vect[0];<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;Server server2 = servers.server_vect[1];<br>
+                    </code>
+    
+                </article>
+                <!---------------------------------------------------------------------------->
+                <article>
+                    <h2 id="Definingdatasetoverhistogramrepresentationgeneratehistogram">3. Coverting dataset to histogram representation </h2>
+                    <div> Participant represents its dataset over a histogram of "[label, value(label)]" where "label" is one of all possible record types that a dataset can take from a public domain, 
+                          "value(label)" is the number of times the label occurs in the dataset.               
+                    </div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;part_A.create_OriginalHistogram();<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;part_B.create_OriginalHistogram();<br>
+                    </code>
+                </article>
+                <!---------------------------------------------------------------------------->
+                <article>
+                    <h2 id="Setupphase">4. Setup Phase </h2>
+                    <div> • Participants generate key pairs:</div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gamal_generate_keys(part_A.keys); //part_A keys pair <br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gamal_generate_keys(part_B.keys); //part_B keys pair <br>
+                    </code>
+                    <p></p>
+                    <div> • Servers generate collective public key from their public keys: </div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;servers.generateCollKey(servers.coll_key); //collective key from all servers' public keys <br>
+                    </code>
+                    <p></p>
+                    <div> • Servers create stack of pre-computed encryption of 1s and 0s to improve the runtime performance: </div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;ENC_Stack pre_enc_stack(size_dataset, servers.coll_key);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;pre_enc_stack.initializeStack_E0();<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;pre_enc_stack.initializeStack_E1();<br>
+                    </code>
+                </article>
+                <!---------------------------------------------------------------------------->
+                <article>
+                    <h2 id="PartialViewPhase">5. Partial View Phase</h2>
+                    <div>
+                        In this phase, the server and each participant interact to collect a random sample (partial view) from the participant's dataset 
+                        without participants knowing which data records are selected.
+                    </div>
+                    <div> • Participant selects a random permutation of all labels in its histogram and creates a set of (permuted labels, flags):</div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp; part_A.getPermutationOfHistogram( part_A.vector_endcoded_label, part_A.vector_flag); <br>
+                    </code>
+                    <p></p>
+                    <div> • Participant stores the inverse permutation vector to map labels back to their original orders </div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;part_A.getUnPermutationVector( part_A.vector_endcoded_label, part_A.map_v_permute);<br>
+                    </code>
+                    <p></p>
+                    <div> • Participant sends the set of permuted labels and their flags to servers in S1 and the inverse permutation vector to servers in S2.</div>
+                    <p></p>
+                    <div> • The server S1 generates a random N-element binary vector of Hamming weight V: </div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;server1.pv_ratio = pv_ratio; <br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;server1.size_dataset = dataset_size; <br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;server1.createEncryptedPVSamplingVector( pre_enc_stack, server1.server_sample_vector_clear);<br>
+                    </code>
+                    <p></p>
+                    <div> • Server S1 applies the sampling vector to the set of labels and flags received from participant. </div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;server1.generatePVfromPermutedHistogram( part_A.map_v_permute_to_send_flag, server1.server_sample_vector_encrypted, pre_enc_stack);<br>
+                    </code>
+                    <p></p>
+                    <div> • Server in S2 re-randomises the resulted vector from the permuted set of labels and flags. </div>
+                    <div>
+                        Then, S2 applies the un-permutation vector received from party on the partial view sampled from permuted set to map labels back to 
+                        their original orders to get the partial view with original label's order.
+                    </div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;server2.rerandomizePVSampleFromPermutedHistogram( server1.PV_sample_from_permuted_map, pre_enc_stack);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;server2.getUnPermutePV( server1.PV_sample_from_permuted_map, part_A.vector_un_permute_sort);<br>
+                    </code>
+                    <p></p>
+                    <div> • Finally, all servers jointly verify the partial view. </div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;bool verify_status = servers.verifyingPV(server2.un_permute_PV, table, server_id, pre_enc_stack, eta); <br>
+                    </code>
+                </article>
+    
+                <!---------------------------------------------------------------------------->
+                <article>
+                    <h2 id="Query-ResponsePhase"> 6. Query-Response Phase </h2>
+                    <div> • Actual Query-Response:</div>
+                    <div> Server encrypts queries and sends them to target participant. </div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;server1.prepareTestFuntion_Query_Vector(pre_enc_stack, server2.un_permute_PV);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;server1.generateMatchDomain(0); // 1: for test function; 0: for normal query<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;server1.generateNormalQuery_opt(pre_enc_stack);<br>
+                    </code>
+                    <p></p>
+                    <div> Participant computes query's answer:</div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gamal_cipher_new(sum_cipher);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);<br>
+                    </code>
+                    <p></p>
+
+                    <!-- <h2 id="DifferentialPrivacy"> Differential Privacy </h2> -->
+                    <div>
+                        Differential Privacy: The participant draws a random noise from a Laplace distribution and adds noise to approximate the query answer 
+                    </div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;double percentile_noise = 0.95;//use to determine the maximum noise that can be added to query answer <br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;float noise_budget_server = 0.5; //overall privacy budget for servers to facilitate query evaluation of a pair of parties<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;float noise_budget_other_party = 0.5; //overall privacy budget for another party<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;float sensitivity = 1.0; //for counting query<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;float epsilon = noise_budget_other_party/num_queries; // number of real queries<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;if (randomNoise &lt; minNoise)<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;{<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;randomNoise = (int)(minNoise);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;}<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;else if (randomNoise &gt; maxNoise)<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;{<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;    randomNoise = (int)(maxNoise); <br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;}<br>
+                        <p></p>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gamal_ciphertext_t noiseEnc;<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gamal_cipher_new(noiseEnc);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gamal_encrypt(noiseEnc, coll_key, randomNoise_to_enc);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gamal_add(sum_cipher, sum_cipher, noiseEnc); <br>
+                    </code>
+
+                    <p></p>
+                    <div>
+                        • Cheating Detection via hidden tests: this task is done as follows. 
+                        Servers generate test function and send them to the target participant along with actual queries.
+                    </div>
+                    <div>The participant sees the test functions as queries because the test functions are indistinguishable from the actual queries. </div>
+                    <div>Below is a test function generated by the servers based on their background knowledge.</div>
+                    <div> Server generates test functions for hidden tests.</div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;server1.prepareTestFuntion_Query_Vector(pre_enc_stack, server2.un_permute_PV);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;server1.generateTestKnownRecords_opt(pre_enc_stack, server2.un_permute_PV);<br>
+                    </code>
+                    <p></p>
+                    <div> Participant computes answer for test functions without knowing that it is tested.</div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gamal_cipher_new(sum_cipher);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;part_A.computeAnswer_opt(server1.enc_question_map, sum_cipher, part_A.histogram, servers.coll_key, epsilon);<br>
+                    </code>
+                    <p></p>
+                    <div> • Servers verifies all answers of test functions to detect cheating participant. </div>
+                    <div>
+                        Below is an example of the servers verify answer of test function counting the number of records 
+                        in the dataset that match the records in the server's background knowledge.
+                    </div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;threshold = server1.known_record_subset.size();<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;test_status = servers.verifyingTestResult(sum_cipher, table, server_id, threshold);<br>
+                    </code>
+                    <p></p>
+                    <div> • Servers re-encrypt queries' answers for honest participants.</div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gamal_ciphertext_t sum_cipher_update;<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gama_key_switch_lead(sum_cipher_update, sum_cipher, server1.key, part_B.keys);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;for (int i=1; i&lt; number_servers; i++)<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;{<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;gama_key_switch_follow(sum_cipher_update, sum_cipher, servers.server_vect[server_id+i].key, part_B.keys);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;}<br>
+                    </code>
+                    <p></p>
+                    <div>• Participant B decrypts query answers </div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;dig_t after;<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gamal_decrypt(&amp;after, part_B.keys, sum_cipher_update, table);<br>
+                    </code>
+                </article>
+                <!---------------------------------------------------------------------------->
+                <!-- <article>
+                    <h2 id="DifferentialPrivacy"> Differential Privacy </h2>
+                    <div>
+                        This section shows how DataRing's participant draws a random noise from a Laplace distribution and adds noise to approximate the query answer (encrypted).
+                        The getLaplaceNoise() function is defined in process_noise.h file. 
+                        The maximum noise value is determined by getLaplaceNoiseRange() in process_noise.h file.
+                    </div>
+                    <code>
+                        &nbsp; &nbsp; &nbsp; &nbsp;double percentile_noise = 0.95;//use to determine the maximum noise that can be added to query answer <br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;float noise_budget_server = 0.5; //overall privacy budget for servers to facilitate query evaluation of a pair of parties<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;float noise_budget_other_party = 0.5; //overall privacy budget for another party<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;float sensitivity = 1.0; //for counting query<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;float epsilon = noise_budget_other_party/num_queries; // number of real queries<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;int randomNoise = (int)getLaplaceNoise(sensitivity, epsilon);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;if (randomNoise &lt; minNoise)<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;{<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;randomNoise = (int)(minNoise);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;}<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;else if (randomNoise &gt; maxNoise)<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;{<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;    randomNoise = (int)(maxNoise); <br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;}<br>
+                        <p></p>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gamal_ciphertext_t noiseEnc;<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gamal_cipher_new(noiseEnc);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gamal_encrypt(noiseEnc, coll_key, randomNoise_to_enc);<br>
+                        &nbsp; &nbsp; &nbsp; &nbsp;gamal_add(sum_cipher, sum_cipher, noiseEnc); <br>
+                    </code>
+                </article> -->
+                <!---------------------------------------------------------------------------->
+                <article>
+                    <h2 id="Examples">Examples</h2>
+                    <div>
+                        This section shows examples.<br>
+                        <div id="WorkingFlow"> <a href="./html/working__flow_8cpp.html">Working flow:</a> The end-to-end operations of a data sharing project in  DataRing. </div>
+                        <div id="PartialViewCollectionVerification"> <a href="./html/pvCollection__Verification_8cpp.html">Partial View Collection and Evaluation:</a> How the partial view collection and evaluation scheme works.</div>
+                        <div id="CheatingDetection"> <a href="./html/cheating__detection__query__phase__question__answer__random_8cpp.html">Cheating Detection Evaluation:</a> How the cheating detection scheme operates during  the query evaluation phase.</div>
+    
+                    </div>
+                </article>
+
+                <article>
+                    <h2 id="APIDocumentation">API Documentation</h2>
+                    <div>
+                       <div id="APIDocumentation"> <a href="./api.html">Go to API Documentation</a></div>
+                    </div>
+                </article>
+
+                <!---------------------------------------------------------------------------->
+            </div>
+        </div>
+        <!--end body-->
+        <hr />
+        <footer>
+            <p>&copy; 2020 - DataRing</p>
+        </footer>
+    </div>
+
+    <script type="text/javascript" src="./Scripts/jquery-3.4.1.js"></script>
+    <script type="text/javascript" src="./Scripts/bootstrap.js"></script>
+</body>
+</html>
