@@ -8,6 +8,8 @@ This crypto system is implemented on top of the base provided by https://github.
 
 ## Content 
 The *native* folder contains the C/C++ implementation of the DataRing.
+The "data_preProcessing" folder contains jupyter notebooks for processing the Loans dataset.
+The "theoretical_analysis" folder contains python notebooks for probabilistic analysis in datasharing system.
 
 ### Prerequisites 
 Make sure you have the following installed:
